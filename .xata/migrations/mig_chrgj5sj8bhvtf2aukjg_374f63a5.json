@@ -1,0 +1,11 @@
+{
+  "id": "mig_chrgj5sj8bhvtf2aukjg",
+  "checksum": "1:374f63a58c6ac373de72707347189f4085dbd9994ccbae443f40769ad50bf260",
+  "operations": [
+    {
+      "addTable": {
+        "table": "Tag"
+      }
+    }
+  ]
+}

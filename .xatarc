@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://Jannik-Wienecke-s-workspace-hebkta.eu-west-1.xata.sh/db/reiseathleten",
+  "codegen": {
+    "output": "utils/xata.ts"
+  }
+}

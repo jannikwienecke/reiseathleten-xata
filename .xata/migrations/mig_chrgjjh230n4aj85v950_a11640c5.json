@@ -1,0 +1,18 @@
+{
+  "id": "mig_chrgjjh230n4aj85v950",
+  "parentID": "mig_chrgjdh230n4aj85v93g",
+  "checksum": "1:a11640c53747c108f3ea3598dd9bd715ba78355984176dee05bb3741bf420e6c",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "color",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": "red"
+        },
+        "table": "Tag"
+      }
+    }
+  ]
+}
