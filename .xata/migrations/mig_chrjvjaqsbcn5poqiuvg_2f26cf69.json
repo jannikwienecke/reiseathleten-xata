@@ -1,0 +1,19 @@
+{
+  "id": "mig_chrjvjaqsbcn5poqiuvg",
+  "parentID": "mig_chrjvgaqsbcn5poqiuug",
+  "checksum": "1:2f26cf69dc9b635c8df84f6a50c918152263d6702f122f64d7fd1a9fe3acedf7",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "tag",
+          "type": "link",
+          "link": {
+            "table": "Tag"
+          }
+        },
+        "table": "AcivityTag"
+      }
+    }
+  ]
+}

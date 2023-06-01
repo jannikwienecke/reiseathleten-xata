@@ -1,0 +1,16 @@
+{
+  "id": "mig_chro61qsd4oaoc8p76h0",
+  "parentID": "mig_chro5mru1lo223mi40q0",
+  "checksum": "1:b2f6530070d331c25faaa7ad69f12157d0192f068d1ed4ff3778afbaa6d873c1",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "datetime",
+          "type": "datetime"
+        },
+        "table": "Activity"
+      }
+    }
+  ]
+}

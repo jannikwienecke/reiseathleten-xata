@@ -1,0 +1,19 @@
+{
+  "id": "mig_chro5mru1lo223mi40q0",
+  "parentID": "mig_chro5k3u1lo223mi40p0",
+  "checksum": "1:71aae7a8da9db2bc586e59609ab521cf72372c38a897c30c5801b16b456ffe2f",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "activity",
+          "type": "link",
+          "link": {
+            "table": "Activity"
+          }
+        },
+        "table": "VacationActivity"
+      }
+    }
+  ]
+}

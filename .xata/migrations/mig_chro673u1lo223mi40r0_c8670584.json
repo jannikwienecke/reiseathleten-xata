@@ -1,0 +1,18 @@
+{
+  "id": "mig_chro673u1lo223mi40r0",
+  "parentID": "mig_chro61qsd4oaoc8p76h0",
+  "checksum": "1:c867058487fbd24cf82320cd4cd370493e3408bb613f743965975396f8fffcb8",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "isFixedDate",
+          "type": "bool",
+          "notNull": true,
+          "defaultValue": "false"
+        },
+        "table": "Activity"
+      }
+    }
+  ]
+}

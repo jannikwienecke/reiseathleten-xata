@@ -1,21 +1,17 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import invariant from "tiny-invariant";
-import { authenticator } from "utils/auth.server";
+import { authenticate, isLoggedIn } from "utils/helper";
 
-export const loader = ({ request }: DataFunctionArgs) => {
-  console.log("LOGIN");
+export const loader = async ({ request }: DataFunctionArgs) => {
+  await isLoggedIn(request, {
+    successRedirect: "/",
+  });
 
   return {};
 };
 
 export const action = async ({ request }: DataFunctionArgs) => {
-  console.log("LOGIN ....");
-
-  return authenticator.authenticate("form", request, {
-    successRedirect: "/",
-    failureRedirect: "/signup",
-  });
+  return await authenticate(request);
 };
 
 export default function Login() {

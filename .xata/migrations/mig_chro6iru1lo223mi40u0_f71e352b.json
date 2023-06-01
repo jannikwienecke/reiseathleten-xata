@@ -1,0 +1,16 @@
+{
+  "id": "mig_chro6iru1lo223mi40u0",
+  "parentID": "mig_chro6dru1lo223mi40t0",
+  "checksum": "1:f71e352bf65747932c04ff7495980254d56ee2aee5f60e8a06d501c0429b8272",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "description",
+          "type": "text"
+        },
+        "table": "Vacation"
+      }
+    }
+  ]
+}

@@ -30,12 +30,50 @@ const tables = [
   },
   {
     name: "Activity",
-    columns: [{ name: "name", type: "string", unique: true }],
+    columns: [
+      { name: "datetime", type: "datetime" },
+      {
+        name: "isFixedDate",
+        type: "bool",
+        notNull: true,
+        defaultValue: "false",
+      },
+      { name: "description", type: "text" },
+      { name: "name", type: "string", notNull: true, defaultValue: "" },
+    ],
   },
   {
     name: "AcivityTag",
     columns: [
       { name: "tag", type: "link", link: { table: "Tag" } },
+      { name: "activity", type: "link", link: { table: "Activity" } },
+    ],
+  },
+  {
+    name: "Vacation",
+    columns: [
+      {
+        name: "name",
+        type: "string",
+        notNull: true,
+        defaultValue: "My Vacation",
+      },
+      { name: "location", type: "link", link: { table: "Location" } },
+      { name: "user", type: "link", link: { table: "User" } },
+      {
+        name: "startDate",
+        type: "datetime",
+        notNull: true,
+        defaultValue: "now",
+      },
+      { name: "endDate", type: "datetime", notNull: true, defaultValue: "now" },
+      { name: "description", type: "text" },
+    ],
+  },
+  {
+    name: "VacationActivity",
+    columns: [
+      { name: "vacation", type: "link", link: { table: "Vacation" } },
       { name: "activity", type: "link", link: { table: "Activity" } },
     ],
   },
@@ -59,12 +97,20 @@ export type ActivityRecord = Activity & XataRecord;
 export type AcivityTag = InferredTypes["AcivityTag"];
 export type AcivityTagRecord = AcivityTag & XataRecord;
 
+export type Vacation = InferredTypes["Vacation"];
+export type VacationRecord = Vacation & XataRecord;
+
+export type VacationActivity = InferredTypes["VacationActivity"];
+export type VacationActivityRecord = VacationActivity & XataRecord;
+
 export type DatabaseSchema = {
   Tag: TagRecord;
   User: UserRecord;
   Location: LocationRecord;
   Activity: ActivityRecord;
   AcivityTag: AcivityTagRecord;
+  Vacation: VacationRecord;
+  VacationActivity: VacationActivityRecord;
 };
 
 const DatabaseClient = buildClient();

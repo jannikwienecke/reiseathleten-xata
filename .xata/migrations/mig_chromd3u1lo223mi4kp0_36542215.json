@@ -1,0 +1,13 @@
+{
+  "id": "mig_chromd3u1lo223mi4kp0",
+  "parentID": "mig_chroj3isd4oaoc8p82d0",
+  "checksum": "1:365422159e32d5c8a87e906535d696af7dacee52316fbb5db6a451954b2fac6f",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "name",
+        "table": "Activity"
+      }
+    }
+  ]
+}

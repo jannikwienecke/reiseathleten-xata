@@ -1,0 +1,12 @@
+{
+  "id": "mig_chrjrjt2kngpensa6hqg",
+  "parentID": "mig_chrjigt2kngpensa67a0",
+  "checksum": "1:ff4fb9c208b0ce559e2b7123ebb68bf4af778a7d2ea163aee3d10aacb4c24122",
+  "operations": [
+    {
+      "addTable": {
+        "table": "Location"
+      }
+    }
+  ]
+}

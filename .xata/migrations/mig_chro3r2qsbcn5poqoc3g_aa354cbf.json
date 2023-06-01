@@ -1,0 +1,19 @@
+{
+  "id": "mig_chro3r2qsbcn5poqoc3g",
+  "parentID": "mig_chro3hqqsbcn5poqo7o0",
+  "checksum": "1:aa354cbf22194ed7e4fd9f29083341a358e78ac6137a4dca02dee487231e1a14",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "location",
+          "type": "link",
+          "link": {
+            "table": "Location"
+          }
+        },
+        "table": "Vacation"
+      }
+    }
+  ]
+}

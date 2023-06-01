@@ -2,6 +2,7 @@ import type { DataFunctionArgs, V2_MetaFunction } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import { XataApiClient } from "@xata.io/client";
 import { authenticator } from "utils/auth.server";
+import { isLoggedIn } from "utils/helper";
 import { Activity, Tag, TagRecord, getXataClient } from "utils/xata";
 
 export const meta: V2_MetaFunction = () => {
@@ -15,35 +16,44 @@ type ActivityModel = Activity & {
   tags: Tag[];
 };
 
-export const loader = async () => {
-  const client = getXataClient();
-  const data = await getXataClient().db.Tag.getMany();
+export const loader = async ({ request }: DataFunctionArgs) => {
+  await isLoggedIn(request);
 
-  const activityRaw = await client.db.Activity.select(["*"])
-    .filter({
-      name: { $contains: "Fitness" },
-    })
-    .getFirst();
+  try {
+    const client = getXataClient();
 
-  const tags = await client.db.AcivityTag.select(["tag.*"])
-    .filter({
-      "activity.name": { $contains: "Fitness" },
-    })
-    .getMany();
+    const data = await getXataClient().db.Tag.getMany();
 
-  if (!activityRaw) {
-    throw new Error("Activity not found");
+    const activityRaw = await client.db.Activity.select(["*"])
+      .filter({
+        name: { $contains: "Fitness" },
+      })
+      .getFirst();
+
+    const tags = await client.db.AcivityTag.select(["tag.*"])
+      .filter({
+        "activity.name": { $contains: "Fitness" },
+      })
+      .getMany();
+
+    if (!activityRaw) {
+      throw new Error("Activity not found");
+    }
+
+    const activity: ActivityModel = {
+      ...activityRaw,
+      tags: tags.map((tag) => tag.tag).filter(Boolean) as Tag[],
+    };
+
+    return {
+      tags: data,
+      activity,
+    };
+  } catch (error) {
+    console.log("__ERROR__", error);
+
+    throw new Error("Something went wrong!!!");
   }
-
-  const activity: ActivityModel = {
-    ...activityRaw,
-    tags: tags.map((tag) => tag.tag).filter(Boolean) as Tag[],
-  };
-
-  return {
-    tags: data,
-    activity,
-  };
 };
 
 export const action = async ({ request }: DataFunctionArgs) => {
@@ -51,8 +61,12 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const form = await request.formData();
   const action = form.get("action") as string;
 
+  console.log(form);
+
+  console.log("action", action);
+
   if (action === "logout") {
-    await authenticator.logout(request, { redirectTo: "/" });
+    await authenticator.logout(request, { redirectTo: "/login" });
 
     return {};
   }
@@ -90,16 +104,10 @@ export default function Index() {
         </div>
       ))}
 
-      <Form method="post">
-        <input
-          type="text"
-          name="action"
-          disabled
-          hidden
-          defaultValue={"logout"}
-        />
-        <button className="bg-red-800 mt-8">LOGOUT</button>
-      </Form>
+      {/* <Form method="post"> */}
+      {/* <input type="text" name="action" value={"logout"} /> */}
+      {/* <button className="bg-red-800 mt-8">LOGOUT</button> */}
+      {/* </Form> */}
 
       <Form method="post">
         <input type="text" name="label" />
@@ -111,6 +119,8 @@ export default function Index() {
 
 // error boundary
 export function ErrorBoundary({ error }: { error: Error }) {
+  console.log("error", error);
+
   return (
     <div>
       <h1>Oh no, an error occurred!</h1>

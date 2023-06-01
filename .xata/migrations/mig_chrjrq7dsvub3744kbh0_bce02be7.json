@@ -1,0 +1,16 @@
+{
+  "id": "mig_chrjrq7dsvub3744kbh0",
+  "parentID": "mig_chrjrnt2kngpensa6hrg",
+  "checksum": "1:bce02be70402de9d865ced729c663f50f4c702c4c1b65f6191b59fb9f1077d89",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "description",
+          "type": "string"
+        },
+        "table": "Location"
+      }
+    }
+  ]
+}

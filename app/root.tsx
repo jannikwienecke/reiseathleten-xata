@@ -10,12 +10,13 @@ import {
 } from "@remix-run/react";
 
 // import styles from "./tailwind.css";
-// import tailwind from "./app.css";
+import picker from "./picker.css";
 import styles from "./tailwind.css";
 
 export const links: LinksFunction = () => [
   // { rel: "stylesheet", href: cssBundleHref },
   { rel: "stylesheet", href: styles },
+  { rel: "stylesheet", href: picker },
 ];
 // { rel: "stylesheet", href: tailwind },
 

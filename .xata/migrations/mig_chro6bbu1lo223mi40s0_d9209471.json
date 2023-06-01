@@ -1,0 +1,18 @@
+{
+  "id": "mig_chro6bbu1lo223mi40s0",
+  "parentID": "mig_chro673u1lo223mi40r0",
+  "checksum": "1:d9209471f72209216f7216bc6c0ea71e0d02f147f83954ee45890343377a0392",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "startDate",
+          "type": "datetime",
+          "notNull": true,
+          "defaultValue": "now"
+        },
+        "table": "Vacation"
+      }
+    }
+  ]
+}

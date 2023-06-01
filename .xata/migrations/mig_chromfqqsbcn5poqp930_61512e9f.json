@@ -1,0 +1,18 @@
+{
+  "id": "mig_chromfqqsbcn5poqp930",
+  "parentID": "mig_chromd3u1lo223mi4kp0",
+  "checksum": "1:61512e9fe220fc79b6d34ae0d7406d7b412a6f7e202117abc03de4275dbc1593",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "name",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": ""
+        },
+        "table": "Activity"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "mig_chrjvgaqsbcn5poqiuug",
+  "parentID": "mig_chrjs8mtp600s3thn660",
+  "checksum": "1:9ef6c9bccc639a9e2ac3cf1c029db2e0928b5fff4724c826ba159a504a14f02a",
+  "operations": [
+    {
+      "addTable": {
+        "table": "AcivityTag"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "mig_chro39ru1lo223mi3trg",
+  "parentID": "mig_chrkasaqsbcn5poqkglg",
+  "checksum": "1:f38ad5c792c169e7e40e848fc05be21a07516784e6c0781ea57e076d381e987f",
+  "operations": [
+    {
+      "addTable": {
+        "table": "Vacation"
+      }
+    }
+  ]
+}

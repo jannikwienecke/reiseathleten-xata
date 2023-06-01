@@ -1,16 +1,13 @@
 import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
-import { authenticator } from "utils/auth.server";
-import { getXataClient } from "utils/xata";
+import { Form } from "@remix-run/react";
 import bcrypt from "bcryptjs";
 import invariant from "tiny-invariant";
+import { authenticator } from "utils/auth.server";
+import { isLoggedIn } from "utils/helper";
+import { getXataClient } from "utils/xata";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
-  const user = await authenticator.isAuthenticated(request, {
-    successRedirect: "/",
-  });
-
-  return user;
+  await isLoggedIn(request, { successRedirect: "/" });
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -36,9 +33,8 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function Login() {
-  const data = useActionData<typeof action>();
+  // useActionData<typeof action>();
 
-  console.log("data: ", data);
   return (
     <div>
       <h1>SIGN UP</h1>
