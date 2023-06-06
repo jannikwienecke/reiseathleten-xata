@@ -2,9 +2,9 @@ import type { ActionFunction, DataFunctionArgs } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import bcrypt from "bcryptjs";
 import invariant from "tiny-invariant";
-import { authenticator } from "utils/auth.server";
-import { isLoggedIn } from "utils/helper";
-import { getXataClient } from "utils/xata";
+import { authenticator } from "~/utils/auth.server";
+import { isLoggedIn } from "~/utils/helper";
+import { getXataClient } from "~/utils/xata";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   await isLoggedIn(request, { successRedirect: "/" });

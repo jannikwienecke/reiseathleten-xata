@@ -1,9 +1,9 @@
 import type { DataFunctionArgs, V2_MetaFunction } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import { XataApiClient } from "@xata.io/client";
-import { authenticator } from "utils/auth.server";
-import { isLoggedIn } from "utils/helper";
-import { Activity, Tag, TagRecord, getXataClient } from "utils/xata";
+import { authenticator } from "~/utils/auth.server";
+import { isLoggedIn } from "~/utils/helper";
+import { Activity, Tag, TagRecord, getXataClient } from "~/utils/xata";
 
 export const meta: V2_MetaFunction = () => {
   return [

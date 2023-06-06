@@ -19,8 +19,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import invariant from "tiny-invariant";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
-import { isLoggedIn } from "utils/helper";
-import { Activity, Tag, Vacation, Location, getXataClient } from "utils/xata";
+import { isLoggedIn } from "~/utils/helper";
+import { Activity, Tag, Vacation, Location, getXataClient } from "~/utils/xata";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];

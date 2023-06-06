@@ -1,6 +1,6 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import { authenticate, isLoggedIn } from "utils/helper";
+import { authenticate, isLoggedIn } from "~/utils/helper";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   await isLoggedIn(request, {
