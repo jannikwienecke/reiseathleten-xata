@@ -742,10 +742,6 @@ select {
   pointer-events: auto;
 }
 
-.invisible {
-  visibility: hidden;
-}
-
 .fixed {
   position: fixed;
 }
@@ -787,10 +783,6 @@ select {
   left: 1rem;
 }
 
-.left-6 {
-  left: 1.5rem;
-}
-
 .left-full {
   left: 100%;
 }
@@ -805,10 +797,6 @@ select {
 
 .top-1\/2 {
   top: 50%;
-}
-
-.top-1\/4 {
-  top: 25%;
 }
 
 .z-10 {
@@ -896,6 +884,10 @@ select {
   margin-right: 4rem;
 }
 
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
 .mt-1 {
   margin-top: 0.25rem;
 }
@@ -980,6 +972,10 @@ select {
   height: 4rem;
 }
 
+.h-2 {
+  height: 0.5rem;
+}
+
 .h-20 {
   height: 5rem;
 }
@@ -1008,6 +1004,10 @@ select {
   height: 100%;
 }
 
+.max-h-60 {
+  max-height: 15rem;
+}
+
 .min-h-full {
   min-height: 100%;
 }
@@ -1034,6 +1034,10 @@ select {
 
 .w-16 {
   width: 4rem;
+}
+
+.w-2 {
+  width: 0.5rem;
 }
 
 .w-20 {
@@ -1116,10 +1120,6 @@ select {
   flex: 1 1 0%;
 }
 
-.flex-none {
-  flex: none;
-}
-
 .flex-shrink-0 {
   flex-shrink: 0;
 }
@@ -1196,8 +1196,18 @@ select {
   animation: spin 1s linear infinite;
 }
 
+.cursor-default {
+  cursor: default;
+}
+
 .cursor-pointer {
   cursor: pointer;
+}
+
+.select-none {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
 }
 
 .flex-row {
@@ -1342,6 +1352,10 @@ select {
   align-self: stretch;
 }
 
+.overflow-auto {
+  overflow: auto;
+}
+
 .\!overflow-hidden {
   overflow: hidden !important;
 }
@@ -1402,6 +1416,11 @@ select {
 
 .rounded-xl {
   border-radius: 0.75rem;
+}
+
+.rounded-r-md {
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
 }
 
 .\!border-0 {
@@ -1721,6 +1740,10 @@ select {
   padding-left: 0.25rem;
 }
 
+.pl-1\.5 {
+  padding-left: 0.375rem;
+}
+
 .pl-10 {
   padding-left: 2.5rem;
 }
@@ -1743,6 +1766,10 @@ select {
 
 .pr-0 {
   padding-right: 0px;
+}
+
+.pr-10 {
+  padding-right: 2.5rem;
 }
 
 .pr-3 {
@@ -2248,17 +2275,9 @@ select {
   outline-color: #4f46e5;
 }
 
-.group:hover .group-hover\:visible {
-  visibility: visible;
-}
-
 .group:hover .group-hover\:text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.group:focus .group-focus\:visible {
-  visibility: visible;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2397,14 +2416,6 @@ select {
   .sm\:px-8 {
     padding-left: 2rem;
     padding-right: 2rem;
-  }
-
-  .sm\:pl-0 {
-    padding-left: 0px;
-  }
-
-  .sm\:pr-0 {
-    padding-right: 0px;
   }
 
   .sm\:pr-3 {

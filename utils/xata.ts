@@ -11,7 +11,7 @@ const tables = [
     name: "Tag",
     columns: [
       { name: "label", type: "string", unique: true },
-      { name: "color", type: "string", notNull: true, defaultValue: "red" },
+      { name: "color", type: "link", link: { table: "Color" } },
     ],
   },
   {
@@ -58,7 +58,6 @@ const tables = [
         notNull: true,
         defaultValue: "My Vacation",
       },
-      { name: "location", type: "link", link: { table: "Location" } },
       { name: "user", type: "link", link: { table: "User" } },
       {
         name: "startDate",
@@ -68,6 +67,7 @@ const tables = [
       },
       { name: "endDate", type: "datetime", notNull: true, defaultValue: "now" },
       { name: "description", type: "text" },
+      { name: "location", type: "link", link: { table: "Location" } },
     ],
   },
   {
@@ -77,6 +77,7 @@ const tables = [
       { name: "activity", type: "link", link: { table: "Activity" } },
     ],
   },
+  { name: "Color", columns: [{ name: "name", type: "string", unique: true }] },
 ] as const;
 
 export type SchemaTables = typeof tables;
@@ -103,6 +104,9 @@ export type VacationRecord = Vacation & XataRecord;
 export type VacationActivity = InferredTypes["VacationActivity"];
 export type VacationActivityRecord = VacationActivity & XataRecord;
 
+export type Color = InferredTypes["Color"];
+export type ColorRecord = Color & XataRecord;
+
 export type DatabaseSchema = {
   Tag: TagRecord;
   User: UserRecord;
@@ -111,6 +115,7 @@ export type DatabaseSchema = {
   AcivityTag: AcivityTagRecord;
   Vacation: VacationRecord;
   VacationActivity: VacationActivityRecord;
+  Color: ColorRecord;
 };
 
 const DatabaseClient = buildClient();

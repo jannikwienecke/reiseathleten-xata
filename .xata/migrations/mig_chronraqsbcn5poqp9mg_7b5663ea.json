@@ -1,0 +1,13 @@
+{
+  "id": "mig_chronraqsbcn5poqp9mg",
+  "parentID": "mig_chromfqqsbcn5poqp930",
+  "checksum": "1:7b5663ea2731f40f03b88388a6c063d5a5c31344ce675898ca62dc9b34699ede",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "location",
+        "table": "Vacation"
+      }
+    }
+  ]
+}

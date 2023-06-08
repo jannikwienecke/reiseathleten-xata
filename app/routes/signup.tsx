@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/utils/auth.server";
 import { isLoggedIn } from "~/utils/helper";
-import { getXataClient } from "~/utils/xata";
+import { getXataClient } from "utils/xata";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   await isLoggedIn(request, { successRedirect: "/" });
@@ -22,8 +22,8 @@ export const action: ActionFunction = async ({ request }) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   const xata = getXataClient();
-  const user = await xata.db.User.create({ email, password: hashedPassword });
-  console.log(user);
+
+  await xata.db.User.create({ email, password: hashedPassword });
 
   return await authenticator.authenticate("form", request, {
     successRedirect: "/",

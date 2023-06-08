@@ -17,8 +17,6 @@ export const action = async ({ request }: DataFunctionArgs) => {
 export default function Login() {
   const data = useActionData<typeof action>();
 
-  console.log("data: ", data);
-
   return (
     <div>
       <h1>Login</h1>

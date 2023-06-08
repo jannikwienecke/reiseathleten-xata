@@ -1,0 +1,13 @@
+{
+  "id": "mig_ci0mqtc5rdr6u2tqh3lg",
+  "parentID": "mig_ci0mqbpj95lfecsudgj0",
+  "checksum": "1:e7c9566a57b204bb71049d4288003447a31e7225d6a5d896f14cfe36bf15f49c",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "color",
+        "table": "Tag"
+      }
+    }
+  ]
+}

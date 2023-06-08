@@ -1,4 +1,4 @@
-import { redirect, type DataFunctionArgs } from "@remix-run/node";
+import { type DataFunctionArgs } from "@remix-run/node";
 import {
   useActionData,
   useLoaderData,
@@ -11,16 +11,15 @@ import {
 // import { getUserImgSrc } from '~/utils/misc.ts'
 import { Dialog, Transition } from "@headlessui/react";
 import { addDays, format } from "date-fns";
-import { Fragment, useEffect } from "react";
+import { motion } from "framer-motion";
+import React, { Fragment, useEffect } from "react";
 import { DateRange, DayPicker } from "react-day-picker";
 import styles from "react-day-picker/dist/style.module.css";
 import { BottomSheet, BottomSheetRef } from "react-spring-bottom-sheet";
-import React from "react";
-import { motion } from "framer-motion";
 import invariant from "tiny-invariant";
+import { Location, getXataClient } from "utils/xata";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { isLoggedIn } from "~/utils/helper";
-import { Activity, Tag, Vacation, Location, getXataClient } from "~/utils/xata";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
@@ -163,8 +162,6 @@ export async function loader({ request }: DataFunctionArgs): Promise<{
     .filter({ vacation: vacation?.id })
     .getAll();
 
-  // console.log({ vacation, activities: activities[0]. });
-
   if (!vacation) {
     throw new Error("Vacation not found");
   }
@@ -177,15 +174,13 @@ export async function loader({ request }: DataFunctionArgs): Promise<{
   const tags = await client.db.AcivityTag.select([
     "activity.id",
     "tag.*",
+    "tag.color.*",
   ]).getAll();
-
-  console.log({ tags });
 
   const activities: ActivityModel[] = activitiesResult.map((a) => {
     const tagsOfActivity = tags.filter(
       (t) => t.activity?.id === a.activity?.id
     );
-    console.log({ tagsOfActivity });
 
     const activity = a.activity;
     if (!activity) {
@@ -197,7 +192,7 @@ export async function loader({ request }: DataFunctionArgs): Promise<{
       tags: tagsOfActivity.map((t) => ({
         id: t.tag?.id || "",
         label: t.tag?.label || "",
-        color: t.tag?.color || "",
+        color: t.tag?.color?.name || "",
       })),
       isFixedDate: activity?.isFixedDate || false,
       description: activity?.description || "",
@@ -363,8 +358,6 @@ const ActivityList = ({
         {activities.length ? (
           <ul className="flex flex-1 flex-col gap-4 overflow-scroll px-2 pt-2">
             {activities.map((item, index) => {
-              console.log({ item });
-
               return (
                 <motion.li
                   initial={{ opacity: 0, y: 20 }}
@@ -406,7 +399,6 @@ const CardItem = ({
   const isUnallocated = !activity.datetime;
   // date cannot be changed by the user
   const isFixed = activity.datetime && activity.isFixedDate;
-  console.log("==activity", activity.datetime);
 
   return (
     <motion.div
@@ -608,7 +600,6 @@ const ActivityContent = ({
 
     const datetime = inputRef.current?.value ?? "";
     const formData = new FormData();
-    console.log("===datetime", datetime);
 
     formData.append("datetime", datetime);
     formData.append("activityId", activity?.id ?? "");
@@ -621,8 +612,6 @@ const ActivityContent = ({
   const [booked, setBooked] = React.useState(false);
   const onConfirmBookTimeRef = React.useRef(onConfirmBookTime);
   useEffect(() => {
-    console.log({ state: navigation.state });
-
     if (actionData?.success && navigation.state === "loading") {
       setBooked(true);
       setTimeout(() => {
@@ -646,11 +635,7 @@ const ActivityContent = ({
       ? `0${currentDate.getMonth() + 1}`
       : currentDate.getMonth() + 1;
 
-  console.log({ day });
-
   const formattedDate = `${currentDate.getFullYear()}-${month}-${day}T${currentDate.getHours()}:${currentDate.getMinutes()}`;
-
-  console.log({ formattedDate });
 
   return (
     <>
@@ -776,9 +761,6 @@ const BottomSheetModal = () => {
         <div>BOTTOM SHEET</div>
         <button
           onClick={() => {
-            // sheetRef.current?.snapTo(0)
-            console.log(sheetRef.current?.height);
-
             sheetRef.current?.snapTo(({ maxHeight }) => {
               return 500;
             });

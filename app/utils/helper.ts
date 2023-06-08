@@ -1,7 +1,7 @@
 import { AuthorizationError } from "remix-auth";
 import { authenticator } from "./auth.server";
-import { getXataClient } from "./xata";
 import bcrypt from "bcryptjs";
+import { getXataClient } from "utils/xata";
 
 export const isLoggedIn = async (
   request: Request,
@@ -33,7 +33,7 @@ export const signupAction = async ({ form }: { form: FormData }) => {
   const user = await xata.db.User.filter({ email }).getFirst();
 
   if (!user) {
-    console.log("wrong email");
+    console.error("wrong email");
     throw new AuthorizationError();
   }
 
@@ -48,3 +48,7 @@ export const signupAction = async ({ form }: { form: FormData }) => {
 
   return user;
 };
+
+export function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(" ");
+}

@@ -41,7 +41,7 @@ export const LibForm = ({
   return (
     <Form
       onCancel={onCancel}
-      isDone={stateRef.current === "loading" && state === "submitting"}
+      // isDone={stateRef.current === "loading" && state === "submitting"}
       title={title}
       method="POST"
       SaveButton={

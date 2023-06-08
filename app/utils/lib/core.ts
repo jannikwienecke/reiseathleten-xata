@@ -19,6 +19,13 @@ export type ModelConfig = {
             Component: React.ComponentType<any>;
             name: string;
             label: string;
+            onGetOptions?: (query: string) => Promise<
+              {
+                name: string;
+                id: string;
+                color?: string;
+              }[]
+            >;
           } & React.HTMLProps<HTMLInputElement>)[];
     };
   };
@@ -87,8 +94,6 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
     const searchParams = url.searchParams;
     const action = searchParams.get("action");
     const formAction = getFormDataValue(formData, "action");
-
-    console.log({ action, formAction });
 
     let actionToRun = modelConfig.onAdd;
     if (action === "edit") {

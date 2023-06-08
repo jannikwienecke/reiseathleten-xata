@@ -1,0 +1,17 @@
+{
+  "id": "mig_ci0mrck5rdr6u2tqh3pg",
+  "parentID": "mig_ci0mr2hj95lfecsudgkg",
+  "checksum": "1:2777036eb59b48dfc80d284b53e2f91537a907bc267e07740c5c125a87d7ae64",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "name",
+          "type": "string",
+          "unique": true
+        },
+        "table": "Color"
+      }
+    }
+  ]
+}

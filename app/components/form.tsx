@@ -1,6 +1,8 @@
-import { FormProps } from "@remix-run/react";
+import { FormProps, useFetcher } from "@remix-run/react";
 import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 import { Form as RemixForm } from "@remix-run/react";
+import React from "react";
+import { ComboBox } from "./combobox";
 
 export function Form({
   title,
@@ -164,6 +166,62 @@ const SaveButton = ({
   );
 };
 
+export interface ISelectOption {
+  id: number | string;
+  name: string;
+}
+
+const Select = ({
+  name,
+  defaultOptions,
+  onSelect,
+}: {
+  name: string;
+  defaultOptions: ISelectOption[];
+  onSelect: (item: ISelectOption) => void;
+}) => {
+  const fetcher = useFetcher();
+  const [selected, setSelected] = React.useState<ISelectOption | null>(null);
+
+  const handleSelect = (item: { id: number | string; name: string }) => {
+    console.log(`Selected ${item.name}`);
+    setSelected(item);
+  };
+
+  const fetchPeople = (query: string) => {
+    fetcher.submit({ query, name }, { method: "get", action: "/api/options" });
+  };
+
+  const timeoutRef = React.useRef<number | null>(null);
+  const handleQueryChange = (query: string) => {
+    if (timeoutRef.current !== null) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
+      fetchPeople(query);
+      clearTimeout(timeoutRef.current!);
+    }, 300);
+  };
+
+  return (
+    <div className="mt-1 relative">
+      <>
+        <input name={name} type="hidden" value={selected?.id || ""} />
+      </>
+
+      <ComboBox
+        items={
+          fetcher.data?.items ? fetcher.data?.items || [] : defaultOptions || []
+        }
+        onSelect={handleSelect}
+        onQueryChange={handleQueryChange}
+      />
+    </div>
+  );
+};
+
 Form.ImageInput = ImageInput;
 Form.DefaultInput = DefaultInput;
 Form.SaveButton = SaveButton;
+Form.Select = Select;

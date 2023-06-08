@@ -1,9 +1,8 @@
 import type { DataFunctionArgs, V2_MetaFunction } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
-import { XataApiClient } from "@xata.io/client";
+import { Activity, Tag, getXataClient } from "utils/xata";
 import { authenticator } from "~/utils/auth.server";
 import { isLoggedIn } from "~/utils/helper";
-import { Activity, Tag, TagRecord, getXataClient } from "~/utils/xata";
 
 export const meta: V2_MetaFunction = () => {
   return [
@@ -16,111 +15,80 @@ type ActivityModel = Activity & {
   tags: Tag[];
 };
 
-export const loader = async ({ request }: DataFunctionArgs) => {
-  await isLoggedIn(request);
+// export const loader = async ({ request }: DataFunctionArgs) => {
+//   await isLoggedIn(request);
 
-  try {
-    const client = getXataClient();
+//   try {
+//     const client = getXataClient();
 
-    const data = await getXataClient().db.Tag.getMany();
+//     const data = await getXataClient().db.Tag.getMany();
 
-    const activityRaw = await client.db.Activity.select(["*"])
-      .filter({
-        name: { $contains: "Fitness" },
-      })
-      .getFirst();
+//     const activityRaw = await client.db.Activity.select(["*"])
+//       .filter({
+//         name: { $contains: "Fitness" },
+//       })
+//       .getFirst();
 
-    const tags = await client.db.AcivityTag.select(["tag.*"])
-      .filter({
-        "activity.name": { $contains: "Fitness" },
-      })
-      .getMany();
+//     const tags = await client.db.AcivityTag.select(["tag.*"])
+//       .filter({
+//         "activity.name": { $contains: "Fitness" },
+//       })
+//       .getMany();
 
-    if (!activityRaw) {
-      throw new Error("Activity not found");
-    }
+//     if (!activityRaw) {
+//       throw new Error("Activity not found");
+//     }
 
-    const activity: ActivityModel = {
-      ...activityRaw,
-      tags: tags.map((tag) => tag.tag).filter(Boolean) as Tag[],
-    };
+//     const activity: ActivityModel = {
+//       ...activityRaw,
+//       tags: tags.map((tag) => tag.tag).filter(Boolean) as Tag[],
+//     };
 
-    return {
-      tags: data,
-      activity,
-    };
-  } catch (error) {
-    console.log("__ERROR__", error);
+//     return {
+//       tags: data,
+//       activity,
+//     };
+//   } catch (error) {
+//     console.log("__ERROR__", error);
+//     throw new Error("Something went wrong!!!");
+//   }
+// };
 
-    throw new Error("Something went wrong!!!");
-  }
-};
+// export const action = async ({ request }: DataFunctionArgs) => {
+//   const form = await request.formData();
+//   const action = form.get("action") as string;
 
-export const action = async ({ request }: DataFunctionArgs) => {
-  // add a new tag
-  const form = await request.formData();
-  const action = form.get("action") as string;
+//   if (action === "logout") {
+//     await authenticator.logout(request, { redirectTo: "/login" });
 
-  console.log(form);
+//     return {};
+//   }
 
-  console.log("action", action);
-
-  if (action === "logout") {
-    await authenticator.logout(request, { redirectTo: "/login" });
-
-    return {};
-  }
-
-  try {
-    await getXataClient().db.Tag.create({
-      label: "fun",
-      color: "blue",
-    });
-    return {};
-  } catch (error) {
-    return {
-      error: {
-        status: 500,
-        message: "Something went wrong",
-      },
-    };
-  }
-};
+//   try {
+//     await getXataClient().db.Tag.create({
+//       label: "fun",
+//       color: "blue",
+//     });
+//     return {};
+//   } catch (error) {
+//     return {
+//       error: {
+//         status: 500,
+//         message: "Something went wrong",
+//       },
+//     };
+//   }
+// };
 
 export default function Index() {
-  const { tags, activity } = useLoaderData<typeof loader>();
-
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <p>TAGS OF ACTIVITY {activity.name}</p>
-      {activity.tags.map((tag) => (
-        <div
-          style={{
-            backgroundColor: tag.color,
-          }}
-          key={tag.id}
-        >
-          {tag.label}
-        </div>
-      ))}
-
-      {/* <Form method="post"> */}
-      {/* <input type="text" name="action" value={"logout"} /> */}
-      {/* <button className="bg-red-800 mt-8">LOGOUT</button> */}
-      {/* </Form> */}
-
-      <Form method="post">
-        <input type="text" name="label" />
-        <button type="submit">Add Tag</button>
-      </Form>
+      HELLO WORLD
     </div>
   );
 }
 
-// error boundary
 export function ErrorBoundary({ error }: { error: Error }) {
-  console.log("error", error);
-
   return (
     <div>
       <h1>Oh no, an error occurred!</h1>

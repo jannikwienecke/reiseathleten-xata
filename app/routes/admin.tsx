@@ -6,9 +6,10 @@ import {
   LoaderFunctionArgs,
   getFormDataValue,
 } from "~/utils/lib/core";
-import { getXataClient } from "~/utils/xata";
+// import { getXataClient } from "~/utils/xata";
 // import { getXataClient } from "utils/xata";
 import { Form } from "~/components/form";
+import { getXataClient } from "utils/xata";
 
 export const CONFIG: ConfigType = {
   models: {
@@ -53,7 +54,6 @@ export const CONFIG: ConfigType = {
           getFormDataValue(formData, "ids") || "[]"
         ) as string[];
 
-        console.log({ idsToDelete });
         const promises = idsToDelete.map((id) =>
           client.db.Location.delete({ id })
         );
@@ -77,9 +77,6 @@ export const CONFIG: ConfigType = {
               name: "name",
               label: "name",
               minLength: 3,
-              getOptions: async () => {
-                return [];
-              },
             },
           ],
         },
@@ -90,7 +87,17 @@ export const CONFIG: ConfigType = {
       title: "Tags",
       loader: async (props: LoaderFunctionArgs) => {
         const client = await getXataClient();
-        return await client.db.Tag.getAll();
+        const tag = await client.db.Tag.select([
+          "label",
+          "id",
+          "color.name",
+        ]).getAll();
+
+        // return [];
+        return tag.map((t) => ({
+          ...t,
+          color: t.color?.name || "",
+        }));
       },
 
       onDelete: async ({ formData }: ActionFunctionArgs) => {
@@ -102,6 +109,7 @@ export const CONFIG: ConfigType = {
 
       onAdd: async ({ formData }: ActionFunctionArgs) => {
         const client = await getXataClient();
+
         return await client.db.Tag.create({
           label: getFormDataValue(formData, "label"),
           color: getFormDataValue(formData, "color"),
@@ -134,7 +142,30 @@ export const CONFIG: ConfigType = {
             {
               name: "color",
               label: "Color",
-              Component: Form.DefaultInput,
+              Component: Form.Select,
+              onGetOptions: async (query) => {
+                const client = await getXataClient();
+                const records = await client.search.byTable(query, {
+                  tables: [
+                    {
+                      table: "Color",
+                      target: [{ column: "name" }],
+                    },
+                  ],
+                  fuzziness: 1,
+                  prefix: "phrase",
+                });
+
+                return (
+                  records.Color?.filter((r) => r.id && r.name)?.map((r) => {
+                    return {
+                      name: r.name || "",
+                      color: r.name || "",
+                      id: r.id || "",
+                    };
+                  }) || []
+                );
+              },
             },
           ],
         },
@@ -146,3 +177,7 @@ export const CONFIG: ConfigType = {
 export default function Index() {
   return <Outlet />;
 }
+
+// export default function Index() {
+//   return <>123</>;
+// }
