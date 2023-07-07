@@ -1,13 +1,17 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
+import { getXataClient } from "utils/xata";
+import { authenticator } from "~/utils/auth.server";
 import { authenticate, isLoggedIn } from "~/utils/helper";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
-  await isLoggedIn(request, {
-    successRedirect: "/",
-  });
+  // await isLoggedIn(request, {
+  //   successRedirect: "/",
+  // });
 
-  return {};
+  return {
+    data: {},
+  };
 };
 
 export const action = async ({ request }: DataFunctionArgs) => {

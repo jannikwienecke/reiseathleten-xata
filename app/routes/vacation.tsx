@@ -1,3 +1,4 @@
+import { Dialog, Transition } from "@headlessui/react";
 import { type DataFunctionArgs } from "@remix-run/node";
 import {
   useActionData,
@@ -5,17 +6,11 @@ import {
   useNavigation,
   useSubmit,
 } from "@remix-run/react";
-// import { GeneralErrorBoundary } from "~/components/error-boundary.tsx";
-// import { prisma } from '~/utils/db.server.ts'
-// import { clsx } from 'clsx'
-// import { getUserImgSrc } from '~/utils/misc.ts'
-import { Dialog, Transition } from "@headlessui/react";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
 import React, { Fragment, useEffect } from "react";
 import { DateRange, DayPicker } from "react-day-picker";
 import styles from "react-day-picker/dist/style.module.css";
-import { BottomSheet, BottomSheetRef } from "react-spring-bottom-sheet";
 import invariant from "tiny-invariant";
 import { Location, getXataClient } from "utils/xata";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
@@ -24,101 +19,6 @@ import { isLoggedIn } from "~/utils/helper";
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
 }
-
-const today = new Date();
-const tommorow = addDays(today, 1);
-
-const description = `Enjoy a one-on-one personal training session with our top trainer,
-Hans. Hans will work with you to develop a personalized training
-plan to help you achieve your fitness goals. Duration of the
-session is 1 hour. Please arrive 15 minutes before the start of
-your session.`;
-
-// const activities: Activity[] = [
-//   {
-//     id: "1",
-//     title: "Yoga Session",
-//     description,
-//     datetime: new Date().toISOString(),
-//     duration: 60,
-//     fixedDate: true,
-//     tags,
-//   },
-//   {
-//     id: "2",
-//     title: "Personal Training",
-//     description,
-//     // datetime:
-//     duration: 60,
-//     fixedDate: false,
-//     tags: tags.slice(0, 1),
-//   },
-//   {
-//     id: "3",
-//     title: "Mount Hiking",
-//     description,
-//     datetime: new Date().toISOString(),
-//     duration: 60,
-//     fixedDate: true,
-//     tags: tags.slice(1, 2),
-//   },
-//   {
-//     id: "4",
-//     title: "Crossfit Session",
-//     description,
-//     datetime: tommorow.toISOString(),
-//     duration: 60,
-//     fixedDate: true,
-//     tags,
-//   },
-//   {
-//     id: "5",
-//     title: "Personal Training 2",
-//     description,
-//     datetime: tommorow.toISOString(),
-//     duration: 60,
-//     fixedDate: false,
-//     tags,
-//   },
-//   {
-//     id: "6",
-//     title: "Best Hiking Tour",
-//     description,
-//     datetime: tommorow.toISOString(),
-//     duration: 60,
-//     fixedDate: true,
-//     tags,
-//   },
-//   {
-//     id: "7",
-//     title: "Best Hiking Tour",
-//     description: "Hike to the top of the mountain",
-//     datetime: today.toISOString(),
-//     duration: 60,
-//     fixedDate: true,
-//     tags,
-//   },
-// ];
-
-// const vacation: Vacation = {
-//   id: "1",
-//   // startDate: new Date().toISOString(),
-//   // endDate in 5 days
-//   // endDate: addDays(new Date(), 5).toISOString(),
-//   locationInfo: {
-//     hotelName: "Hotel de la Marine",
-//     address: "1 Place de la Concorde",
-//     city: "Tenerife",
-//     country: "Spain",
-//   },
-//   contact: {
-//     name: "Julian Wienecke",
-//     email: "info@reiseathleten.de",
-//     phone: "+49 176 12345678",
-//   },
-//   activity: activities,
-//   notes: [],
-// };
 
 type TagModel = {
   id: string;
@@ -165,6 +65,7 @@ export async function loader({ request }: DataFunctionArgs): Promise<{
   if (!vacation) {
     throw new Error("Vacation not found");
   }
+
   if (!activitiesResult) {
     throw new Error("Activities not found");
   }
@@ -230,17 +131,6 @@ export async function action({ request }: DataFunctionArgs) {
   });
 
   const date = new Date(datetime.toString());
-
-  //   const promisePrisma = prisma.activityBooking.create({
-  //     data: {
-  //       date: date,
-  //       activityId: activityId.toString(),
-  //     },
-  //   });
-
-  //   const longestPromise = Promise.race([newPromise3000, promisePrisma]);
-
-  //   await longestPromise;
 
   return {
     success: true,
@@ -734,42 +624,6 @@ const ActivityContent = ({
         </button>
       </div>
     </>
-  );
-};
-
-const BottomSheetModal = () => {
-  const [expandOnContentDrag, setExpandOnContentDrag] = React.useState(true);
-  const focusRef = React.useRef<HTMLButtonElement>(null);
-  const sheetRef = React.useRef<BottomSheetRef>(null);
-
-  return (
-    <BottomSheet
-      open={true}
-      skipInitialTransition
-      // sibling={<CloseExample className="z-10" />}
-      ref={sheetRef}
-      initialFocusRef={focusRef}
-      defaultSnap={({ maxHeight }) => maxHeight / 2}
-      snapPoints={({ maxHeight }) => [
-        maxHeight - maxHeight / 10,
-        maxHeight / 4,
-        maxHeight * 0.6,
-      ]}
-      expandOnContentDrag={expandOnContentDrag}
-    >
-      <div className="bg-red-100">
-        <div>BOTTOM SHEET</div>
-        <button
-          onClick={() => {
-            sheetRef.current?.snapTo(({ maxHeight }) => {
-              return 500;
-            });
-          }}
-        >
-          OPEN
-        </button>
-      </div>
-    </BottomSheet>
   );
 };
 

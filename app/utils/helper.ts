@@ -19,9 +19,10 @@ export const isLoggedIn = async (
 };
 
 export const authenticate = async (request: Request) => {
-  return authenticator.authenticate("form", request, {
-    successRedirect: "/",
-    failureRedirect: "/signup",
+  await authenticator.authenticate("form", request, {
+    successRedirect: "/vacation",
+    // failureRedirect: "/signup",
+    throwOnError: true,
   });
 };
 

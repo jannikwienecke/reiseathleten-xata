@@ -8,6 +8,8 @@ import { getXataClient } from "utils/xata";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   await isLoggedIn(request, { successRedirect: "/" });
+
+  return {};
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -25,6 +27,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   await xata.db.User.create({ email, password: hashedPassword });
 
+  // authenticator.authenticate('')
   return await authenticator.authenticate("form", request, {
     successRedirect: "/",
     failureRedirect: "/login",

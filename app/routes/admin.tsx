@@ -93,7 +93,6 @@ export const CONFIG: ConfigType = {
           "color.name",
         ]).getAll();
 
-        // return [];
         return tag.map((t) => ({
           ...t,
           color: t.color?.name || "",
