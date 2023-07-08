@@ -1,7 +1,7 @@
-import { create, createStore } from "zustand";
+import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import type { VacationEntity } from "../domain/vacation";
-import { ActivityEntity } from "../domain/activity";
+import type { ActivityEntity } from "../domain/activity";
 
 interface BearState {
   vacation: VacationEntity;
@@ -51,6 +51,5 @@ export const useVacationStore = create<BearState>()(
     {
       name: "vacation-store",
     }
-    // )
   )
 );

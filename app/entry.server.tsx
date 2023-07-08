@@ -11,7 +11,6 @@ import { Response } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import isbot from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import { getXataClient } from "~/utils/xata";
 
 const ABORT_DELAY = 5_000;
 
