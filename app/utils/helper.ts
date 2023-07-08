@@ -53,3 +53,21 @@ export const signupAction = async ({ form }: { form: FormData }) => {
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
+
+export const getCurrentDateString = () => {
+  const currentDate = new Date();
+
+  const values = [
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    currentDate.getDate(),
+    currentDate.getHours(),
+    currentDate.getMinutes(),
+  ];
+
+  const parsedValues = values.map((v) => (v < 10 ? `0${v}` : v));
+  const [year, month, day, hours, minutes] = parsedValues;
+  const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+  return formattedDate;
+};

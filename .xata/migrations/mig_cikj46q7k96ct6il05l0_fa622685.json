@@ -1,0 +1,16 @@
+{
+  "id": "mig_cikj46q7k96ct6il05l0",
+  "parentID": "mig_cikj44a7k96ct6il05k0",
+  "checksum": "1:fa622685603cbb1b7514787c4f047ed7c80d0afaac24eac058e5b966b1caa0b3",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "description",
+          "type": "string"
+        },
+        "table": "AcitivityDescription"
+      }
+    }
+  ]
+}

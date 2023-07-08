@@ -29,7 +29,7 @@ const tables = [
     ],
   },
   {
-    name: "Activity",
+    name: "ActivityBooking",
     columns: [
       { name: "datetime", type: "datetime" },
       {
@@ -38,15 +38,18 @@ const tables = [
         notNull: true,
         defaultValue: "false",
       },
-      { name: "description", type: "text" },
-      { name: "name", type: "string", notNull: true, defaultValue: "" },
+      {
+        name: "activity",
+        type: "link",
+        link: { table: "AcitivityDescription" },
+      },
     ],
   },
   {
     name: "AcivityTag",
     columns: [
       { name: "tag", type: "link", link: { table: "Tag" } },
-      { name: "activity", type: "link", link: { table: "Activity" } },
+      { name: "activity", type: "link", link: { table: "ActivityBooking" } },
     ],
   },
   {
@@ -74,10 +77,17 @@ const tables = [
     name: "VacationActivity",
     columns: [
       { name: "vacation", type: "link", link: { table: "Vacation" } },
-      { name: "activity", type: "link", link: { table: "Activity" } },
+      { name: "activity", type: "link", link: { table: "ActivityBooking" } },
     ],
   },
   { name: "Color", columns: [{ name: "name", type: "string", unique: true }] },
+  {
+    name: "AcitivityDescription",
+    columns: [
+      { name: "name", type: "string", unique: true },
+      { name: "description", type: "string" },
+    ],
+  },
 ] as const;
 
 export type SchemaTables = typeof tables;
@@ -92,8 +102,8 @@ export type UserRecord = User & XataRecord;
 export type Location = InferredTypes["Location"];
 export type LocationRecord = Location & XataRecord;
 
-export type Activity = InferredTypes["Activity"];
-export type ActivityRecord = Activity & XataRecord;
+export type ActivityBooking = InferredTypes["ActivityBooking"];
+export type ActivityBookingRecord = ActivityBooking & XataRecord;
 
 export type AcivityTag = InferredTypes["AcivityTag"];
 export type AcivityTagRecord = AcivityTag & XataRecord;
@@ -107,15 +117,19 @@ export type VacationActivityRecord = VacationActivity & XataRecord;
 export type Color = InferredTypes["Color"];
 export type ColorRecord = Color & XataRecord;
 
+export type AcitivityDescription = InferredTypes["AcitivityDescription"];
+export type AcitivityDescriptionRecord = AcitivityDescription & XataRecord;
+
 export type DatabaseSchema = {
   Tag: TagRecord;
   User: UserRecord;
   Location: LocationRecord;
-  Activity: ActivityRecord;
+  ActivityBooking: ActivityBookingRecord;
   AcivityTag: AcivityTagRecord;
   Vacation: VacationRecord;
   VacationActivity: VacationActivityRecord;
   Color: ColorRecord;
+  AcitivityDescription: AcitivityDescriptionRecord;
 };
 
 const DatabaseClient = buildClient();

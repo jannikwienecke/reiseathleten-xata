@@ -1,0 +1,13 @@
+{
+  "id": "mig_cikj2ui7k96ct6il05hg",
+  "parentID": "mig_ci0ms3s5rdr6u2tqh43g",
+  "checksum": "1:0c079d892cc71b2a8a6b9af4d2931c20bca8b747e6665e5c0a08468a68590d10",
+  "operations": [
+    {
+      "renameTable": {
+        "newName": "ActivityBooking",
+        "oldName": "Activity"
+      }
+    }
+  ]
+}

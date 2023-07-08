@@ -1,0 +1,13 @@
+{
+  "id": "mig_cikj4b8j4ri6nsr41ocg",
+  "parentID": "mig_cikj46q7k96ct6il05l0",
+  "checksum": "1:a06d997d1c436ca2776beacb47900e39d9b6f6dd2cdeba4125f22fe72221215d",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "description",
+        "table": "ActivityBooking"
+      }
+    }
+  ]
+}

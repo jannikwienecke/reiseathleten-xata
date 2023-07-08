@@ -1,0 +1,19 @@
+{
+  "id": "mig_cikj4li7k96ct6il05n0",
+  "parentID": "mig_cikj4eq7k96ct6il05m0",
+  "checksum": "1:b288e1ffa79d7f648e163a37161916732ea7cc54df8e3968b16fe6b4a8c0e220",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "activity",
+          "type": "link",
+          "link": {
+            "table": "AcitivityDescription"
+          }
+        },
+        "table": "ActivityBooking"
+      }
+    }
+  ]
+}
