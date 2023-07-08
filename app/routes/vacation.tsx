@@ -8,7 +8,10 @@ import { ActivityBookingBottomSheet } from "~/features/vacation/container/activi
 import { ActivityList } from "~/features/vacation/container/activity-list";
 import { VacationDatePicker } from "~/features/vacation/container/vacation-date-picker";
 import { VacationMap } from "~/features/vacation/mapper/vacationMapper";
-import { useVacationStore } from "~/features/vacation/store/vacation-store";
+import {
+  initVacation,
+  useVacationStore,
+} from "~/features/vacation/store/vacation-store";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
@@ -21,11 +24,10 @@ export const action = vacationAction;
 export default function NotesRoute() {
   const data = useLoaderData<typeof loader>();
   const vacation = useVacationStore((state) => state.vacation);
-  const init = useVacationStore((state) => state.initVacation);
 
   React.useEffect(() => {
-    init(VacationMap.toDomain(data.vacation));
-  }, [data.vacation, init]);
+    initVacation(VacationMap.toDomain(data.vacation));
+  }, [data.vacation]);
 
   if (!vacation.props) return null;
   return <NotesContent />;
