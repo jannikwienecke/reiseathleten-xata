@@ -1,10 +1,9 @@
 import React from "react";
 import { type DateRange, DayPicker } from "react-day-picker";
-import { useVacationStore } from "../store/vacation-store";
+import { selectDay, useVacationStore } from "../store/vacation-store";
 
 export const VacationDatePicker = () => {
   const vacation = useVacationStore((state) => state.vacation);
-  const selectDay = useVacationStore((state) => state.selectDay);
 
   const vacationRange: DateRange = {
     from: vacation.startDate,

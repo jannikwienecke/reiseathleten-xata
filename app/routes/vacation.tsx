@@ -1,75 +1,33 @@
-import { type DataFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { format } from "date-fns";
 import React from "react";
 import styles from "react-day-picker/dist/style.module.css";
-import invariant from "tiny-invariant";
-import { getXataClient } from "utils/xata";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
+import { vacationLoader, vacationAction } from "~/features/vacation";
 import { ActivityBookingBottomSheet } from "~/features/vacation/container/activity-booking-bottom-sheet";
 import { ActivityList } from "~/features/vacation/container/activity-list";
 import { VacationDatePicker } from "~/features/vacation/container/vacation-date-picker";
-import type { VacationDtoProps } from "~/features/vacation/dto/vacation-dto";
 import { VacationMap } from "~/features/vacation/mapper/vacationMapper";
-import { useVacationStore } from "~/features/vacation/store/vacation-store";
-import { isLoggedIn } from "~/utils/helper";
-import { VacationRepoXata } from "~/features/vacation/repos/implementations/vacationRepoXata";
-import { ActivityRepoXata } from "~/features/vacation/repos/implementations/activityRepoXata";
+import {
+  initVacation,
+  useVacationStore,
+} from "~/features/vacation/store/vacation-store";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
 }
 
-interface LoaderData {
-  vacation: VacationDtoProps;
-}
+export const loader = vacationLoader;
 
-export async function loader({
-  request,
-}: DataFunctionArgs): Promise<LoaderData> {
-  const user = await isLoggedIn(request);
-
-  invariant(user, "User not found");
-
-  const client = getXataClient();
-
-  const repo = new VacationRepoXata(client);
-
-  const vacation = await repo.getVacationById("rec_chro3uqqsbcn5poqocb0");
-
-  return { vacation };
-}
-
-export async function action({ request }: DataFunctionArgs) {
-  const formData = await request.formData();
-  const datetime = formData.get("datetime");
-  const activityId = formData.get("activityId");
-
-  invariant(datetime, "datetime is required");
-  invariant(activityId, "activityId is required");
-
-  const client = getXataClient();
-
-  const repo = new ActivityRepoXata(client);
-
-  await repo.confirmDate(
-    activityId as string,
-    new Date(datetime as string).toISOString()
-  );
-
-  return {
-    success: true,
-  };
-}
+export const action = vacationAction;
 
 export default function NotesRoute() {
   const data = useLoaderData<typeof loader>();
   const vacation = useVacationStore((state) => state.vacation);
-  const init = useVacationStore((state) => state.initVacation);
 
   React.useEffect(() => {
-    init(VacationMap.toDomain(data.vacation));
-  }, [data.vacation, init]);
+    initVacation(VacationMap.toDomain(data.vacation));
+  }, [data.vacation]);
 
   if (!vacation.props) return null;
   return <NotesContent />;

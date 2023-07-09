@@ -1,20 +1,11 @@
-import { create, createStore } from "zustand";
+import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import type { VacationEntity } from "../domain/vacation";
-import { ActivityEntity } from "../domain/activity";
+import type { ActivityEntity } from "../domain/activity";
 
 interface BearState {
   vacation: VacationEntity;
-  initVacation: (vacation: VacationEntity) => void;
-
-  //   ACTIVITY ACTIONS
-  //   selectedActivity: ActivityEntity | null;
-  selectActivity: (activity: ActivityEntity) => void;
-  closeAcitivtyModal: () => void;
-
-  //   day picker
   selectedDay: Date;
-  selectDay: (date: Date) => void;
 }
 
 export const useVacationStore = create<BearState>()(
@@ -22,35 +13,58 @@ export const useVacationStore = create<BearState>()(
     // persist(
     (set, get) => ({
       vacation: {} as VacationEntity,
-      initVacation: (vacation: VacationEntity) => set({ vacation }),
-
-      //   ACTIVITY ACTIONS
-      selectedActivity: null,
-      selectActivity: (activity: ActivityEntity) => {
-        const vacation = get().vacation;
-        vacation.setPendingActivity(activity);
-
-        set({
-          vacation: vacation,
-        });
-      },
-
-      closeAcitivtyModal: () => {
-        const vacation = get().vacation;
-        vacation.setPendingActivity(null);
-
-        set({
-          vacation: vacation,
-        });
-      },
-
-      //   day picker
       selectedDay: new Date(),
-      selectDay: (date: Date) => set({ selectedDay: date }),
     }),
     {
       name: "vacation-store",
     }
-    // )
   )
 );
+
+export const selectDay = (date: Date) =>
+  useVacationStore.setState((state) => ({ selectedDay: date }), false, {
+    type: "SELECT_DAY",
+    date,
+  });
+
+export const selectActivity = (activity: ActivityEntity) => {
+  useVacationStore.setState(
+    (state) => {
+      const vacation = state.vacation;
+      vacation.setPendingActivity(activity);
+      return { vacation };
+    },
+    false,
+    {
+      type: "SELECT_ACTIVITY",
+      activity: activity,
+    }
+  );
+};
+
+export const closeAcitivtyModal = () => {
+  useVacationStore.setState(
+    (state) => {
+      const vacation = state.vacation;
+      vacation.setPendingActivity(null);
+      return { vacation };
+    },
+    false,
+    {
+      type: "CLOSE_ACTIVITY_MODAL",
+    }
+  );
+};
+
+export const initVacation = (vacation: VacationEntity) => {
+  useVacationStore.setState(
+    (state) => {
+      return { vacation };
+    },
+    false,
+    {
+      type: "INIT_VACATION",
+      vacation: vacation,
+    }
+  );
+};

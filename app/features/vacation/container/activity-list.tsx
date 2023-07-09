@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Badge } from "~/components/badge";
 import { RocketIcon, SettingsIcon } from "~/components/icons";
 import type { ActivityEntity } from "../domain/activity";
-import { useVacationStore } from "../store/vacation-store";
+import { selectActivity, useVacationStore } from "../store/vacation-store";
 
 export const ActivityList = ({
   activities,
@@ -14,8 +14,6 @@ export const ActivityList = ({
   activities: ActivityEntity[];
   title: string;
 }) => {
-  const selectActivity = useVacationStore((state) => state.selectActivity);
-
   return (
     <div className="mx-auto w-full flex-1 pb-2 pl-2 md:container md:rounded-3xl">
       <div className="flex h-full flex-col">

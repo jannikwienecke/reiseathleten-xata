@@ -3,13 +3,10 @@ import { BottomSheetModal } from "~/components/bottom-sheet-modal";
 import { CheckIcon, RocketIcon } from "~/components/icons";
 import { getCurrentDateString } from "~/utils/helper";
 import type { ActivityEntity } from "../domain/activity";
-import { useVacationStore } from "../store/vacation-store";
+import { closeAcitivtyModal, useVacationStore } from "../store/vacation-store";
 import { useActivityBookingBottomSheet } from "./hooks/use-activity-booking-bottom-sheet";
 
 export const ActivityBookingBottomSheet = () => {
-  const closeAcitivtyModal = useVacationStore(
-    (state) => state.closeAcitivtyModal
-  );
   const selectedActivity = useVacationStore(
     (state) => state.vacation.pendingActivity
   );
