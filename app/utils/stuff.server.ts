@@ -6,6 +6,8 @@ import { VacationRepoXata } from "~/features/vacation/repos/implementations/vaca
 import type { VacationRepo } from "~/features/vacation/repos/vacationRepo";
 import type { ActionFunctionArgs, PageHandler } from "./lib/core";
 
+console.log("____stuff.server.ts");
+
 export class AddHandlerServer implements PageHandler {
   async makeRequest(props: ActionFunctionArgs) {
     const { config } = props;
