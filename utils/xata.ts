@@ -152,7 +152,7 @@ export const getXataClient = () => {
 
   if (instance) {
     console.log("INSTANCE");
-    console.log(instance);
+    console.log(instance.db.User);
 
     return instance;
   }

@@ -26,7 +26,17 @@ authenticator.use(
       console.error("===ERROR===", error);
       throw new Error("Could not get xata client");
     }
-    const user = await xata.db.User.filter({ email }).getFirst();
+
+    let user: any = null;
+    try {
+      console.log("get User");
+
+      user = await xata.db.User.filter({ email }).getFirst();
+      console.log("user", user);
+    } catch (error) {
+      console.error("===ERROR===");
+      console.log(error);
+    }
 
     console.log("user", user);
 
