@@ -22,11 +22,7 @@ interface Repository {
   activity: ActivityRepo;
 }
 
-console.log("getXataClient");
-
 const client = getXataClient();
-
-console.log("client", Boolean(client.db.Color.all));
 
 const initDataFunctions = (args: { repository: Repository }) => {
   const { repository } = args;

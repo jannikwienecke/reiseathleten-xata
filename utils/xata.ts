@@ -148,14 +148,13 @@ export class XataClient extends DatabaseClient<DatabaseSchema> {
 let instance: XataClient | undefined = undefined;
 
 export const getXataClient = () => {
-  // console.log("instance", Boolean(instance));
+  console.log("instance", Boolean(instance));
 
-  // if (instance) {
-  //   console.log('RETURN INSTANCE');
+  if (instance) {
+    console.log("RETURN INSTANCE");
 
-  //   return instance;
-
-  // }
+    return instance;
+  }
 
   console.log("get new instance");
 

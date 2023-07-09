@@ -9,6 +9,8 @@ interface LoaderData {
 
 export const vacationLoader = createLoader(
   async ({ repository, request }): Promise<LoaderData> => {
+    console.log("vacationLoader....");
+
     await isLoggedIn(request);
 
     const vacation = await repository.vacation.getVacationById(

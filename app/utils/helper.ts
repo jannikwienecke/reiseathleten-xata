@@ -10,6 +10,8 @@ export const isLoggedIn = async (
     failureRedirect?: string | undefined;
   }
 ) => {
+  // console.log('IS');
+
   const user = await authenticator.isAuthenticated(
     request,
     options || ({} as any)
