@@ -15,89 +15,96 @@ export class VacationRepoXata implements VacationRepo {
   async getVacationById(id: string) {
     console.log("___GET VACATION BY ID___", id);
 
-    console.log(this.client);
+    try {
+      console.log(this.client.db.Vacation);
 
-    const vacation = await this.client.db.Vacation.select(["*", "location.*"])
-      //   .filter({ user: user?.id })
-      .filter({ id })
-      .getFirst();
+      const vacation = await this.client.db.Vacation.select(["*", "location.*"])
+        //   .filter({ user: user?.id })
+        .filter({ id })
+        .getFirst();
 
-    console.log("HIE!!!!");
+      console.log("HIE!!!!");
 
-    const activitiesResult = await this.client.db.VacationActivity.select([
-      "activity.activity.*",
-      "activity.*",
-    ])
-      .filter({ vacation: vacation?.id })
-      .getAll();
+      const activitiesResult = await this.client.db.VacationActivity.select([
+        "activity.activity.*",
+        "activity.*",
+      ])
+        .filter({ vacation: vacation?.id })
+        .getAll();
 
-    if (!vacation) {
-      throw new Error("Vacation not found");
-    }
+      if (!vacation) {
+        throw new Error("Vacation not found");
+      }
 
-    if (!activitiesResult) {
-      throw new Error("Activities not found");
-    }
+      if (!activitiesResult) {
+        throw new Error("Activities not found");
+      }
 
-    const tags = await this.client.db.AcivityTag.select([
-      "activity.id",
-      "tag.*",
-      "tag.color.*",
-    ]).getAll();
+      const tags = await this.client.db.AcivityTag.select([
+        "activity.id",
+        "tag.*",
+        "tag.color.*",
+      ]).getAll();
 
-    const activities: ActivityBookingInterface[] = activitiesResult.map((a) => {
-      const tagsOfActivity = tags.filter(
-        (t) => t.activity?.id === a.activity?.id
+      const activities: ActivityBookingInterface[] = activitiesResult.map(
+        (a) => {
+          const tagsOfActivity = tags.filter(
+            (t) => t.activity?.id === a.activity?.id
+          );
+
+          const activity = a.activity;
+          if (!activity) {
+            throw new Error("Activity not found");
+          }
+          return {
+            ...activity,
+            name: activity?.activity?.name || "",
+            id: activity?.id || "",
+            tags: tagsOfActivity.map((t) => ({
+              id: t.tag?.id || "",
+              label: t.tag?.label || "",
+              color: t.tag?.color?.name || "",
+            })),
+
+            isFixedDate: activity?.isFixedDate || false,
+            description: activity?.activity?.description || "",
+            datetime: activity?.datetime?.toISOString() || undefined,
+          };
+        }
       );
 
-      const activity = a.activity;
-      if (!activity) {
-        throw new Error("Activity not found");
+      const location = vacation.location;
+
+      if (!location) {
+        throw new Error("Location not found");
       }
-      return {
-        ...activity,
-        name: activity?.activity?.name || "",
-        id: activity?.id || "",
-        tags: tagsOfActivity.map((t) => ({
+
+      const dto: VacationDtoProps = {
+        location: {
+          name: location?.name || "",
+          description: location?.description || "",
+        },
+        vacation: {
+          ...vacation,
+          endDate: vacation?.endDate?.toISOString() || "",
+          startDate: vacation?.startDate?.toISOString() || "",
+          description: vacation?.description || "",
+        },
+        tags: tags.map((t) => ({
           id: t.tag?.id || "",
           label: t.tag?.label || "",
           color: t.tag?.color?.name || "",
         })),
-
-        isFixedDate: activity?.isFixedDate || false,
-        description: activity?.activity?.description || "",
-        datetime: activity?.datetime?.toISOString() || undefined,
+        activities: activities.map((a) => ({
+          ...a,
+          datetime: a.datetime || undefined,
+        })),
       };
-    });
 
-    const location = vacation.location;
-
-    if (!location) {
-      throw new Error("Location not found");
+      return dto;
+    } catch (error) {
+      console.error("ERROR", error);
+      throw error;
     }
-
-    const dto: VacationDtoProps = {
-      location: {
-        name: location?.name || "",
-        description: location?.description || "",
-      },
-      vacation: {
-        ...vacation,
-        endDate: vacation?.endDate?.toISOString() || "",
-        startDate: vacation?.startDate?.toISOString() || "",
-        description: vacation?.description || "",
-      },
-      tags: tags.map((t) => ({
-        id: t.tag?.id || "",
-        label: t.tag?.label || "",
-        color: t.tag?.color?.name || "",
-      })),
-      activities: activities.map((a) => ({
-        ...a,
-        datetime: a.datetime || undefined,
-      })),
-    };
-
-    return dto;
   }
 }
