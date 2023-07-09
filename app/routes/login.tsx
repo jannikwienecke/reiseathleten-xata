@@ -15,7 +15,18 @@ export const loader = async ({ request }: DataFunctionArgs) => {
 };
 
 export const action = async ({ request }: DataFunctionArgs) => {
-  return await authenticate(request);
+  console.log("LOGIN...");
+  const form = await request.formData();
+  const email = form.get("email") as string;
+  const password = form.get("password") as string;
+  console.log("LOGIN...", email, password);
+
+  try {
+    await authenticate(request);
+    console.log("Done");
+  } catch (error) {
+    console.log("Error", error);
+  }
 };
 
 export default function Login() {
