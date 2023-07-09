@@ -115,8 +115,6 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
         })) || {}
       );
     } catch (error) {
-      console.log({ error });
-
       const message =
         error && typeof error === "object" && "message" in error
           ? (error.message as string)

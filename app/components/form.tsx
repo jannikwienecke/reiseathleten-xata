@@ -184,7 +184,6 @@ const Select = ({
   const [selected, setSelected] = React.useState<ISelectOption | null>(null);
 
   const handleSelect = (item: { id: number | string; name: string }) => {
-    console.log(`Selected ${item.name}`);
     setSelected(item);
   };
 

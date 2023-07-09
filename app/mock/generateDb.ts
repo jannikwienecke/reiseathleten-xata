@@ -1,4 +1,4 @@
-import { VACATIONS } from "./mock/vacation";
+import { VACATIONS } from "./vacation";
 
 const fsPromises = require("fs").promises;
 

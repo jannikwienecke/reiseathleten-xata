@@ -7,42 +7,7 @@ import { ActivityEntity } from "../domain/activity";
 import { DateValueObject } from "../domain/date";
 import { ActivityNameValueObject } from "../domain/activity-name";
 import { ActivityDescriptionValueObject } from "../domain/activity-description";
-import { VacationDtoProps } from "../dto/vacation-dto";
-
-//     public static toDomain (raw: any): Post {
-//       const postType: PostType = raw.type;
-
-//       const postOrError = Post.create({
-//         memberId: MemberId.create(new UniqueEntityID(raw.member_id)).getValue(),
-//         slug: PostSlug.createFromExisting(raw.slug).getValue(),
-//         title: PostTitle.create({ value: raw.title }).getValue(),
-//         type: postType,
-//         text: postType === 'text' ? PostText.create({ value: raw.text }).getValue() : null,
-//         link: postType === 'link' ? PostLink.create({ url: raw.link }).getValue() : null,
-//         points: raw.points,
-//         totalNumComments: raw.total_num_comments
-//       }, new UniqueEntityID(raw.post_id))
-
-//       postOrError.isFailure ? console.log(postOrError.getErrorValue()) : '';
-
-//       return postOrError.isSuccess ? postOrError.getValue() : null;
-//     }
-
-//     public static toPersistence (post: Post): any {
-//       return {
-//         total_num_comments: post.totalNumComments,
-//         updatedAt: new Date().toString(),
-//         title: post.title.value,
-//         post_id: post.postId.getStringValue(),
-//         member_id: post.memberId.getStringValue(),
-//         text: post.isTextPost() ? post.text.value : null,
-//         slug: post.slug.value,
-//         points: post.points,
-//         type: post.type,
-//         link: post.isLinkPost() ? post.link.url : null,
-//       }
-//     }
-//   }
+import type { VacationDtoProps } from "../dto/vacation-dto";
 
 export class VacationMap {
   public static toDomain({
