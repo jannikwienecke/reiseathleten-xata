@@ -19,9 +19,11 @@ authenticator.use(
 
     let xata: XataClient;
     try {
+      console.log("GET XATA CLIENT");
+
       xata = getXataClient();
     } catch (error) {
-      console.error(error);
+      console.error("===ERROR===", error);
       throw new Error("Could not get xata client");
     }
     const user = await xata.db.User.filter({ email }).getFirst();
