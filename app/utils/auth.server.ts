@@ -1,9 +1,8 @@
+import bcrypt from "bcryptjs";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
+import { type User, getXataClient } from "utils/xata";
 import { sessionStorage } from "./session.server";
-import bcrypt from "bcryptjs";
-import { signupAction } from "./helper";
-import { User, getXataClient } from "utils/xata";
 
 const authenticator = new Authenticator<User>(sessionStorage);
 
@@ -11,11 +10,16 @@ const authenticator = new Authenticator<User>(sessionStorage);
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
-    let email = form.get("email") as string;
-    let password = form.get("password") as string;
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
+
+    console.log("email", email);
+    console.log("password", password);
 
     const xata = getXataClient();
     const user = await xata.db.User.filter({ email }).getFirst();
+
+    console.log("user", user);
 
     if (!user) {
       console.error("wrong email");
