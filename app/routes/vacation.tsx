@@ -13,9 +13,9 @@ import {
   useVacationStore,
 } from "~/features/vacation/store/vacation-store";
 
-export function links() {
-  return [{ rel: "stylesheet", href: styles }];
-}
+// export function links() {
+//   return [{ rel: "stylesheet", href: styles }];
+// }
 
 export const loader = vacationLoader;
 
