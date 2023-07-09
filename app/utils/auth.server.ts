@@ -1,8 +1,9 @@
 import bcrypt from "bcryptjs";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
-import { type User, getXataClient } from "utils/xata";
+import { type User, getXataClient, XataClient } from "utils/xata";
 import { sessionStorage } from "./session.server";
+import { XataApiClient } from "@xata.io/client";
 
 const authenticator = new Authenticator<User>(sessionStorage);
 
@@ -16,7 +17,13 @@ authenticator.use(
     console.log("email", email);
     console.log("password", password);
 
-    const xata = getXataClient();
+    let xata: XataClient;
+    try {
+      xata = getXataClient();
+    } catch (error) {
+      console.error(error);
+      throw new Error("Could not get xata client");
+    }
     const user = await xata.db.User.filter({ email }).getFirst();
 
     console.log("user", user);
