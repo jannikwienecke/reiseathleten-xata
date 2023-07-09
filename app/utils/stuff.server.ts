@@ -1,10 +1,13 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { getXataClient } from "utils/xata";
 import type { ActivityRepo } from "~/features/vacation/repos/activityRepo";
-import { ActivityRepoXata } from "~/features/vacation/repos/implementations/activityRepoXata";
-import { VacationRepoXata } from "~/features/vacation/repos/implementations/vacationRepoXata";
+import { ActivityRepoMockServer } from "~/features/vacation/repos/implementations/activityRepoMockServer";
+import { VacationRepoMockServer } from "~/features/vacation/repos/implementations/vacationRepoMockServer";
 import type { VacationRepo } from "~/features/vacation/repos/vacationRepo";
 import type { ActionFunctionArgs, PageHandler } from "./lib/core";
+import { ActivityRepoXata } from "~/features/vacation/repos/implementations/activityRepoXata";
+import { VacationRepoXata } from "~/features/vacation/repos/implementations/vacationRepoXata";
+import { IS_PRODUCTION } from "~/shared/constants/base";
 
 export class AddHandlerServer implements PageHandler {
   async makeRequest(props: ActionFunctionArgs) {
@@ -39,9 +42,17 @@ const initDataFunctions = (args: { repository: Repository }) => {
   return { createLoader, createAction: createLoader };
 };
 
+const vacationRepo = IS_PRODUCTION
+  ? new VacationRepoXata(client)
+  : new VacationRepoMockServer();
+
+const activityRepo = IS_PRODUCTION
+  ? new ActivityRepoXata(client)
+  : new ActivityRepoMockServer();
+
 export const { createLoader, createAction } = initDataFunctions({
   repository: {
-    vacation: new VacationRepoXata(client),
-    activity: new ActivityRepoXata(client),
+    vacation: vacationRepo,
+    activity: activityRepo,
   },
 });

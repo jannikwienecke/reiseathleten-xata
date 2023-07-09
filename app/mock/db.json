@@ -1,0 +1,54 @@
+{
+  "vacations": [
+    {
+      "vacation": {
+        "id": "1",
+        "name": "My Vacation",
+        "startDate": "2023-07-09T08:53:23.808Z",
+        "endDate": "2023-07-16T08:53:23.809Z",
+        "description": "My Vacation Description"
+      },
+      "activities": [
+        {
+          "id": "1",
+          "name": "Personal Training",
+          "description": "Personal Training with a trainer",
+          "isFixedDate": false
+        },
+        {
+          "id": "2",
+          "name": "Sightseeing",
+          "description": "Sightseeing in the city",
+          "isFixedDate": false
+        },
+        {
+          "id": "3",
+          "name": "Yoga Session",
+          "description": "Yoga Session with a trainer",
+          "isFixedDate": false
+        },
+        {
+          "id": "4",
+          "name": "Hike the Teide",
+          "description": "Hike the Teide with a guide",
+          "isFixedDate": true,
+          "datetime": "2023-07-09T08:53:23.808Z"
+        },
+        {
+          "id": "5",
+          "name": "Visit the Cathedral",
+          "description": "Visit the Cathedral with a guide",
+          "isFixedDate": true,
+          "datetime": "2023-07-09T08:53:23.808Z"
+        }
+      ],
+      "location": { "name": "Berlin", "description": "Capital of Germany" },
+      "tags": [
+        { "label": "Beach", "color": "blue" },
+        { "label": "City", "color": "red" },
+        { "label": "Nature", "color": "green" },
+        { "label": "Culture", "color": "yellow" }
+      ]
+    }
+  ]
+}

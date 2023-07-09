@@ -101,3 +101,6 @@ export function useDoubleCheck() {
 
   return { doubleCheck, getButtonProps };
 }
+
+export const waitFor = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));

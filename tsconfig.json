@@ -1,5 +1,5 @@
 {
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "app/utils/stuff"],
+  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "app/utils/stuff", "generateDb.js"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2019"],
     "isolatedModules": true,
