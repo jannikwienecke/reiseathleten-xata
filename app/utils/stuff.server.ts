@@ -52,7 +52,7 @@ const activityRepo = IS_PRODUCTION
 
 export const { createLoader, createAction } = initDataFunctions({
   repository: {
-    vacation: vacationRepo,
-    activity: activityRepo,
+    vacation: new VacationRepoXata(client),
+    activity: new ActivityRepoXata(client),
   },
 });
