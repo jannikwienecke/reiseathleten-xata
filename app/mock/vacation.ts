@@ -95,7 +95,7 @@ export const Vacation: VacationInterface = {
   description: "My Vacation Description",
 };
 
-export let VACATION_DTO: VacationDtoProps = {
+export const VACATION_DTO: VacationDtoProps = {
   vacation: Vacation,
   activities: Activities,
   location: Locations[0],

@@ -1,7 +1,6 @@
 import { useLoaderData } from "@remix-run/react";
 import { format } from "date-fns";
 import React from "react";
-import styles from "react-day-picker/dist/style.module.css";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { vacationLoader, vacationAction } from "~/features/vacation";
 import { ActivityBookingBottomSheet } from "~/features/vacation/container/activity-booking-bottom-sheet";
@@ -12,10 +11,6 @@ import {
   initVacation,
   useVacationStore,
 } from "~/features/vacation/store/vacation-store";
-
-export function links() {
-  return [{ rel: "stylesheet", href: styles }];
-}
 
 export const loader = vacationLoader;
 
