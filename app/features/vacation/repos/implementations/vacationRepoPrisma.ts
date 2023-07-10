@@ -12,6 +12,12 @@ export class VacationRepoPrisma implements VacationRepo {
   async getVacationById(id: number) {
     console.log("getVacationById", id);
 
+    console.log(this.client.vacation.findMany);
+
+    const allVacations = await this.client.vacation.findMany();
+
+    console.log("allVacations", allVacations);
+
     const vacations = await this.client.vacation.findMany({
       include: {
         Location: true,
