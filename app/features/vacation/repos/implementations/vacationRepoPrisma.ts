@@ -10,6 +10,8 @@ export class VacationRepoPrisma implements VacationRepo {
   }
 
   async getVacationById(id: number) {
+    console.log("getVacationById", id);
+
     const vacations = await this.client.vacation.findMany({
       include: {
         Location: true,
@@ -33,6 +35,8 @@ export class VacationRepoPrisma implements VacationRepo {
         },
       },
     });
+
+    console.log("HIER");
 
     const rawVacation = vacations[0];
 

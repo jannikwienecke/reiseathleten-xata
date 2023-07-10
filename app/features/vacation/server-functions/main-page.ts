@@ -19,11 +19,16 @@ export const vacationLoader = createLoader(
 
     console.log("repository", repository.vacation.getVacationById);
 
-    const vacation = await repository.vacation.getVacationById(1);
+    try {
+      const vacation = await repository.vacation.getVacationById(1);
+      console.log("vacation", Boolean(vacation));
+      return { vacation };
+    } catch (error) {
+      console.log("===", error);
+      throw new Error("SOmething went wrong");
 
-    console.log("vacation", Boolean(vacation));
-
-    return { vacation };
+      // return { vacation: null };
+    }
   }
 );
 

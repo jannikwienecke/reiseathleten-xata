@@ -43,6 +43,8 @@ const initDataFunctions = (args: { repository: Repository }) => {
   return { createLoader, createAction: createLoader };
 };
 
+console.log("APP INIT", prisma.tag.findMany);
+
 const vacationRepo = IS_PRODUCTION
   ? // ? new VacationRepoXata(client)
     new VacationRepoPrisma(prisma)
