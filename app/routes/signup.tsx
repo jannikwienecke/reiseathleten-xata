@@ -17,18 +17,32 @@ export const action: ActionFunction = async ({ request }) => {
   const email = form.get("email") as string;
   const password = form.get("password") as string;
 
+  console.log("email", email);
+  console.log("password", password);
+
   invariant(email, "email is required");
   invariant(password, "password is required");
+
+  console.log("hier");
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  await prisma.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-    },
-  });
+  try {
+    console.log("TRY TO CREATE USER");
+    await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+      },
+    });
+    console.log("OK!!");
+  } catch (error) {
+    console.log("SOME ERROR!!");
+    console.log(error);
+  }
+
+  console.log("return..");
 
   return await authenticator.authenticate("form", request, {
     successRedirect: "/",
