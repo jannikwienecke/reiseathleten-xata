@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgres://admin:ztPs6uLfxoX2@ep-fragrant-base-380181-pooler.eu-central-1.aws.neon.tech/neondb?pool_timeout=20&connection_limit=10"
+  url      = "postgres://admin:ztPs6uLfxoX2@ep-fragrant-base-380181-pooler.eu-central-1.aws.neon.tech/neondb?pool_timeout=20&connection_limit=10&connect_timeout=20"
 }
 
 model AcitivityDescription {
