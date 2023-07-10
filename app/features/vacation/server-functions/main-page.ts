@@ -17,6 +17,8 @@ export const vacationLoader = createLoader(
 
     console.log("IS LOGGED IN");
 
+    console.log("repository", repository.vacation.getVacationById);
+
     const vacation = await repository.vacation.getVacationById(1);
 
     console.log("vacation", Boolean(vacation));

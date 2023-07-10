@@ -43,12 +43,12 @@ const initDataFunctions = (args: { repository: Repository }) => {
   return { createLoader, createAction: createLoader };
 };
 
-const vacationRepo = !IS_PRODUCTION
+const vacationRepo = IS_PRODUCTION
   ? // ? new VacationRepoXata(client)
     new VacationRepoPrisma(prisma)
   : new VacationRepoMockServer();
 
-const activityRepo = !IS_PRODUCTION
+const activityRepo = IS_PRODUCTION
   ? new ActivityRepoPrisma(prisma)
   : // ? new ActivityRepoXata(client)
     new ActivityRepoMockServer();
