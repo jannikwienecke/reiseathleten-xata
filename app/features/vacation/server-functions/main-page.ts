@@ -7,11 +7,20 @@ interface LoaderData {
   vacation: VacationDtoProps;
 }
 
+console.log("APP INIT");
+
 export const vacationLoader = createLoader(
   async ({ repository, request }): Promise<LoaderData> => {
+    console.log("vacationLoader");
+
     await isLoggedIn(request);
 
+    console.log("IS LOGGED IN");
+
     const vacation = await repository.vacation.getVacationById(1);
+
+    console.log("vacation", Boolean(vacation));
+
     return { vacation };
   }
 );
