@@ -9,16 +9,12 @@ export class VacationRepoPrisma implements VacationRepo {
     this.client = client;
   }
 
-  async getVacationById(id: number) {
-    console.log("getVacationById", id);
-
-    console.log(this.client.vacation.findMany);
-
-    const allVacations = await this.client.vacation.findMany();
-
-    console.log("allVacations", allVacations);
-
-    const vacations = await this.client.vacation.findMany({
+  async getVacationById(id: number, userId: number) {
+    const rawVacation = await this.client.vacation.findFirst({
+      where: {
+        userId,
+        id,
+      },
       include: {
         Location: true,
         VacationActivity: {
@@ -42,9 +38,9 @@ export class VacationRepoPrisma implements VacationRepo {
       },
     });
 
-    console.log("HIER");
-
-    const rawVacation = vacations[0];
+    if (!rawVacation) {
+      return null;
+    }
 
     const vacationDto: VacationDtoProps = {
       vacation: {

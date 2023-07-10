@@ -10,6 +10,9 @@ import { VacationRepoPrisma } from "~/features/vacation/repos/implementations/va
 import type { VacationRepo } from "~/features/vacation/repos/vacationRepo";
 import { IS_PRODUCTION } from "~/shared/constants/base";
 import type { ActionFunctionArgs, PageHandler } from "./lib/core";
+import { UserRepo } from "~/features/auth/repos/userRepo";
+import { UserRepoPrisma } from "~/features/auth/repos/implementations/userRepoPrisma";
+import { UserRepoMock } from "~/features/auth/repos/implementations/userRepoMockServer";
 // import { IS_PRODUCTION } from "~/shared/constants/base";
 
 export class AddHandlerServer implements PageHandler {
@@ -23,6 +26,7 @@ export class AddHandlerServer implements PageHandler {
 interface Repository {
   vacation: VacationRepo;
   activity: ActivityRepo;
+  user: UserRepo;
 }
 
 const initDataFunctions = (args: { repository: Repository }) => {
@@ -43,21 +47,22 @@ const initDataFunctions = (args: { repository: Repository }) => {
   return { createLoader, createAction: createLoader };
 };
 
-console.log("APP INIT", prisma.tag.findMany);
-
 const vacationRepo = IS_PRODUCTION
-  ? // ? new VacationRepoXata(client)
-    new VacationRepoPrisma(prisma)
+  ? new VacationRepoPrisma(prisma)
   : new VacationRepoMockServer();
 
 const activityRepo = IS_PRODUCTION
   ? new ActivityRepoPrisma(prisma)
-  : // ? new ActivityRepoXata(client)
-    new ActivityRepoMockServer();
+  : new ActivityRepoMockServer();
+
+const userRepo = IS_PRODUCTION
+  ? new UserRepoPrisma(prisma)
+  : new UserRepoMock();
 
 export const { createLoader, createAction } = initDataFunctions({
   repository: {
     vacation: vacationRepo,
     activity: activityRepo,
+    user: userRepo,
   },
 });

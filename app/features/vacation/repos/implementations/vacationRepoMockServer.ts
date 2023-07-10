@@ -7,15 +7,9 @@ export class VacationRepoMockServer implements VacationRepo {
   async getVacationById(id: number) {
     await waitFor(500);
 
-    const result = await fetch(`${MOCK_SERVER_URL}/vacations`);
+    const result = await fetch(`${MOCK_SERVER_URL}/vacations/${id}`);
 
-    const data = (await result.json()) as VacationDtoProps[];
-
-    const vacation = data.find((v) => v.vacation.id === "1");
-
-    if (!vacation) {
-      throw new Error("Vacation not found");
-    }
+    const vacation = (await result.json()) as VacationDtoProps;
 
     return vacation;
   }

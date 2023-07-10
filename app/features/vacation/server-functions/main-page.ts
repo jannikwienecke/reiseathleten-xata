@@ -4,31 +4,24 @@ import { createAction, createLoader } from "~/utils/stuff.server";
 import type { VacationDtoProps } from "../dto/vacation-dto";
 
 interface LoaderData {
-  vacation: VacationDtoProps;
+  vacation: VacationDtoProps | null;
 }
 
-console.log("APP INIT");
-
 export const vacationLoader = createLoader(
-  async ({ repository, request }): Promise<LoaderData> => {
-    console.log("vacationLoader");
+  async ({ repository, request, params }): Promise<LoaderData> => {
+    const user = await isLoggedIn(request, {
+      failureRedirect: `/login?redirect=/vacation/${params.id}`,
+    });
+    const { id } = params;
 
-    await isLoggedIn(request);
+    invariant(id, "id is required");
+    invariant(user, "user is required");
 
-    console.log("IS LOGGED IN");
-
-    console.log("repository", repository.vacation.getVacationById);
-
-    try {
-      const vacation = await repository.vacation.getVacationById(1);
-      console.log("vacation", Boolean(vacation));
-      return { vacation };
-    } catch (error) {
-      console.log("===", error);
-      throw new Error("SOmething went wrong");
-
-      // return { vacation: null };
-    }
+    const vacation = await repository.vacation.getVacationById(
+      Number(id),
+      Number(user?.id)
+    );
+    return { vacation };
   }
 );
 

@@ -54,41 +54,46 @@ export const Locations: LocationInterface[] = [
 
 export const Activities: ActivityBookingInterface[] = [
   {
-    id: "1",
+    id: 1,
     name: "Personal Training",
     description: "Personal Training with a trainer",
     isFixedDate: false,
+    tags: [Tags[0]],
   },
   {
-    id: "2",
+    id: 2,
     name: "Sightseeing",
     description: "Sightseeing in the city",
     isFixedDate: false,
+    tags: [Tags[0]],
   },
   {
-    id: "3",
+    id: 3,
     name: "Yoga Session",
     description: "Yoga Session with a trainer",
     isFixedDate: false,
+    tags: [Tags[0]],
   },
   {
-    id: "4",
+    id: 4,
     name: "Hike the Teide",
     description: "Hike the Teide with a guide",
     isFixedDate: true,
     datetime: TODAY.toISOString(),
+    tags: [Tags[0]],
   },
   {
-    id: "5",
+    id: 5,
     name: "Visit the Cathedral",
     description: "Visit the Cathedral with a guide",
     isFixedDate: true,
     datetime: TODAY.toISOString(),
+    tags: [Tags[0]],
   },
 ];
 
 export const Vacation: VacationInterface = {
-  id: "1",
+  id: 1,
   name: "My Vacation",
   startDate: TODAY.toISOString(),
   endDate: IN_A_WEEK.toISOString(),
@@ -99,7 +104,6 @@ export const VACATION_DTO: VacationDtoProps = {
   vacation: Vacation,
   activities: Activities,
   location: Locations[0],
-  tags: Tags,
 };
 
 export const VACATIONS = [VACATION_DTO];

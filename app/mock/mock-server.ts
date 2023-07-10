@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import type { VacationDtoProps } from "../features/vacation";
 const jsonServer = require("json-server");
 const server = jsonServer.create();
@@ -34,8 +35,12 @@ server.use((req: Request, res: any, next: () => null) => {
   next();
 });
 
-server.get("/vacations", (req: Request, res: any) => {
-  res.jsonp(dbJson.vacations);
+server.get("/vacations/:id", (req: any, res: any) => {
+  const vacation = dbJson.vacations.find(
+    (v) => v.vacation.id === Number(req.params.id)
+  );
+
+  res.jsonp(vacation);
 });
 
 server.post("/vacations/:id/update-activity-date", (req: any, res: any) => {
@@ -72,6 +77,45 @@ server.post("/vacations/:id/update-activity-date", (req: any, res: any) => {
   dbJson.vacations = vacations;
 
   res.jsonp({ status: "success" });
+});
+
+server.post("/auth/signup", (req: any, res: any) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    res.status(400).jsonp({
+      error: "Missing params",
+    });
+  }
+
+  const user = {
+    id: 1,
+    email,
+    password,
+  };
+
+  res.jsonp(user);
+});
+
+server.post("/auth/login", async (req: any, res: any) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    res.status(400).jsonp({
+      error: "Missing email",
+    });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const user = {
+    id: 1,
+    email,
+    password: hashedPassword,
+  };
+
+  res.jsonp(user);
 });
 
 // Use default router

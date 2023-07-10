@@ -4,7 +4,7 @@ const fsPromises = require("fs").promises;
 
 fsPromises
   .writeFile(
-    "db.json",
+    "app/mock/db.json",
     JSON.stringify({
       vacations: VACATIONS,
     })

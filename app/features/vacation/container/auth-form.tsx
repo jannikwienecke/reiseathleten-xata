@@ -2,6 +2,7 @@ import { Form } from "@remix-run/react";
 
 export function AuthForm({ type }: { type: "login" | "signup" }) {
   const label = type === "login" ? "Login" : "Sign Up";
+
   return (
     <div className="h-screen bg-white">
       <div className="flex min-h-full  flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -17,7 +18,7 @@ export function AuthForm({ type }: { type: "login" | "signup" }) {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <Form method="post" className="space-y-6" action="#">
+          <Form method="post" className="space-y-6">
             <div>
               <label
                 htmlFor="email"

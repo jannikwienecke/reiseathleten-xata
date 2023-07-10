@@ -19,9 +19,11 @@ export const isLoggedIn = async (
 };
 
 export const authenticate = async (request: Request) => {
+  const url = new URL(request.url);
+  const redirect = url.searchParams.get("redirect") || "/";
+
   await authenticator.authenticate("form", request, {
-    successRedirect: "/vacation",
-    // failureRedirect: "/signup",
+    successRedirect: redirect,
     throwOnError: true,
   });
 };

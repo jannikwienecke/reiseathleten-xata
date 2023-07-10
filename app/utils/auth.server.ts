@@ -1,38 +1,39 @@
 import bcrypt from "bcryptjs";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
-import { type User, getXataClient, XataClient } from "utils/xata";
-import { sessionStorage } from "./session.server";
-import { XataApiClient } from "@xata.io/client";
+import { type User } from "utils/xata";
 import { prisma } from "~/db.server";
+import { UserRepoMock } from "~/features/auth/repos/implementations/userRepoMockServer";
+import { UserRepoPrisma } from "~/features/auth/repos/implementations/userRepoPrisma";
+import type { UserRepo } from "~/features/auth/repos/userRepo";
+import { IS_PRODUCTION } from "~/shared/constants/base";
+import { sessionStorage } from "./session.server";
 
 const authenticator = new Authenticator<User>(sessionStorage);
-
-// const formStrategy = new FormStrategy(signupAction);
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
     const email = form.get("email") as string;
     const password = form.get("password") as string;
 
-    const user = await prisma.user.findFirst({ where: { email } });
-    if (!user) {
-      console.error("wrong email");
-      throw new AuthorizationError();
-    }
+    const userRepo: UserRepo = IS_PRODUCTION
+      ? new UserRepoPrisma(prisma)
+      : new UserRepoMock();
+
+    const user = await userRepo.login({ email, password });
+
+    if (!user) throw new AuthorizationError();
 
     const passwordsMatch = await bcrypt.compare(
       password,
-      user.password as string
+      user.props.password as string
     );
 
-    if (!passwordsMatch) {
-      throw new AuthorizationError();
-    }
+    if (!passwordsMatch) throw new AuthorizationError();
 
     return {
       ...user,
-      id: user.id.toString(),
+      id: user.props.id.toString(),
     };
   }),
   // each strategy has a name and can be changed to use another one

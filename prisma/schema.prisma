@@ -10,7 +10,7 @@ datasource db {
 model AcitivityDescription {
   id              Int               @id @default(autoincrement())
   name            String
-  description     String?
+  description     String
   ActivityBooking ActivityBooking[]
 }
 

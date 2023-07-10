@@ -3,8 +3,11 @@ import { AuthForm } from "~/features/vacation/container/auth-form";
 import { authenticate, isLoggedIn } from "~/utils/helper";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
+  const url = new URL(request.url);
+  const redirect = url.searchParams.get("redirect") || "/";
+
   await isLoggedIn(request, {
-    successRedirect: "/",
+    successRedirect: redirect,
   });
 
   return {

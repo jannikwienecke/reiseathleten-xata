@@ -6,6 +6,7 @@ import { vacationLoader, vacationAction } from "~/features/vacation";
 import { ActivityBookingBottomSheet } from "~/features/vacation/container/activity-booking-bottom-sheet";
 import { ActivityList } from "~/features/vacation/container/activity-list";
 import { VacationDatePicker } from "~/features/vacation/container/vacation-date-picker";
+import { VacationNotFound } from "~/features/vacation/container/vacation-not-found";
 import { VacationMap } from "~/features/vacation/mapper/vacationMapper";
 import {
   initVacation,
@@ -22,9 +23,12 @@ export default function NotesRoute() {
   const vacation = useVacationStore((state) => state.vacation);
 
   React.useEffect(() => {
+    if (!data.vacation) return;
     initVacation(VacationMap.toDomain(data.vacation));
   }, [data.vacation]);
 
+  // no vacation found
+  if (!vacation.props && !data.vacation) return <VacationNotFound />;
   if (!vacation.props) return null;
   return <NotesContent />;
 }
