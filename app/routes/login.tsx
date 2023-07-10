@@ -1,7 +1,8 @@
 import type { DataFunctionArgs } from "@remix-run/node";
+import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { AuthForm } from "~/features/vacation/container/auth-form";
 import { authenticate, isLoggedIn } from "~/utils/helper";
-import { waitFor } from "~/utils/misc";
+import { isError } from "~/utils/misc";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   const url = new URL(request.url);
@@ -17,9 +18,31 @@ export const loader = async ({ request }: DataFunctionArgs) => {
 };
 
 export const action = async ({ request }: DataFunctionArgs) => {
-  return await authenticate(request);
+  try {
+    await authenticate(request);
+    return {};
+  } catch (error) {
+    if (!isError(error)) throw error;
+
+    const errorString = String(error).toLowerCase();
+    if (errorString.includes("password")) {
+      return {
+        error: error.message,
+      };
+    } else if (errorString.includes("user not found")) {
+      return {
+        error: error.message,
+      };
+    } else {
+      throw error;
+    }
+  }
 };
 
 export default function Login() {
   return <AuthForm type="login" />;
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  return <GeneralErrorBoundary />;
 }

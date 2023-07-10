@@ -28,8 +28,6 @@ export const CONFIG: ConfigType = {
             description: getFormDataValue(formData, "description"),
           });
         } catch (e: any) {
-          console.log(e);
-
           throw {
             message: e.message,
             status: e.status,

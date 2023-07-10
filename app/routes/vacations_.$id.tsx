@@ -1,10 +1,11 @@
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import { format } from "date-fns";
 import React from "react";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { vacationLoader, vacationAction } from "~/features/vacation";
 import { ActivityBookingBottomSheet } from "~/features/vacation/container/activity-booking-bottom-sheet";
 import { ActivityList } from "~/features/vacation/container/activity-list";
+import { Header } from "~/features/vacation/container/header";
 import { VacationDatePicker } from "~/features/vacation/container/vacation-date-picker";
 import { VacationNotFound } from "~/features/vacation/container/vacation-not-found";
 import { VacationMap } from "~/features/vacation/mapper/vacationMapper";
@@ -41,25 +42,30 @@ const NotesContent = () => {
 
   return (
     <>
-      <div className="flex h-full flex-col">
-        {/* ActivityBottomshe */}
-        <ActivityBookingBottomSheet />
-
-        <div className="mx-4 mt-2 flex flex-row items-center justify-center rounded-2xl bg-gray-700 pb-4 text-white">
-          <VacationDatePicker />
+      <div className="flex h-full flex-col items-center ">
+        <div className="pb-2 w-full">
+          <Header />
         </div>
+        {/* ActivityBottomshe */}
+        <div className="max-w-3xl w-full">
+          <ActivityBookingBottomSheet />
 
-        {activitiesUnallocated.length ? (
+          <div className="mx-4 mt-2 flex flex-row items-center justify-center rounded-2xl bg-gray-700 pb-4 text-white">
+            <VacationDatePicker />
+          </div>
+
+          {activitiesUnallocated.length ? (
+            <ActivityList
+              title={"Open Activities"}
+              activities={activitiesUnallocated}
+            />
+          ) : null}
+
           <ActivityList
-            title={"Open Activities"}
-            activities={activitiesUnallocated}
+            title={format(selectedDay, "dd.MM.yyyy")}
+            activities={activitiesSelectedDay}
           />
-        ) : null}
-
-        <ActivityList
-          title={format(selectedDay, "dd.MM.yyyy")}
-          activities={activitiesSelectedDay}
-        />
+        </div>
       </div>
     </>
   );

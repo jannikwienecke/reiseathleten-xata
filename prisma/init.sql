@@ -22,7 +22,8 @@ CREATE TABLE "public"."AcitivityDescription" (
 
 CREATE TABLE "public"."User" (
     "id" SERIAL,
-    "email" text  NOT NULL ,
+    -- -make email unique
+    "email" text  NOT NULL UNIQUE,
     "password" text  NOT NULL ,
     PRIMARY KEY ("id")
 );
@@ -100,7 +101,7 @@ INSERT INTO "public"."Tag" ("label", "colorId") VALUES ('City', 2);
 INSERT INTO "public"."Tag" ("label", "colorId") VALUES ('Nature', 3);
 INSERT INTO "public"."Tag" ("label", "colorId") VALUES ('Culture', 4);
 
-INSERT INTO "public"."User" ("email", "password") VALUES ('admin@admin.de', 'admin');
+INSERT INTO "public"."User" ("email", "password") VALUES ('admin@admin.de', '$2a$10$eCpSPy/E9R5yMBgrmERfN.9ywbnFkexKMfLgHwWscfsVC92R7.mq2');
 
 INSERT INTO "public"."Location" ("name", "description") VALUES ('Berlin', 'Capital of Germany');
 INSERT INTO "public"."Location" ("name", "description") VALUES ('Hamburg', 'City in the north of Germany');

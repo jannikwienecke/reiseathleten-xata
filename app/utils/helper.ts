@@ -20,7 +20,7 @@ export const isLoggedIn = async (
 
 export const authenticate = async (request: Request) => {
   const url = new URL(request.url);
-  const redirect = url.searchParams.get("redirect") || "/";
+  const redirect = url.searchParams.get("redirect") || "/vacations";
 
   await authenticator.authenticate("form", request, {
     successRedirect: redirect,

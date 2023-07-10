@@ -42,6 +42,12 @@ export function getErrorMessage(error: unknown) {
   return "Unknown Error";
 }
 
+export function getErrorStack(error: unknown) {
+  return error && typeof error === "object" && "stack" in error
+    ? (error.stack as string)
+    : "";
+}
+
 function debounce<Callback extends (...args: Parameters<Callback>) => void>(
   fn: Callback,
   delay: number
@@ -104,3 +110,6 @@ export function useDoubleCheck() {
 
 export const waitFor = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+export const isError = (error: unknown): error is Error =>
+  error instanceof Error;

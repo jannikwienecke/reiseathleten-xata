@@ -25,14 +25,18 @@ authenticator.use(
 
     const [user] = await Promise.all([userPromise, waitFor(1000)]);
 
-    if (!user) throw new AuthorizationError();
+    if (!user) {
+      throw new AuthorizationError("User not found");
+    }
 
     const passwordsMatch = await bcrypt.compare(
       password,
       user.props.password as string
     );
 
-    if (!passwordsMatch) throw new AuthorizationError();
+    if (!passwordsMatch) {
+      throw new AuthorizationError("Password is incorrect");
+    }
 
     return {
       ...user,

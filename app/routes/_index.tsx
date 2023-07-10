@@ -1,4 +1,5 @@
 import type { V2_MetaFunction } from "@remix-run/node";
+import { GeneralErrorBoundary } from "~/components/error-boundary";
 
 export const meta: V2_MetaFunction = () => {
   return [
@@ -9,17 +10,12 @@ export const meta: V2_MetaFunction = () => {
 
 export default function Index() {
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      HELLO WORLD
-    </div>
+    <div
+      style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}
+    ></div>
   );
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
-  return (
-    <div>
-      <h1>Oh no, an error occurred!</h1>
-      <pre>{JSON.stringify(error)}</pre>
-    </div>
-  );
+  return <GeneralErrorBoundary />;
 }
