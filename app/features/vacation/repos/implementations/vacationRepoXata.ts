@@ -12,18 +12,12 @@ export class VacationRepoXata implements VacationRepo {
     this.client = client;
   }
 
-  async getVacationById(id: string) {
-    console.log("___GET VACATION BY ID___", id);
-
+  async getVacationById(id: number) {
     try {
-      console.log(this.client.db.Vacation);
-
       const vacation = await this.client.db.Vacation.select(["*", "location.*"])
         //   .filter({ user: user?.id })
         .filter({ id })
         .getFirst();
-
-      console.log("HIE!!!!");
 
       const activitiesResult = await this.client.db.VacationActivity.select([
         "activity.activity.*",

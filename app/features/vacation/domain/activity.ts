@@ -10,7 +10,7 @@ interface ActivityProps {
   datetime?: DateValueObject;
   name: ActivityNameValueObject;
   description: ActivityDescriptionValueObject;
-  id: string;
+  id: number;
 }
 
 export class ActivityEntity extends Entity<ActivityProps> {

@@ -2,13 +2,11 @@ import { Entity } from "~/shared/domain/entity";
 import type { LocationEntity } from "./location";
 import type { ActivityEntity } from "./activity";
 import type { DateValueObject } from "./date";
-import { fromJSON } from "postcss";
-import { Vacation } from "utils/xata";
 
 interface VacationProps {
   activities: ActivityEntity[];
   location: LocationEntity;
-  id: string;
+  id: number;
   startDate: DateValueObject;
   endDate: DateValueObject;
 }
@@ -16,11 +14,11 @@ interface VacationProps {
 export class VacationEntity extends Entity<VacationProps> {
   private _pendingActivity: ActivityEntity | null = null;
 
-  private constructor(props: VacationProps, id?: string) {
+  private constructor(props: VacationProps, id?: number) {
     super(props, id);
   }
 
-  static create(props: VacationProps, id?: string) {
+  static create(props: VacationProps, id?: number) {
     return new VacationEntity(props, id);
   }
 

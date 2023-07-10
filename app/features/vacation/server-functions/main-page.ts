@@ -9,13 +9,9 @@ interface LoaderData {
 
 export const vacationLoader = createLoader(
   async ({ repository, request }): Promise<LoaderData> => {
-    console.log("vacationLoader....");
-
     await isLoggedIn(request);
 
-    const vacation = await repository.vacation.getVacationById(
-      "rec_chro3uqqsbcn5poqocb0"
-    );
+    const vacation = await repository.vacation.getVacationById(1);
     return { vacation };
   }
 );
@@ -29,7 +25,7 @@ export const vacationAction = createAction(async ({ request, repository }) => {
   invariant(activityId, "activityId is required");
 
   await repository.activity.confirmDate(
-    activityId as string,
+    Number(activityId),
     new Date(datetime as string).toISOString()
   );
 

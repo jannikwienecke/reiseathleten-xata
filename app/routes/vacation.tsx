@@ -18,6 +18,7 @@ export const action = vacationAction;
 
 export default function NotesRoute() {
   const data = useLoaderData<typeof loader>();
+
   const vacation = useVacationStore((state) => state.vacation);
 
   React.useEffect(() => {

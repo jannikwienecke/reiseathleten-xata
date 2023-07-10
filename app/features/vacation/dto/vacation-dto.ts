@@ -8,7 +8,8 @@ export interface ActivityBookingInterface {
   isFixedDate: boolean;
   description: string;
   name: string;
-  id: string;
+  id: number;
+  tags: TagInterface[];
 }
 
 export interface LocationInterface {
@@ -17,7 +18,7 @@ export interface LocationInterface {
 }
 
 export interface VacationInterface {
-  id: string;
+  id: number;
   name: string;
   startDate: string;
   endDate: string;
@@ -28,5 +29,4 @@ export interface VacationDtoProps {
   vacation: VacationInterface;
   activities: ActivityBookingInterface[];
   location: LocationInterface;
-  tags: TagInterface[];
 }

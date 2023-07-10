@@ -1,7 +1,7 @@
-import { AuthorizationError } from "remix-auth";
-import { authenticator } from "./auth.server";
 import bcrypt from "bcryptjs";
-import { getXataClient } from "utils/xata";
+import { AuthorizationError } from "remix-auth";
+import { prisma } from "~/db.server";
+import { authenticator } from "./auth.server";
 
 export const isLoggedIn = async (
   request: Request,
@@ -10,8 +10,6 @@ export const isLoggedIn = async (
     failureRedirect?: string | undefined;
   }
 ) => {
-  // console.log('IS');
-
   const user = await authenticator.isAuthenticated(
     request,
     options || ({} as any)
@@ -21,8 +19,6 @@ export const isLoggedIn = async (
 };
 
 export const authenticate = async (request: Request) => {
-  console.log("authenticate...");
-
   await authenticator.authenticate("form", request, {
     successRedirect: "/vacation",
     // failureRedirect: "/signup",
@@ -34,8 +30,7 @@ export const signupAction = async ({ form }: { form: FormData }) => {
   const email = form.get("email") as string;
   const password = form.get("password") as string;
 
-  const xata = getXataClient();
-  const user = await xata.db.User.filter({ email }).getFirst();
+  const user = await prisma.user.findFirst({ where: { email } });
 
   if (!user) {
     console.error("wrong email");

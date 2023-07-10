@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model AcitivityDescription {
+  id              Int               @id @default(autoincrement())
+  name            String
+  description     String?
+  ActivityBooking ActivityBooking[]
+}
+
+model AcitivityTag {
+  id                Int             @id @default(autoincrement())
+  tagId             Int
+  activityBookingId Int
+  ActivityBooking   ActivityBooking @relation(fields: [activityBookingId], references: [id], onDelete: Cascade)
+  Tag               Tag             @relation(fields: [tagId], references: [id], onDelete: Cascade)
+}
+
+model ActivityBooking {
+  id                     Int                  @id @default(autoincrement())
+  datetime               DateTime?
+  isFixedDate            Boolean              @default(false)
+  acitivityDescriptionId Int
+  AcitivityTag           AcitivityTag[]
+  AcitivityDescription   AcitivityDescription @relation(fields: [acitivityDescriptionId], references: [id], onDelete: Cascade)
+  VacationActivity       VacationActivity[]
+}
+
+model Color {
+  id   Int    @id @default(autoincrement())
+  name String
+  Tag  Tag[]
+}
+
+model Location {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  Vacation    Vacation[]
+}
+
+model Tag {
+  id           Int            @id @default(autoincrement())
+  label        String
+  colorId      Int
+  AcitivityTag AcitivityTag[]
+  Color        Color          @relation(fields: [colorId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id       Int        @id @default(autoincrement())
+  email    String
+  password String
+  Vacation Vacation[]
+}
+
+model Vacation {
+  id               Int                @id @default(autoincrement())
+  name             String             @default("My Vacation")
+  userId           Int
+  startDate        DateTime           @default(now())
+  endDate          DateTime           @default(now())
+  description      String?
+  locationId       Int
+  Location         Location           @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  User             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  VacationActivity VacationActivity[]
+}
+
+model VacationActivity {
+  id                Int             @id @default(autoincrement())
+  vacationId        Int
+  activityBookingId Int
+  ActivityBooking   ActivityBooking @relation(fields: [activityBookingId], references: [id], onDelete: Cascade)
+  Vacation          Vacation        @relation(fields: [vacationId], references: [id], onDelete: Cascade)
+}

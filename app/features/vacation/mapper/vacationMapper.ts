@@ -1,5 +1,3 @@
-// export class PostMap implements Mapper<Post> {
-
 import { VacationEntity } from "../domain/vacation";
 import { LocationEntity } from "../domain/location";
 import { TagValueObject } from "../domain/tag";
@@ -13,7 +11,6 @@ export class VacationMap {
   public static toDomain({
     location,
     activities,
-    tags,
     vacation,
   }: VacationDtoProps): VacationEntity {
     if (!location) throw new Error("location not found");
@@ -23,16 +20,9 @@ export class VacationMap {
       description: location.description || "",
     });
 
-    const _tags = tags.map((t) =>
-      TagValueObject.create({
-        label: t.label || "",
-        color: t.color || "",
-      })
-    );
-
     const _activities = activities.map((a) =>
       ActivityEntity.create({
-        id: a.id || "",
+        id: a.id,
         datetime: DateValueObject.create({
           value: a.datetime?.toString() || undefined,
         }),
@@ -41,12 +31,14 @@ export class VacationMap {
         description: ActivityDescriptionValueObject.create({
           value: a.description || "",
         }),
-        tags: _tags,
+        tags: a.tags.map((t) =>
+          TagValueObject.create({ color: t.color, label: t.label })
+        ),
       })
     );
 
     return VacationEntity.create({
-      id: vacation.id || "",
+      id: vacation.id,
       startDate: DateValueObject.create({
         value: vacation.startDate.toString(),
       }),

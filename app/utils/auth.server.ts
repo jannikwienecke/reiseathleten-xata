@@ -4,6 +4,7 @@ import { FormStrategy } from "remix-auth-form";
 import { type User, getXataClient, XataClient } from "utils/xata";
 import { sessionStorage } from "./session.server";
 import { XataApiClient } from "@xata.io/client";
+import { prisma } from "~/db.server";
 
 const authenticator = new Authenticator<User>(sessionStorage);
 
@@ -14,32 +15,7 @@ authenticator.use(
     const email = form.get("email") as string;
     const password = form.get("password") as string;
 
-    console.log("email", email);
-    console.log("password", password);
-
-    let xata: XataClient;
-    try {
-      console.log("GET XATA CLIENT");
-
-      xata = getXataClient();
-    } catch (error) {
-      console.error("===ERROR===", error);
-      throw new Error("Could not get xata client");
-    }
-
-    let user: any = null;
-    try {
-      console.log("get User");
-
-      user = await xata.db.User.filter({ email }).getFirst();
-      console.log("user", user);
-    } catch (error) {
-      console.error("===ERROR===");
-      console.log(error);
-    }
-
-    console.log("user", user);
-
+    const user = await prisma.user.findFirst({ where: { email } });
     if (!user) {
       console.error("wrong email");
       throw new AuthorizationError();
@@ -54,7 +30,10 @@ authenticator.use(
       throw new AuthorizationError();
     }
 
-    return user;
+    return {
+      ...user,
+      id: user.id.toString(),
+    };
   }),
   // each strategy has a name and can be changed to use another one
   // same strategy multiple times, especially useful for the OAuth2 strategy.
