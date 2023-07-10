@@ -10,7 +10,7 @@ interface LoaderData {
 export const vacationLoader = createLoader(
   async ({ repository, request, params }): Promise<LoaderData> => {
     const user = await isLoggedIn(request, {
-      failureRedirect: `/login?redirect=/vacation/${params.id}`,
+      failureRedirect: `/login?redirect=/vacations/${params.id}`,
     });
     const { id } = params;
 
