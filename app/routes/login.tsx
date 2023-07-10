@@ -1,6 +1,7 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { AuthForm } from "~/features/vacation/container/auth-form";
 import { authenticate, isLoggedIn } from "~/utils/helper";
+import { waitFor } from "~/utils/misc";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   const url = new URL(request.url);

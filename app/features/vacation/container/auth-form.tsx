@@ -1,6 +1,12 @@
-import { Form } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
+import clsx from "clsx";
+import { RocketIcon } from "~/components/icons";
 
 export function AuthForm({ type }: { type: "login" | "signup" }) {
+  const navigation = useNavigation();
+
+  const isLoading = navigation.state !== "idle";
+
   const label = type === "login" ? "Login" : "Sign Up";
 
   return (
@@ -61,10 +67,20 @@ export function AuthForm({ type }: { type: "login" | "signup" }) {
 
             <div>
               <button
+                disabled={isLoading}
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className={clsx(
+                  "flex w-full justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-white hover:border-2 hover:border-black  hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black",
+                  isLoading && "opacity-70"
+                )}
               >
-                {label}
+                {!isLoading ? (
+                  <>{label}</>
+                ) : (
+                  <>
+                    <RocketIcon animate={true} />
+                  </>
+                )}
               </button>
             </div>
           </Form>

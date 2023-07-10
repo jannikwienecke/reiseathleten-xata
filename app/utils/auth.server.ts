@@ -8,6 +8,7 @@ import { UserRepoPrisma } from "~/features/auth/repos/implementations/userRepoPr
 import type { UserRepo } from "~/features/auth/repos/userRepo";
 import { IS_PRODUCTION } from "~/shared/constants/base";
 import { sessionStorage } from "./session.server";
+import { waitFor } from "./misc";
 
 const authenticator = new Authenticator<User>(sessionStorage);
 
@@ -20,7 +21,9 @@ authenticator.use(
       ? new UserRepoPrisma(prisma)
       : new UserRepoMock();
 
-    const user = await userRepo.login({ email, password });
+    const userPromise = userRepo.login({ email, password });
+
+    const [user] = await Promise.all([userPromise, waitFor(1000)]);
 
     if (!user) throw new AuthorizationError();
 

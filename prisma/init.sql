@@ -136,3 +136,4 @@ INSERT INTO "public"."VacationActivity" ("vacationId", "activityBookingId") VALU
 INSERT INTO "public"."VacationActivity" ("vacationId", "activityBookingId") VALUES (1, 4);
 INSERT INTO "public"."VacationActivity" ("vacationId", "activityBookingId") VALUES (1, 5);
 
+
