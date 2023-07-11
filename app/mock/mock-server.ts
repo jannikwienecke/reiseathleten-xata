@@ -43,6 +43,10 @@ server.get("/vacations/:id", (req: any, res: any) => {
   res.jsonp(vacation);
 });
 
+server.get("/vacations", (req: any, res: any) => {
+  res.jsonp(dbJson.vacations.map((v) => v.vacation));
+});
+
 server.post("/vacations/:id/update-activity-date", (req: any, res: any) => {
   const vacationId = req.params.id;
   const { activityId, date } = req.body;
