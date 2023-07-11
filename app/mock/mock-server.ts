@@ -59,7 +59,7 @@ server.post("/vacations/:id/update-activity-date", (req: any, res: any) => {
 
   const vacations: VacationDtoProps[] = dbJson.vacations.map(
     (v: VacationDtoProps) => {
-      if (v.vacation.id !== vacationId) {
+      if (v.vacation.id.toString() !== vacationId.toString()) {
         return v;
       }
 
