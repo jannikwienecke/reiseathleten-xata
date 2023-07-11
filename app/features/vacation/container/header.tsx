@@ -1,6 +1,7 @@
 import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
 import { BellIcon } from "@heroicons/react/24/outline";
-import { Form } from "@remix-run/react";
+import { Form, Link } from "@remix-run/react";
 import clsx from "clsx";
 import { Fragment } from "react";
 import logo from "../../../logo.png";
@@ -13,16 +14,20 @@ export function Header() {
             <div className="relative flex h-16 justify-between">
               <div className="absolute inset-y-0 left-2 flex items-center sm:hidden">
                 <div className="flex flex-shrink-0 items-center">
-                  <img
-                    className="block h-8 w-auto lg:hidden"
-                    src={logo}
-                    alt="Reiseathleten"
-                  />
-                  <img
-                    className="hidden h-8 w-auto lg:block"
-                    src={logo}
-                    alt="Reiseathleten"
-                  />
+                  <a href="https://reiseathleten.de/">
+                    <img
+                      className="block h-8 w-auto lg:hidden"
+                      src={logo}
+                      alt="Reiseathleten"
+                    />
+                  </a>
+                  <a href="https://reiseathleten.de/">
+                    <img
+                      className="hidden h-8 w-auto lg:block"
+                      src={logo}
+                      alt="Reiseathleten"
+                    />
+                  </a>
                 </div>
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
@@ -50,11 +55,7 @@ export function Header() {
                   <div>
                     <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                       <span className="sr-only">Open user menu</span>
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt=""
-                      />
+                      <EllipsisHorizontalIcon className="h-5 w-5s text-black" />
                     </Menu.Button>
                   </div>
                   <Transition
@@ -67,6 +68,17 @@ export function Header() {
                     leaveTo="transform opacity-0 scale-95"
                   >
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <Menu.Item>
+                        {({ active }) => (
+                          <Link
+                            to="/vacations"
+                            className="w-full  text-left text-sm py-2 text-gray-700 px-4 block"
+                          >
+                            All Vacations
+                          </Link>
+                        )}
+                      </Menu.Item>
+
                       <Menu.Item>
                         {({ active }) => (
                           <Form
