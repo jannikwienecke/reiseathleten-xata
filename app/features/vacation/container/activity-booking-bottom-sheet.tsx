@@ -1,10 +1,12 @@
 import { Dialog } from "@headlessui/react";
+import clsx from "clsx";
 import { BottomSheetModal } from "~/components/bottom-sheet-modal";
 import { CheckIcon, RocketIcon } from "~/components/icons";
-import { getCurrentDateString } from "~/utils/helper";
+import { getDateString } from "~/utils/helper";
 import type { ActivityEntity } from "../domain/activity";
 import { closeAcitivtyModal, useVacationStore } from "../store/vacation-store";
 import { useActivityBookingBottomSheet } from "./hooks/use-activity-booking-bottom-sheet";
+import { InvalidDateAlert } from "./invalid-date-alert";
 
 export const ActivityBookingBottomSheet = () => {
   const selectedActivity = useVacationStore(
@@ -31,10 +33,22 @@ const ActivityContent = ({ activity }: { activity: ActivityEntity }) => {
     isSubmitting,
     activityIsBooked,
     closeAcitivtyModal,
+    startDate,
+    endDate,
+    handleChangeDate,
+    minStartDateActivity,
+    handleCloseInvalidAlert,
+    showInvalidAlert,
+    hasInvalidDate,
   } = useActivityBookingBottomSheet();
 
   return (
     <>
+      <InvalidDateAlert
+        isOpen={showInvalidAlert}
+        onClose={handleCloseInvalidAlert}
+      />
+
       <div>
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
           <RocketIcon />
@@ -61,9 +75,12 @@ const ActivityContent = ({ activity }: { activity: ActivityEntity }) => {
               <div className="flex w-full flex-row justify-center pt-2">
                 <input
                   ref={inputRef}
+                  onChange={handleChangeDate}
+                  min={getDateString(startDate)}
+                  max={getDateString(endDate)}
                   type="datetime-local"
                   className="block w-[75vw] rounded-md border border-gray-300 px-2 py-1 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  defaultValue={getCurrentDateString()}
+                  defaultValue={getDateString(minStartDateActivity)}
                 />
               </div>
             ) : null}
@@ -76,11 +93,13 @@ const ActivityContent = ({ activity }: { activity: ActivityEntity }) => {
               <div className="grid place-items-center">
                 <input
                   disabled
+                  onChange={handleChangeDate}
+                  min={getDateString(startDate)}
+                  max={getDateString(endDate)}
                   type="datetime-local"
                   className="block w-[75vw] rounded-md border border-gray-300 px-2  py-1 text-center focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   defaultValue={
-                    inputDefaultDate ||
-                    new Date().toLocaleDateString().slice(0, 16)
+                    inputDefaultDate || getDateString(minStartDateActivity)
                   }
                 />
               </div>
@@ -93,14 +112,18 @@ const ActivityContent = ({ activity }: { activity: ActivityEntity }) => {
       <div className="mt-5 flex flex-col gap-1 sm:mt-6">
         {!activityHasFixedDate ? (
           <button
-            disabled={isSubmitting}
+            disabled={isSubmitting || hasInvalidDate}
             type="button"
-            className={`inline-flex w-full justify-center rounded-md ${
-              bookTime ? "bg-green-300 " : "bg-yellow-300"
-            } px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 `}
+            className={clsx(
+              "inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+              bookTime ? "bg-green-300 " : "bg-yellow-300",
+              hasInvalidDate ? "bg-red-300 opacity-60" : ""
+            )}
             onClick={bookTime ? handleClickConfirm : handleClickBookTime}
           >
-            {isSubmitting ? (
+            {hasInvalidDate ? (
+              <>Invalid Date</>
+            ) : isSubmitting ? (
               <div className="flex flex-row items-center gap-2">
                 <div>
                   <RocketIcon animate={true} />

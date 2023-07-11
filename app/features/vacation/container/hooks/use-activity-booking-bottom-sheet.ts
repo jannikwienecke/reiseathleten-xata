@@ -1,18 +1,18 @@
 import { useActionData, useSubmit, useNavigation } from "@remix-run/react";
 import React from "react";
-import { useVacationStore } from "../../store/vacation-store";
+import {
+  closeAcitivtyModal,
+  useVacationStore,
+} from "../../store/vacation-store";
 
 export const useActivityBookingBottomSheet = () => {
   // LOCAL STATE
   const [bookTime, setBookTime] = React.useState(false);
   const [activityIsBooked, setActivityIsBooked] = React.useState(false);
+  const [showInvalidAlert, setShowInvalidAlert] = React.useState(false);
+  const [hasInvalidDate, setHasInvalidDate] = React.useState(false);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-
-  //   GLOBAL STATE
-  const closeAcitivtyModal = useVacationStore(
-    (state) => state.closeAcitivtyModal
-  );
 
   const vacation = useVacationStore((state) => state.vacation);
 
@@ -25,6 +25,11 @@ export const useActivityBookingBottomSheet = () => {
   const activityHasFixedDate = vacation.pendingActivityHasFixedDate;
   const inputDefaultDate = vacation.startDatePendingActivity;
 
+  const { startDate, endDate } = vacation;
+
+  const minStartDateActivity = startDate;
+  minStartDateActivity?.setHours(8, 0, 0, 0);
+
   const handleClickBookTime = () => {
     setBookTime(true);
   };
@@ -34,11 +39,31 @@ export const useActivityBookingBottomSheet = () => {
     const formData = new FormData();
 
     formData.append("datetime", datetime);
-    formData.append("activityId", vacation.pendingActivity?.props?.id ?? "");
+    formData.append(
+      "activityId",
+      String(vacation.pendingActivity?.props?.id ?? "")
+    );
 
     submit(formData, {
       method: "post",
     });
+  };
+
+  const handleChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const hours = new Date(e.target.value).getHours();
+
+    if (hours < 8 || hours > 20) {
+      setShowInvalidAlert(true);
+      setHasInvalidDate(true);
+      e.target.value = "";
+    } else {
+      setHasInvalidDate(false);
+      setShowInvalidAlert(false);
+    }
+  };
+
+  const handleCloseInvalidAlert = () => {
+    setShowInvalidAlert(false);
   };
 
   React.useEffect(
@@ -50,7 +75,7 @@ export const useActivityBookingBottomSheet = () => {
         setTimeout(closeAcitivtyModal, 1000);
       }
     },
-    [actionData?.success, closeAcitivtyModal, navigation.state]
+    [actionData?.success, navigation.state]
   );
 
   return {
@@ -63,5 +88,12 @@ export const useActivityBookingBottomSheet = () => {
     closeAcitivtyModal,
     handleClickBookTime,
     handleClickConfirm,
+    startDate,
+    endDate,
+    handleChangeDate,
+    minStartDateActivity,
+    showInvalidAlert,
+    handleCloseInvalidAlert,
+    hasInvalidDate,
   };
 };

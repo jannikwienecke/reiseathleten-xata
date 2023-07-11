@@ -55,15 +55,14 @@ export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export const getCurrentDateString = () => {
-  const currentDate = new Date();
-
+export const getDateString = (date?: Date | null) => {
+  if (!date) return "";
   const values = [
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    currentDate.getDate(),
-    currentDate.getHours(),
-    currentDate.getMinutes(),
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes(),
   ];
 
   const parsedValues = values.map((v) => (v < 10 ? `0${v}` : v));
