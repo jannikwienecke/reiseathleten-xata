@@ -1,6 +1,7 @@
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import clsx from "clsx";
 import { RocketIcon } from "~/components/icons";
+import logo from "../../../logo.png";
 
 export function AuthForm({ type }: { type: "login" | "signup" }) {
   const action = useActionData() as
@@ -26,8 +27,9 @@ export function AuthForm({ type }: { type: "login" | "signup" }) {
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-            alt="Your Company"
+            // src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            src={logo}
+            alt="Reiseathleten"
           />
           <h2 className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-gray-900">
             {label}
@@ -119,8 +121,8 @@ export function AuthForm({ type }: { type: "login" | "signup" }) {
 
               <div className="mt-4 flex items-center justify-between">
                 <div className="text-sm leading-5">
-                  <a
-                    href={`/${type === "login" ? "signup" : "login"}`}
+                  <Link
+                    to={`/${type === "login" ? "signup" : "login"}`}
                     className="font-medium text-black hover:text-gray-500 focus:outline-none focus:underline transition ease-in-out duration-150"
                   >
                     {type === "signup" ? (
@@ -134,7 +136,7 @@ export function AuthForm({ type }: { type: "login" | "signup" }) {
                         <span className="text-indigo-500">Sign Up</span>
                       </>
                     )}
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
