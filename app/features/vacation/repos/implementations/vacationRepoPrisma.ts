@@ -1,5 +1,8 @@
 import type { PrismaClient } from "@prisma/client";
-import type { VacationDtoProps } from "../../dto/vacation-dto";
+import type {
+  VacationDtoProps,
+  VacationsDtoProps,
+} from "../../dto/vacation-dto";
 import type { VacationRepo } from "../vacationRepo";
 
 export class VacationRepoPrisma implements VacationRepo {
@@ -7,6 +10,24 @@ export class VacationRepoPrisma implements VacationRepo {
 
   constructor(client: PrismaClient) {
     this.client = client;
+  }
+  async getVacationsByUserId(userId: number): Promise<VacationsDtoProps> {
+    const rawVacations = await this.client.vacation.findMany({
+      where: {
+        userId,
+      },
+    });
+
+    const vacations: VacationsDtoProps = rawVacations.map((rawVacation) => {
+      return {
+        ...rawVacation,
+        startDate: rawVacation.startDate.toISOString(),
+        endDate: rawVacation.endDate.toISOString(),
+        description: rawVacation.description || undefined,
+      };
+    });
+
+    return vacations;
   }
 
   async getVacationById(id: number, userId: number) {

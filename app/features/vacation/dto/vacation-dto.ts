@@ -30,3 +30,5 @@ export interface VacationDtoProps {
   activities: ActivityBookingInterface[];
   location: LocationInterface;
 }
+
+export type VacationsDtoProps = VacationInterface[];
