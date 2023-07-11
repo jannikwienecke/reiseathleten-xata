@@ -1,8 +1,8 @@
 import { Layout, Notification, Table } from "~/components";
+import { CONFIG } from "~/features/vacation-admin/config";
 import { createPageFunction } from "~/utils/lib/core";
 import { useAdminPage } from "~/utils/lib/hooks";
 import { LibForm, LibProvider, LibSliderOver } from "~/utils/lib/react";
-import { CONFIG } from "./admin";
 
 export const pageFunction = createPageFunction({
   config: CONFIG,

@@ -1,8 +1,8 @@
-import { useNavigate, useNavigation } from "@remix-run/react";
+import { useNavigation } from "@remix-run/react";
 import React from "react";
 import { Form } from "./components/form";
-import type { ConfigType } from "./core";
 import { SlideOver } from "./components/slide-over";
+import type { ConfigType } from "./types";
 
 export const LibContext = React.createContext<{
   config: ConfigType;

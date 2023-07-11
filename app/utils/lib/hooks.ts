@@ -1,19 +1,16 @@
 import {
-  useParams,
-  useLoaderData,
-  useFetcher,
-  useNavigate,
-  useMatches,
-  useSearchParams,
   useActionData,
+  useLoaderData,
+  useNavigate,
   useNavigation,
+  useParams,
+  useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import invariant from "tiny-invariant";
 import { LibContext } from "./react";
-import { LibActionData, LibLoaderData } from "./core";
-import React from "react";
+import type { LibActionData, LibLoaderData } from "./types";
 
 export const useModel = () => {
   const { config } = useContext(LibContext);
@@ -52,10 +49,13 @@ export const useAdminPage = () => {
 
   const { data } = useLoaderData<LibLoaderData>();
   const actionData = useActionData<LibActionData>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const submit = useSubmit();
   const navigationState = useNavigation();
-  const { id } = useParams();
-  const singleItem = data?.find?.((item: any) => item.id === id);
+  const id = searchParams.get("id");
+  const singleItem = data?.find?.(
+    (item: any) => item.id.toString() === id?.toString()
+  );
 
   const dataItemDeleted = navigationState.formData?.get("id");
   const dataItemsDeleted = navigationState.formData
@@ -63,10 +63,12 @@ export const useAdminPage = () => {
     : undefined;
 
   const handleClickEdit = (dataItem: any) => {
-    navigate(`${dataItem?.id}`);
+    searchParams.set("action", "edit");
+    searchParams.set("id", dataItem.id);
+
+    setSearchParams(searchParams);
   };
 
-  const [searchParams, setSearchParams] = useSearchParams();
   const handelClickAdd = () => {
     searchParams.set("action", "create");
     setSearchParams(searchParams);
@@ -105,9 +107,12 @@ export const useAdminPage = () => {
 
   const getOverlayProps = () => {
     return {
-      isOpen: searchParams.get("action") === "create",
+      isOpen:
+        searchParams.get("action") === "create" ||
+        searchParams.get("action") === "edit",
       onCancel: () => {
         searchParams.delete("action");
+        searchParams.delete("id");
         setSearchParams(searchParams);
       },
     };
@@ -115,9 +120,10 @@ export const useAdminPage = () => {
 
   const getFormProps = () => {
     return {
-      title: "Title Form",
+      title: model.addForm.title,
       onCancel: () => {
         searchParams.delete("action");
+        searchParams.delete("id");
         setSearchParams(searchParams);
       },
       error: {
@@ -129,12 +135,28 @@ export const useAdminPage = () => {
 
   const getFormFieldProps = (field: React.HTMLProps<HTMLInputElement>) => {
     const isCreating = searchParams.get("action") === "create";
+    const isEditing = searchParams.get("action") === "edit";
     const isSubmitting = actionState === "loading";
+
+    const fieldModel = model.addForm.fields.find((f) => f.name === field.name);
+
+    let fieldDefaultValue: any = "";
+
+    if (isEditing && singleItem) {
+      fieldDefaultValue = singleItem[field.name || ""];
+    }
+
+    // for select fields
+    // to get the id of the connected model
+    const selectId =
+      singleItem?.[(fieldModel?.selectField?.fieldId as string) || "id"];
 
     return {
       ...field,
+      selectId,
       key: field.name,
-      value: isCreating && isSubmitting ? "" : field.value,
+      // defaultOptions: selectedOptions,
+      value: isCreating && isSubmitting ? "" : field.value || fieldDefaultValue,
       error:
         actionData?.field === field.name
           ? actionData?.fieldMessage || ""

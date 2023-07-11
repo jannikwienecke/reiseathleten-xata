@@ -20,13 +20,19 @@ export const ComboBox = <
   items,
   onSelect,
   onQueryChange,
+  defaultItem,
+  label,
 }: {
   items: TItem[];
   onSelect: (item: TItem) => void;
   onQueryChange?: (query: string) => void;
+  defaultItem?: TItem;
+  label: string;
 }) => {
   const [query, setQuery] = useState("");
-  const [selectedItem, setSelectedItem] = useState<TItem>();
+  const [selectedItem, setSelectedItem] = useState<TItem | undefined>(
+    defaultItem || undefined
+  );
 
   const filteredItems =
     query === ""
@@ -43,13 +49,26 @@ export const ComboBox = <
   const handleQueryChange = (query: string) => {
     setQuery(query);
     onQueryChange?.(query);
+    setSelectedItem(undefined);
   };
 
   return (
     <>
       <Combobox as="div" value={selectedItem} onChange={handleChangeItem}>
         <Combobox.Label className="block text-sm font-medium leading-6 text-gray-900">
-          Assigned to
+          <div className="flex flex-row space-x-1">
+            <div> {label.charAt(0).toUpperCase() + label.slice(1)}</div>
+            {selectedItem?.color ? (
+              <div className="grid place-items-center">
+                <span
+                  style={{
+                    backgroundColor: selectedItem?.color,
+                  }}
+                  className="h-2 w-2 inline-block flex-shrink-0 rounded-full"
+                />
+              </div>
+            ) : null}
+          </div>
         </Combobox.Label>
         <div className="relative mt-2">
           <Combobox.Input
@@ -79,43 +98,45 @@ export const ComboBox = <
                     )
                   }
                 >
-                  {({ active, selected }) => (
-                    <>
-                      <div className="flex items-center">
-                        {item?.color ? (
+                  {({ active, selected }) => {
+                    return (
+                      <>
+                        <div className="flex items-center">
+                          {item?.color ? (
+                            <span
+                              className={classNames(
+                                "inline-block h-2 w-2 flex-shrink-0 rounded-full mr-2"
+                              )}
+                              style={{
+                                backgroundColor: item.color,
+                              }}
+                              aria-hidden="true"
+                            />
+                          ) : null}
+
                           <span
                             className={classNames(
-                              "inline-block h-2 w-2 flex-shrink-0 rounded-full mr-2"
+                              "truncate",
+                              selected ? "font-semibold" : ""
                             )}
-                            style={{
-                              backgroundColor: item.color,
-                            }}
-                            aria-hidden="true"
-                          />
-                        ) : null}
+                          >
+                            {item.name}
+                          </span>
+                        </div>
 
-                        <span
-                          className={classNames(
-                            "truncate",
-                            selected ? "font-semibold" : ""
-                          )}
-                        >
-                          {item.name}
-                        </span>
-                      </div>
-
-                      {selected && (
-                        <span
-                          className={classNames(
-                            "absolute inset-y-0 left-0 flex items-center pl-1.5",
-                            active ? "text-white" : "text-indigo-600"
-                          )}
-                        >
-                          <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                        </span>
-                      )}
-                    </>
-                  )}
+                        {selected && (
+                          <span
+                            className={classNames(
+                              "absolute inset-y-0 left-0 flex items-center pl-1.5",
+                              active ? "text-white" : "text-indigo-600"
+                            )}
+                          >
+                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                          </span>
+                        )}
+                      </>
+                    );
+                  }}
                 </Combobox.Option>
               ))}
             </Combobox.Options>

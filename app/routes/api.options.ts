@@ -1,6 +1,6 @@
-import { DataFunctionArgs, json } from "@remix-run/node";
+import { type DataFunctionArgs, json } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { CONFIG } from "./admin";
+import { CONFIG } from "~/features/vacation-admin/config";
 import { isLoggedIn } from "~/utils/helper";
 
 export const loader = async ({ request }: DataFunctionArgs) => {

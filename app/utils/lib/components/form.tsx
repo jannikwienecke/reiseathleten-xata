@@ -20,7 +20,7 @@ export function Form({
     <div className="space-y-10 divide-y divide-gray-900/10">
       <div className="flex flex-col gap-x-8 gap-y-8">
         <div className="px-4 sm:px-0">
-          <h2 className="text-base font-semibold leading-7 text-gray-900">
+          <h2 className="text-xl font-bold text-black leading-9 tracking-wide">
             {title}
           </h2>
           <p className="mt-1 text-sm leading-6 text-gray-600">

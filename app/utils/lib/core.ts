@@ -1,41 +1,10 @@
-export type ModelConfig = {
-  title: string;
-  loader: (args: LoaderFunctionArgs) => Promise<any>;
-  onDelete: (args: ActionFunctionArgs) => Promise<any>;
-  onBulkDelete?: (args: ActionFunctionArgs) => Promise<any>;
-  onAdd: (args: ActionFunctionArgs) => Promise<any>;
-  redirect: string;
-  view: {
-    table: {
-      columns: {
-        accessorKey: string;
-        header: string;
-        isColor?: boolean;
-      }[];
-    };
-    AddForm: {
-      fields:
-        | ({
-            Component: React.ComponentType<any>;
-            name: string;
-            label: string;
-            onGetOptions?: (query: string) => Promise<
-              {
-                name: string;
-                id: string;
-                color?: string;
-              }[]
-            >;
-          } & React.HTMLProps<HTMLInputElement>)[];
-    };
-  };
-};
-
-export type ConfigType = {
-  models: {
-    [key: string]: ModelConfig;
-  };
-};
+import type {
+  ModelConfig,
+  ConfigType,
+  LibActionData,
+  LibLoaderData,
+  DataFunctionArgs,
+} from "./types";
 
 export const getFormDataValue = (
   formData: FormData | undefined,
@@ -48,31 +17,6 @@ export const getFormDataValue = (
   return val?.toString();
 };
 
-type DataFunctionArgs = {
-  request: Request;
-  params: Record<string, string>;
-};
-export type ActionFunctionArgs = DataFunctionArgs & {
-  formData: FormData | undefined;
-  config: ModelConfig;
-};
-
-export type LoaderFunctionArgs = DataFunctionArgs;
-
-export interface PageHandler {
-  makeRequest: (props: ActionFunctionArgs) => Promise<any>;
-}
-
-export interface LibLoaderData {
-  data: any[];
-}
-
-export interface LibActionData {
-  status: number;
-  message: string;
-  field?: string;
-  fieldMessage?: string;
-}
 export const createPageFunction = ({ config }: { config: ConfigType }) => {
   const loader = async (props: DataFunctionArgs): Promise<LibLoaderData> => {
     const modelConfig: ModelConfig =
@@ -93,11 +37,14 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
     const url = new URL(props.request.url);
     const searchParams = url.searchParams;
     const action = searchParams.get("action");
+
     const formAction = getFormDataValue(formData, "action");
+
+    console.log("===action", action);
 
     let actionToRun = modelConfig.onAdd;
     if (action === "edit") {
-      actionToRun = modelConfig.onAdd;
+      actionToRun = modelConfig.onEdit;
     } else if (formAction === "delete") {
       actionToRun = modelConfig.onDelete;
     } else if (formAction === "bulkDelete" && modelConfig.onBulkDelete) {

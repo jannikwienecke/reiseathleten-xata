@@ -30,7 +30,7 @@ CREATE TABLE "public"."User" (
 
 CREATE TABLE "public"."Location" (
     "id" SERIAL,
-    "name" text  NOT NULL,
+    "name" text  NOT NULL UNIQUE,
     "description" text,
     PRIMARY KEY ("id")
 );

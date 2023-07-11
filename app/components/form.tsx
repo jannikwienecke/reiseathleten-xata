@@ -1,8 +1,11 @@
-import { FormProps, useFetcher } from "@remix-run/react";
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
-import { Form as RemixForm } from "@remix-run/react";
+import { PhotoIcon } from "@heroicons/react/24/solid";
+import {
+  type FormProps,
+  Form as RemixForm,
+  useFetcher,
+} from "@remix-run/react";
 import React from "react";
-import { ComboBox } from "./combobox";
+import { type Color, ComboBox } from "./combobox";
 
 export function Form({
   title,
@@ -82,6 +85,8 @@ const DefaultInput = ({
       <div className="mt-2">
         <input
           {...props}
+          defaultValue={props.value}
+          value={undefined}
           className={`${
             props.error ? "focus:ring-red-600" : "focus:ring-indigo-600"
           } block w-full pl-4 rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6 ${
@@ -169,19 +174,30 @@ const SaveButton = ({
 export interface ISelectOption {
   id: number | string;
   name: string;
+  color?: Color;
 }
 
 const Select = ({
   name,
-  defaultOptions,
   onSelect,
+  value,
+  selectId,
 }: {
   name: string;
-  defaultOptions: ISelectOption[];
+  value: any;
+  selectId?: string | number;
   onSelect: (item: ISelectOption) => void;
 }) => {
   const fetcher = useFetcher();
-  const [selected, setSelected] = React.useState<ISelectOption | null>(null);
+  const [selected, setSelected] = React.useState<ISelectOption | null>(
+    value && selectId
+      ? {
+          id: selectId,
+          name: value,
+          color: value,
+        }
+      : null
+  );
 
   const handleSelect = (item: { id: number | string; name: string }) => {
     setSelected(item);
@@ -206,13 +222,21 @@ const Select = ({
   return (
     <div className="mt-1 relative">
       <>
-        <input name={name} type="hidden" value={selected?.id || ""} />
+        <input name={name} type="hidden" value={selected?.id} />
       </>
 
       <ComboBox
-        items={
-          fetcher.data?.items ? fetcher.data?.items || [] : defaultOptions || []
+        defaultItem={
+          selected
+            ? {
+                ...selected,
+                name: selected?.name || "red",
+                color: (selected?.name as Color) || "red",
+              }
+            : undefined
         }
+        label={name}
+        items={fetcher.data?.items ? fetcher.data?.items || [] : []}
         onSelect={handleSelect}
         onQueryChange={handleQueryChange}
       />

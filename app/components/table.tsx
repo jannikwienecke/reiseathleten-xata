@@ -1,5 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { useSearchParams } from "@remix-run/react";
+import React from "react";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { classNames } from "~/utils/helper";
 
@@ -34,6 +36,18 @@ export function Table<TData extends ARecord>({
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selected, _setSelected] = useState<TData[]>([]);
+
+  const [searchParams] = useSearchParams();
+
+  React.useEffect(
+    // when closing the slide over, reset the selected items
+    function resetSelectedAfterActionEnded() {
+      const action = searchParams.get("action");
+      if (action) return;
+      _setSelected([]);
+    },
+    [searchParams]
+  );
 
   useEffect(() => {
     const isIndeterminate =
@@ -77,7 +91,9 @@ export function Table<TData extends ARecord>({
           {selected.length < 2 ? (
             <div className="">
               <button
-                onClick={onAdd}
+                onClick={
+                  selected.length === 0 ? onAdd : () => onEdit?.(selected[0])
+                }
                 type="button"
                 className={`block rounded-md  px-3 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
                   ${
@@ -145,80 +161,85 @@ export function Table<TData extends ARecord>({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {dataList.map((dataItem) => (
-                    <tr
-                      key={`row-${dataItem.id}`}
-                      className={
-                        selected.includes(dataItem) ? "bg-gray-50" : undefined
-                      }
-                    >
-                      <td className="relative px-7 sm:w-12 sm:px-6">
-                        {selected.includes(dataItem) && (
-                          <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-600" />
-                        )}
-                        <input
-                          type="checkbox"
-                          className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                          value={dataItem.email}
-                          checked={selected.includes(dataItem)}
-                          onChange={(e) =>
-                            handleClickInputSelect(dataItem, e.target.checked)
-                          }
-                        />
-                      </td>
+                  {dataList.map((dataItem, index) => {
+                    return (
+                      <tr
+                        key={`row-${dataItem.id}`}
+                        className={
+                          selected.includes(dataItem) ? "bg-gray-50" : undefined
+                        }
+                      >
+                        <td className="relative px-7 sm:w-12 sm:px-6">
+                          {selected.includes(dataItem) && (
+                            <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-600" />
+                          )}
+                          <input
+                            type="checkbox"
+                            className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                            value={dataItem.email}
+                            checked={selected.includes(dataItem)}
+                            onChange={(e) =>
+                              handleClickInputSelect(dataItem, e.target.checked)
+                            }
+                          />
+                        </td>
 
-                      {columns.map((column) => {
-                        const value = dataItem[column.accessorKey];
-                        return (
-                          <>
-                            {/* COLOR */}
-                            {column.isColor ? (
-                              <td
-                                role="button"
-                                className="whitespace-nowrap px-3 py-2 text-sm text-gray-500"
-                              >
-                                <span
-                                  style={{
-                                    backgroundColor: `${value}`,
-                                    color: "white",
-                                  }}
-                                  className={`inline-flex  items-center rounded-md  px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20`}
-                                >
-                                  {value}
-                                </span>
-                              </td>
-                            ) : (
-                              <>
+                        {columns.map((column, indexColumn) => {
+                          const value = dataItem[column.accessorKey];
+
+                          return (
+                            <>
+                              {/* COLOR */}
+                              {column.isColor ? (
                                 <td
-                                  className={classNames(
-                                    "whitespace-nowrap py-1 pr-3 text-sm font-medium",
-                                    selected.includes(dataItem)
-                                      ? "text-indigo-600"
-                                      : "text-gray-900"
-                                  )}
+                                  key={`${index}-${indexColumn}-${value}-1`}
+                                  role="button"
+                                  className="whitespace-nowrap px-3 py-2 text-sm text-gray-500"
                                 >
-                                  {dataItem[column.accessorKey]}
+                                  <span
+                                    style={{
+                                      backgroundColor: `${value}`,
+                                      color: "white",
+                                    }}
+                                    className={`inline-flex  items-center rounded-md  px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20`}
+                                  >
+                                    {value}
+                                  </span>
                                 </td>
-                              </>
-                            )}
-                          </>
-                        );
-                      })}
+                              ) : (
+                                <>
+                                  <td
+                                    key={`${index}-${indexColumn}-${value}-2`}
+                                    className={classNames(
+                                      "whitespace-nowrap py-1 pr-3 text-sm font-medium",
+                                      selected.includes(dataItem)
+                                        ? "text-indigo-600"
+                                        : "text-gray-900"
+                                    )}
+                                  >
+                                    {dataItem[column.accessorKey]}
+                                  </td>
+                                </>
+                              )}
+                            </>
+                          );
+                        })}
 
-                      <td className="whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
+                        <td className="whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
 
-                            onDelete?.(dataItem);
-                          }}
-                          className="text-red-600 z-20 hover:text-indigo-900 bg-red-100 hover:bg-indigo-100 px-2 py-1 rounded-md text-xs font-medium"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                              onDelete?.(dataItem);
+                            }}
+                            className="text-red-600 z-20 hover:text-indigo-900 bg-red-100 hover:bg-indigo-100 px-2 py-1 rounded-md text-xs font-medium"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
