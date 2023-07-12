@@ -1,5 +1,5 @@
-import { FormProps } from "@remix-run/react";
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { type FormProps } from "@remix-run/react";
+import { PhotoIcon } from "@heroicons/react/24/solid";
 import { Form as RemixForm } from "@remix-run/react";
 
 export function Form({
@@ -17,13 +17,13 @@ export function Form({
   onCancel?: () => void;
 } & FormProps) {
   return (
-    <div className="space-y-10 divide-y divide-gray-900/10">
-      <div className="flex flex-col gap-x-8 gap-y-8">
+    <div className="space-y-10 divide-y divide-gray-900/10 h-full ">
+      <div className="flex flex-col gap-x-8 gap-y-6 h-full ">
         <div className="px-4 sm:px-0">
           <h2 className="text-xl font-bold text-black leading-9 tracking-wide">
             {title}
           </h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
+          <p className=" text-lg text-gray-700 leading-9">
             {description || "Update Model Information"}
           </p>
         </div>
@@ -31,17 +31,13 @@ export function Form({
         <RemixForm
           {...props}
           method="POST"
-          className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
+          className="sm:rounded-xl md:col-span-2 flex flex-col flex-1 "
         >
-          <div className="px-4 py-6 sm:p-8">
-            <div className="max-w-2xl gap-x-6 gap-y-8 flex flex-col">
-              {children}
-            </div>
+          <div className="px-2 py-6 max-w-2xl gap-x-6 gap-y-8 flex flex-col flex-1">
+            {children}
           </div>
 
           <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-            {SaveButton}
-
             <button
               onClick={onCancel}
               type="button"
@@ -49,6 +45,8 @@ export function Form({
             >
               Cancel
             </button>
+
+            {SaveButton}
           </div>
         </RemixForm>
       </div>
@@ -137,7 +135,7 @@ const SaveButton = ({
   return (
     <button
       type="submit"
-      className="rounded-md bg-indigo-600 items-center flex flex-row gap-2 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      className="rounded-md bg-black items-center flex flex-row gap-2 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
     >
       {isLoading ? (
         <div

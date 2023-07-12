@@ -133,7 +133,7 @@ export function Layout() {
                                     className="h-6 w-6 shrink-0"
                                     aria-hidden="true"
                                   />
-                                  {item.name}
+                                  {item.name}1
                                 </a>
                               </li>
                             ))}
@@ -197,9 +197,9 @@ export function Layout() {
               />
             </div>
             <nav className="flex flex-1 flex-col">
-              <ul role="list" className="flex flex-1 flex-col gap-y-7">
+              <ul className="flex flex-1 flex-col gap-y-7">
                 <li>
-                  <ul role="list" className="-mx-2 space-y-1">
+                  <ul className="-mx-2 space-y-1">
                     {navigation.map((item) => (
                       <li key={item.name}>
                         <a

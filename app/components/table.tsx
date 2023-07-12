@@ -1,5 +1,8 @@
 import { Menu, Transition } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import {
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/20/solid";
 import { useSearchParams } from "@remix-run/react";
 import React from "react";
 import { useEffect, useState, useRef, Fragment } from "react";
@@ -80,53 +83,67 @@ export function Table<TData extends ARecord>({
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold leading-6 text-gray-900">
+          <h1 className="text-2xl font-semibold leading-9 -tracking-tight  text-black">
             {title}
           </h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <p className="mt-1 text-lg text-gray-700">
             {subtitle ?? "All users that are currently registered."}
           </p>
         </div>
-        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
-          {selected.length < 2 ? (
-            <div className="">
-              <button
-                onClick={
-                  selected.length === 0 ? onAdd : () => onEdit?.(selected[0])
-                }
-                type="button"
-                className={`block rounded-md  px-3 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+      </div>
+
+      {/* search and actions */}
+      <div className="flex flex-row pt-6">
+        <div className="flex-1">
+          <Search />
+        </div>
+
+        <div>
+          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
+            {selected.length < 2 ? (
+              <div className="">
+                <button
+                  onClick={
+                    selected.length === 0 ? onAdd : () => onEdit?.(selected[0])
+                  }
+                  type="button"
+                  className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
                   ${
                     selected.length === 0
-                      ? "bg-indigo-600 text-white hover:bg-indigo-500 "
+                      ? "bg-black text-white hover:bg-indigo-500 "
                       : "bg-amber-400 text-black hover:bg-amber-300"
                   }`}
-              >
-                {selected.length === 0 ? "Add" : "Edit"}
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="">
-                <ActionDropdown
-                  onBulkDelete={() => {
-                    onBulkDelete?.(selected);
-                    _setSelected([]);
-                  }}
-                />
+                >
+                  {selected.length === 0 ? "New Tag" : "Edit Tag"}
+                </button>
               </div>
-            </>
-          )}
+            ) : (
+              <>
+                <div className="">
+                  <ActionDropdown
+                    onBulkDelete={() => {
+                      onBulkDelete?.(selected);
+                      _setSelected([]);
+                    }}
+                  />
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
-      <div className="mt-8 flow-root">
+
+      <div className="mt-8 flow-root ">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="relative">
-              <table className="min-w-full table-fixed divide-y divide-gray-300">
-                <thead>
-                  <tr>
-                    <th scope="col" className="relative px-7 sm:w-12 sm:px-6">
+              <table className="min-w-full table-fixed divide-y divide-gray-300 border-gray-100 border-[1px] overflow-hidden rounded-tl-lg rounded-tr-lg">
+                <thead className="">
+                  <tr className="">
+                    <th
+                      scope="col"
+                      className="relative px-7 sm:w-12 sm:px-6 bg-white "
+                    >
                       <input
                         type="checkbox"
                         className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
@@ -148,19 +165,28 @@ export function Table<TData extends ARecord>({
                         <th
                           key={`column-${column.accessorKey.toString()}`}
                           scope="col"
-                          className="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
+                          className="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-black bg-white"
                         >
                           {column.header}
                         </th>
                       );
                     })}
-
                     <th scope="col" className="relative py-1 pl-3 pr-4 sm:pr-3">
+                      {/* <th
+                      scope="col"
+                      className="relative py-1 pl-3 pr-4 sm:pr-3 bg-gray-50"
+                    > */}
                       <span className="sr-only">Edit</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
+                  {/* <tbody
+                  style={{
+                    borderTop: "1px solid rgb(243 244 246)",
+                  }}
+                  className="divide-y divide-gray-100 bg-white border-t-[1px] border-t-red-200"
+                > */}
                   {dataList.map((dataItem, index) => {
                     return (
                       <tr
@@ -291,5 +317,44 @@ function ActionDropdown({ onBulkDelete }: { onBulkDelete?: () => void }) {
         </Menu.Items>
       </Transition>
     </Menu>
+  );
+}
+
+/*
+  This example requires some changes to your config:
+  
+  ```
+  // tailwind.config.js
+  module.exports = {
+    // ...
+    plugins: [
+      // ...
+      require('@tailwindcss/forms'),
+    ],
+  }
+  ```
+*/
+
+function Search() {
+  return (
+    <div>
+      <div className="mt-2 flex w-[40%] border-0 overflow-hidden ">
+        <div className="relative flex flex-grow items-stretch focus-within:z-1 over rounded-full w-[40%] border-0 ">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 rounded-full w-[40%] border-0 ">
+            <MagnifyingGlassIcon
+              className="h-5 w-5 text-gray-400"
+              aria-hidden="true"
+            />
+          </div>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            className="block w-full rounded-full border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            placeholder="Search tags..."
+          />
+        </div>
+      </div>
+    </div>
   );
 }
