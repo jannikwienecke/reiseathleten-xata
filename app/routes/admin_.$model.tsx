@@ -29,12 +29,15 @@ const Content = () => {
     handelClickAdd,
     handelClickDelete,
     handleClickBulkDelete,
+    handleClickDetailView,
     addForm,
     getOverlayProps,
     getFormProps,
     getFormFieldProps,
     getNotificationProps,
   } = useAdminPage();
+
+  console.log(handleClickDetailView);
 
   return (
     <>
@@ -44,6 +47,7 @@ const Content = () => {
           onAdd={handelClickAdd}
           onDelete={handelClickDelete}
           onBulkDelete={handleClickBulkDelete}
+          onDetailView={handleClickDetailView}
           columns={columns}
           dataList={optimisicData}
           title={pageTitle}

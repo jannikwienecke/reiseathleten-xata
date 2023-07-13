@@ -33,12 +33,18 @@ export const useModel = () => {
 
   const pageTitle = modelConfig.title;
   const supportsBulkDelete = modelConfig.onBulkDelete !== undefined;
+  const supportsDetailView = modelConfig.view.detail !== undefined;
+
+  console.log(modelConfig.view);
+
+  console.log(supportsDetailView);
 
   return {
     getColumns,
     pageTitle,
     addForm: modelConfig.view.AddForm,
     supportsBulkDelete,
+    supportsDetailView,
     ...config,
   };
 };
@@ -96,6 +102,12 @@ export const useAdminPage = () => {
         method: "POST",
       }
     );
+  };
+
+  const handleClickDetailView = (dataItem: any) => {
+    console.log("HANDLE CLICK DETAIL VIEW");
+
+    navigate(`${dataItem.id}/detail`);
   };
 
   const dataListToRender =
@@ -198,6 +210,9 @@ export const useAdminPage = () => {
     handelClickDelete,
     handleClickBulkDelete: model.supportsBulkDelete
       ? handleClickBulkDelete
+      : undefined,
+    handleClickDetailView: model.supportsDetailView
+      ? handleClickDetailView
       : undefined,
     currentData: singleItem,
     getOverlayProps,

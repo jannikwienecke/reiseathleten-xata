@@ -82,12 +82,12 @@ const DefaultInput = ({
           {label}
         </label>
       ) : null}
-      <div className="mt-2">
+      <div className={`mt-2 ${props.type === "checkbox" && "h-8"}`}>
         <input
           {...props}
           defaultValue={props.value}
           value={undefined}
-          className={`${
+          className={`h-full ${
             props.error ? "focus:ring-red-600" : "focus:ring-indigo-600"
           } block w-full pl-4 rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6 ${
             props.hidden ? "hidden" : ""

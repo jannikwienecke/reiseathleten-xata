@@ -25,6 +25,7 @@ export function Table<TData extends ARecord>({
   onBulkDelete,
   onAdd,
   onDelete,
+  onDetailView,
 }: {
   dataList: TData[];
   columns: Column<TData>[];
@@ -34,6 +35,7 @@ export function Table<TData extends ARecord>({
   onAdd?: () => void;
   onDelete?: (dataItem: TData) => void;
   onBulkDelete?: (dataItem: TData[]) => void;
+  onDetailView?: (dataItem: TData) => void;
 }) {
   const checkbox = useRef<any>();
   const [checked, setChecked] = useState(false);
@@ -80,7 +82,8 @@ export function Table<TData extends ARecord>({
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="">
+      {/* <div className="px-4 sm:px-6 lg:px-8"> */}
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-semibold leading-9 -tracking-tight  text-black">
@@ -101,22 +104,39 @@ export function Table<TData extends ARecord>({
         <div>
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
             {selected.length < 2 ? (
-              <div className="">
-                <button
-                  onClick={
-                    selected.length === 0 ? onAdd : () => onEdit?.(selected[0])
-                  }
-                  type="button"
-                  className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+              <>
+                {selected.length === 1 && onDetailView ? (
+                  <div className="">
+                    <button
+                      onClick={() => onDetailView?.(selected[0])}
+                      type="button"
+                      className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white text-black border-2 border-black hover:bg-indigo-200 "
+                     }`}
+                    >
+                      View Detail
+                    </button>
+                  </div>
+                ) : null}
+
+                <div className="">
+                  <button
+                    onClick={
+                      selected.length === 0
+                        ? onAdd
+                        : () => onEdit?.(selected[0])
+                    }
+                    type="button"
+                    className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
                   ${
                     selected.length === 0
                       ? "bg-black text-white hover:bg-indigo-500 "
                       : "bg-amber-400 text-black hover:bg-amber-300"
                   }`}
-                >
-                  {selected.length === 0 ? "New Tag" : "Edit Tag"}
-                </button>
-              </div>
+                  >
+                    {selected.length === 0 ? "New Tag" : "Edit Tag"}
+                  </button>
+                </div>
+              </>
             ) : (
               <>
                 <div className="">

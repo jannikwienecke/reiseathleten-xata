@@ -1,5 +1,5 @@
 type Dict = {
-  [key: string]: string | number | boolean | undefined | null;
+  [key: string]: string | number | boolean | undefined | null | Date;
 } & {
   id: string | number;
 };
@@ -28,6 +28,7 @@ export type ModelConfig<T extends Dict = { id: number }> = {
         isColor?: boolean;
       }[];
     };
+    detail: {};
     AddForm: {
       title: string;
       description?: string;
