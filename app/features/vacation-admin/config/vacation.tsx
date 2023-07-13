@@ -1,4 +1,4 @@
-import { Vacation, type AcitivityDescription } from "@prisma/client";
+import { type Vacation } from "@prisma/client";
 import { Form } from "~/components";
 import { prisma } from "~/db.server";
 
@@ -8,6 +8,7 @@ import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
 export type VacationInterface = Vacation & {
   email: string;
   location: string;
+  activity: string;
 };
 
 const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacation");
@@ -31,12 +32,11 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
       },
     });
 
-    console.log(vacations[0].VacationActivity);
-
     return vacations.map((v) => ({
       ...v,
       email: v.User?.email || "",
       location: v.Location?.name || "",
+      activity: "",
     }));
   },
 
@@ -119,6 +119,28 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
           label: "End Date",
           Component: Form.DefaultInput,
           minLength: 8,
+        },
+        {
+          name: "activity",
+          label: "Location",
+          Component: Form.Select,
+          onGetOptions: async (query) => {
+            const results = await prisma.acitivityDescription.findMany({
+              where: {
+                OR: {
+                  name: {
+                    contains: query,
+                    mode: "insensitive",
+                  },
+                },
+              },
+            });
+
+            return results.map((r) => ({
+              id: r.id,
+              name: r.name,
+            }));
+          },
         },
       ],
     },

@@ -3,9 +3,11 @@ import {
   type FormProps,
   Form as RemixForm,
   useFetcher,
+  useParams,
 } from "@remix-run/react";
 import React from "react";
 import { type Color, ComboBox } from "./combobox";
+import invariant from "tiny-invariant";
 
 export function Form({
   title,
@@ -189,6 +191,10 @@ const Select = ({
   onSelect: (item: ISelectOption) => void;
 }) => {
   const fetcher = useFetcher();
+  const { model } = useParams();
+
+  invariant(model, "model is required");
+
   const [selected, setSelected] = React.useState<ISelectOption | null>(
     value && selectId
       ? {
@@ -204,7 +210,10 @@ const Select = ({
   };
 
   const fetchPeople = (query: string) => {
-    fetcher.submit({ query, name }, { method: "get", action: "/api/options" });
+    fetcher.submit(
+      { query, name, model },
+      { method: "get", action: "/api/options" }
+    );
   };
 
   const timeoutRef = React.useRef<number | null>(null);
@@ -218,6 +227,11 @@ const Select = ({
       clearTimeout(timeoutRef.current!);
     }, 300);
   };
+
+  const fetchRef = React.useRef(fetchPeople);
+  React.useEffect(() => {
+    fetchRef.current("");
+  }, []);
 
   return (
     <div className="mt-1 relative">

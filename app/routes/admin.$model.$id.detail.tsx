@@ -1,10 +1,5 @@
 import { type DataFunctionArgs } from "@remix-run/node";
-import {
-  useFetcher,
-  useLoaderData,
-  useSearchParams,
-  useSubmit,
-} from "@remix-run/react";
+import { useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
 import React from "react";
 import invariant from "tiny-invariant";
 import { Form, Layout, Table } from "~/components";
@@ -14,6 +9,7 @@ import { getFormDataValue } from "~/utils/lib/core";
 import { LibSliderOver, LibForm } from "~/utils/lib/react";
 
 interface ActivityType {
+  name: string;
   description: string;
   datetime: string;
   isFixedDate: boolean;
@@ -47,6 +43,7 @@ export const loader = async ({ request }: DataFunctionArgs) => {
         .map((ab) => ({
           ...ab,
           description: ab.AcitivityDescription?.description || "",
+          name: ab.AcitivityDescription?.name || "",
         }))
         .flat() || [],
   };
@@ -60,8 +57,7 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
   const formData = await request.formData();
   const datetime = getFormDataValue(formData, "datetime");
   const action = getFormDataValue(formData, "action");
-
-  console.log({ action });
+  const activity = getFormDataValue(formData, "activity");
 
   const handleUpdate = async () => {
     invariant(datetime, "datetime is required");
@@ -89,8 +85,34 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
     });
   };
 
+  const handleAdd = async () => {
+    invariant(id, "id is required");
+    invariant(activity, "activity is required");
+
+    await prisma.activityBooking.create({
+      data: {
+        datetime: datetime || undefined,
+        isFixedDate: false,
+        AcitivityDescription: {
+          connect: {
+            id: +activity,
+          },
+        },
+        VacationActivity: {
+          create: {
+            vacationId: +id,
+          },
+        },
+      },
+    });
+  };
+
+  // console.log({ url, activityId });
+
   if (action === "delete") {
     await handleDelete();
+  } else if (activityId === "new") {
+    await handleAdd();
   } else {
     await handleUpdate();
   }
@@ -136,6 +158,8 @@ export default function AdminModelPage() {
   );
 
   const showModal = !!currentActivityId;
+  const titleSlideOver =
+    currentActivityId === "new" ? "Add Activity" : "Edit Activity";
 
   return (
     <>
@@ -200,6 +224,7 @@ export default function AdminModelPage() {
               subtitle="Manage the activities for the vacation"
               dataList={data.activities.map((a) => ({
                 description: a.AcitivityDescription?.description || "",
+                name: a.AcitivityDescription?.name || "",
                 datetime: a.datetime
                   ? getDateString(new Date(a.datetime || ""))
                   : "",
@@ -207,6 +232,10 @@ export default function AdminModelPage() {
                 id: a.id,
               }))}
               columns={[
+                {
+                  header: "Activity",
+                  accessorKey: "name",
+                },
                 {
                   header: "description",
                   accessorKey: "description",
@@ -234,7 +263,7 @@ export default function AdminModelPage() {
         }}
       >
         <LibForm
-          title={"Edit Activity"}
+          title={titleSlideOver}
           onCancel={() => {
             searchParams.delete("activityId");
             setSearchParams(searchParams);
@@ -247,15 +276,12 @@ export default function AdminModelPage() {
             value={getDateString(new Date(currentActivity?.datetime || ""))}
           />
 
-          {/* hier weiter machem */}
-          {/* options api endpoint must be flexible for all options */}
           {/* actions function must be able to handle add actions */}
           <Form.Select
-            name="color"
-            onSelect={(e) => () => {
-              console.log(e);
-            }}
-            value={getDateString(new Date(currentActivity?.datetime || ""))}
+            name="activity"
+            onSelect={() => null}
+            selectId={currentActivity?.acitivityDescriptionId}
+            value={currentActivity?.name}
           />
         </LibForm>
       </LibSliderOver>

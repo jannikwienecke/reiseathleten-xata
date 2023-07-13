@@ -37,8 +37,6 @@ const Content = () => {
     getNotificationProps,
   } = useAdminPage();
 
-  console.log(handleClickDetailView);
-
   return (
     <>
       <Layout>
