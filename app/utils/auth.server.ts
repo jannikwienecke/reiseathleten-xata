@@ -1,16 +1,16 @@
 import bcrypt from "bcryptjs";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
-import { type User } from "utils/xata";
 import { prisma } from "~/db.server";
+import { type MemberEntity } from "~/features/auth/domain/Member";
 import { UserRepoMock } from "~/features/auth/repos/implementations/userRepoMockServer";
 import { UserRepoPrisma } from "~/features/auth/repos/implementations/userRepoPrisma";
 import type { UserRepo } from "~/features/auth/repos/userRepo";
 import { IS_PRODUCTION } from "~/shared/constants/base";
-import { sessionStorage } from "./session.server";
 import { waitFor } from "./misc";
+import { sessionStorage } from "./session.server";
 
-const authenticator = new Authenticator<User>(sessionStorage);
+const authenticator = new Authenticator<MemberEntity>(sessionStorage);
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
@@ -38,10 +38,7 @@ authenticator.use(
       throw new AuthorizationError("Password is incorrect");
     }
 
-    return {
-      ...user,
-      id: user.props.id.toString(),
-    };
+    return user;
   }),
   // each strategy has a name and can be changed to use another one
   // same strategy multiple times, especially useful for the OAuth2 strategy.
