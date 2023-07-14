@@ -7,10 +7,10 @@ export class ActivityRepoPrisma implements ActivityRepo {
   constructor(client: PrismaClient) {
     this.client = client;
   }
-  async confirmDate(activityId: number, date: string): Promise<void> {
-    await this.client.activityBooking.update({
+  async confirmDate(vacationActivityId: number, date: string): Promise<void> {
+    await this.client.vacationActivity.update({
       where: {
-        id: activityId,
+        id: vacationActivityId,
       },
       data: {
         datetime: new Date(date),

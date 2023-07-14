@@ -1,3 +1,5 @@
+import { TagIcon } from "@heroicons/react/20/solid";
+import { TvIcon } from "@heroicons/react/24/solid";
 import { type Tag } from "@prisma/client";
 import invariant from "tiny-invariant";
 import { Form } from "~/components";
@@ -99,6 +101,9 @@ export const TagConfig: ModelConfig<TagInterface> = {
 
   redirect: "/admin/Tag",
   view: {
+    navigation: {
+      icon: TagIcon,
+    },
     table: {
       columns: [
         {

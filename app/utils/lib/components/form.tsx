@@ -2,7 +2,7 @@ import { type FormProps } from "@remix-run/react";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { Form as RemixForm } from "@remix-run/react";
 
-export function Form({
+export function FormOld({
   title,
   children,
   description,
@@ -153,6 +153,6 @@ const SaveButton = ({
   );
 };
 
-Form.ImageInput = ImageInput;
-Form.DefaultInput = DefaultInput;
-Form.SaveButton = SaveButton;
+FormOld.ImageInput = ImageInput;
+FormOld.DefaultInput = DefaultInput;
+FormOld.SaveButton = SaveButton;

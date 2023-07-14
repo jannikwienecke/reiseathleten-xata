@@ -815,6 +815,14 @@ select {
   top: 3.5rem;
 }
 
+.top-3 {
+  top: 0.75rem;
+}
+
+.top-3\.5 {
+  top: 0.875rem;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -887,6 +895,10 @@ select {
 
 .-mt-2 {
   margin-top: -0.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
 }
 
 .ml-2 {
@@ -1049,6 +1061,10 @@ select {
   max-height: 15rem;
 }
 
+.max-h-80 {
+  max-height: 20rem;
+}
+
 .min-h-full {
   min-height: 100%;
 }
@@ -1181,6 +1197,14 @@ select {
   flex: 1 1 0%;
 }
 
+.flex-auto {
+  flex: 1 1 auto;
+}
+
+.flex-none {
+  flex: none;
+}
+
 .flex-shrink-0 {
   flex-shrink: 0;
 }
@@ -1273,6 +1297,11 @@ select {
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
+}
+
+.scroll-py-2 {
+  scroll-padding-top: 0.5rem;
+  scroll-padding-bottom: 0.5rem;
 }
 
 .flex-row {
@@ -1450,8 +1479,17 @@ select {
   border-color: rgb(209 213 219 / var(--tw-divide-opacity));
 }
 
+.divide-gray-500 > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(107 114 128 / var(--tw-divide-opacity));
+}
+
 .divide-gray-900\/10 > :not([hidden]) ~ :not([hidden]) {
   border-color: rgb(17 24 39 / 0.1);
+}
+
+.divide-opacity-20 > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 0.2;
 }
 
 .self-stretch {
@@ -1756,11 +1794,6 @@ select {
   background-color: rgb(254 226 226 / var(--tw-bg-opacity));
 }
 
-.bg-red-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 202 202 / var(--tw-bg-opacity));
-}
-
 .bg-red-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(252 165 165 / var(--tw-bg-opacity));
@@ -1788,6 +1821,10 @@ select {
 .bg-yellow-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(253 224 71 / var(--tw-bg-opacity));
+}
+
+.bg-opacity-25 {
+  --tw-bg-opacity: 0.25;
 }
 
 .bg-opacity-50 {
@@ -1885,6 +1922,11 @@ select {
   padding-bottom: 3rem;
 }
 
+.py-14 {
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
@@ -1941,6 +1983,10 @@ select {
 
 .pl-10 {
   padding-left: 2.5rem;
+}
+
+.pl-11 {
+  padding-left: 2.75rem;
 }
 
 .pl-2 {
@@ -2031,6 +2077,10 @@ select {
   vertical-align: -0.125em;
 }
 
+.font-sans {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
@@ -2094,10 +2144,6 @@ select {
   line-height: 1.5rem;
 }
 
-.leading-7 {
-  line-height: 1.75rem;
-}
-
 .leading-9 {
   line-height: 2.25rem;
 }
@@ -2122,6 +2168,11 @@ select {
 .text-blue-800 {
   --tw-text-opacity: 1;
   color: rgb(30 64 175 / var(--tw-text-opacity));
+}
+
+.text-gray-200 {
+  --tw-text-opacity: 1;
+  color: rgb(229 231 235 / var(--tw-text-opacity));
 }
 
 .text-gray-300 {
@@ -2248,6 +2299,12 @@ select {
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.shadow-2xl {
+  --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
@@ -2771,13 +2828,14 @@ select {
     padding: 1.5rem;
   }
 
-  .sm\:p-8 {
-    padding: 2rem;
-  }
-
   .sm\:px-0 {
     padding-left: 0px;
     padding-right: 0px;
+  }
+
+  .sm\:px-14 {
+    padding-left: 3.5rem;
+    padding-right: 3.5rem;
   }
 
   .sm\:px-6 {
@@ -2796,6 +2854,11 @@ select {
 
   .sm\:pr-3 {
     padding-right: 0.75rem;
+  }
+
+  .sm\:text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
   }
 
   .sm\:text-4xl {
@@ -2828,6 +2891,10 @@ select {
 
   .md\:rounded-3xl {
     border-radius: 1.5rem;
+  }
+
+  .md\:p-20 {
+    padding: 5rem;
   }
 }
 

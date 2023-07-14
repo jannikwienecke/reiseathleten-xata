@@ -17,7 +17,7 @@ export type ModelConfig<T extends Dict = { id: number }> = {
   loader: (args: LoaderFunctionArgs) => Promise<T[]>;
   onDelete: (args: ActionFunctionArgs) => Promise<unknown>;
   onBulkDelete?: (args: ActionFunctionArgs) => Promise<unknown>;
-  onAdd: (args: ActionFunctionArgs) => Promise<unknown>;
+  onAdd?: (args: ActionFunctionArgs) => Promise<unknown>;
   onEdit: (args: ActionFunctionArgs) => Promise<unknown>;
   redirect: string;
   view: {
@@ -26,9 +26,13 @@ export type ModelConfig<T extends Dict = { id: number }> = {
         accessorKey: keyof T;
         header: string;
         isColor?: boolean;
+        formatValue?: (value: any) => any;
       }[];
     };
-    detail: {};
+    detail?: {};
+    navigation: {
+      icon: React.ComponentType<any>;
+    };
     AddForm: {
       title: string;
       description?: string;
@@ -41,6 +45,7 @@ export type ModelConfig<T extends Dict = { id: number }> = {
             name: keyof T;
             label: string;
             onGetOptions?: GetOptionsFunction;
+            formatValue?: (value: any) => any;
           } & React.HTMLProps<HTMLInputElement>)[];
     };
   };

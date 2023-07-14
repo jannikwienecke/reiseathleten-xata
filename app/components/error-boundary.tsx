@@ -50,7 +50,7 @@ export function GeneralErrorBoundary({
   }
 
   return (
-    <div className="bg-red-200 h-screen container mx-auto flex flex-col items-center justify-center p-20">
+    <div className="h-screen container mx-auto flex flex-col items-center justify-center p-20">
       {isRouteErrorResponse(error)
         ? (statusHandlers?.[error.status] ?? defaultStatusHandler)({
             error,

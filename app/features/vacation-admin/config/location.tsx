@@ -1,3 +1,4 @@
+import { MapPinIcon } from "@heroicons/react/20/solid";
 import { type Location } from "@prisma/client";
 import invariant from "tiny-invariant";
 import { Form } from "~/components";
@@ -107,6 +108,9 @@ export const LocationConfig: ModelConfig<LocationInterface> = {
 
   redirect: "/admin/Location",
   view: {
+    navigation: {
+      icon: MapPinIcon,
+    },
     table: {
       columns: [
         {

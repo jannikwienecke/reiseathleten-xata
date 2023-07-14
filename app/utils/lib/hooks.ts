@@ -10,7 +10,7 @@ import {
 import React, { useContext } from "react";
 import invariant from "tiny-invariant";
 import { LibContext } from "./react";
-import type { LibActionData, LibLoaderData } from "./types";
+import type { LibActionData, LibLoaderData, ModelConfig } from "./types";
 
 export const useModel = () => {
   const { config } = useContext(LibContext);
@@ -23,28 +23,29 @@ export const useModel = () => {
     model: string;
   }>();
 
-  invariant(model, "Model is required");
+  // invariant(model, "Model is required");
 
-  const modelConfig = config.models[model as keyof typeof config["models"]];
+  const modelConfig = config.models[model as keyof typeof config["models"]] as
+    | ModelConfig
+    | undefined;
 
-  const getColumns = (): any[] => {
-    return modelConfig.view?.table?.columns || [];
+  const getColumns = () => {
+    return modelConfig?.view?.table?.columns || [];
   };
 
-  const pageTitle = modelConfig.title;
-  const supportsBulkDelete = modelConfig.onBulkDelete !== undefined;
-  const supportsDetailView = modelConfig.view.detail !== undefined;
-
-  console.log(modelConfig.view);
-
-  console.log(supportsDetailView);
+  const pageTitle = modelConfig?.title;
+  const supportsBulkDelete = modelConfig?.onBulkDelete !== undefined;
+  const supportsDetailView = modelConfig?.view.detail !== undefined;
+  const supportsAdd = modelConfig?.onAdd !== undefined;
 
   return {
     getColumns,
     pageTitle,
-    addForm: modelConfig.view.AddForm,
+    addForm: modelConfig?.view.AddForm,
     supportsBulkDelete,
     supportsDetailView,
+    supportsAdd,
+    model,
     ...config,
   };
 };
@@ -52,8 +53,7 @@ export const useModel = () => {
 export const useAdminPage = () => {
   const model = useModel();
   const navigate = useNavigate();
-
-  const { data } = useLoaderData<LibLoaderData>();
+  const { data } = useLoaderData<LibLoaderData>() || {};
   const actionData = useActionData<LibActionData>();
   const [searchParams, setSearchParams] = useSearchParams();
   const submit = useSubmit();
@@ -105,17 +105,18 @@ export const useAdminPage = () => {
   };
 
   const handleClickDetailView = (dataItem: any) => {
-    console.log("HANDLE CLICK DETAIL VIEW");
-
     navigate(`${dataItem.id}/detail`);
   };
 
-  const dataListToRender =
+  const dataListToRender = (
     data?.filter((data: any) => {
       return (
         data.id !== dataItemDeleted && !dataItemsDeleted?.includes(data.id)
       );
-    }) || [];
+    }) || []
+  ).map((dataItem: any) => {
+    return dataItem;
+  });
 
   const getOverlayProps = () => {
     return {
@@ -132,7 +133,7 @@ export const useAdminPage = () => {
 
   const getFormProps = () => {
     return {
-      title: model.addForm.title,
+      title: model.addForm?.title || "",
       onCancel: () => {
         searchParams.delete("action");
         searchParams.delete("id");
@@ -150,7 +151,7 @@ export const useAdminPage = () => {
     const isEditing = searchParams.get("action") === "edit";
     const isSubmitting = actionState === "loading";
 
-    const fieldModel = model.addForm.fields.find((f) => f.name === field.name);
+    const fieldModel = model.addForm?.fields.find((f) => f.name === field.name);
 
     let fieldDefaultValue: any = "";
 
@@ -158,17 +159,22 @@ export const useAdminPage = () => {
       fieldDefaultValue = singleItem[field.name || ""];
     }
 
+    // model.
+    // get Formatted value?
+
     // for select fields
     // to get the id of the connected model
     const selectId =
       singleItem?.[(fieldModel?.selectField?.fieldId as string) || "id"];
 
+    const _defaultValue =
+      fieldModel?.formatValue?.(fieldDefaultValue) || fieldDefaultValue;
     return {
       ...field,
       selectId,
       key: field.name,
       // defaultOptions: selectedOptions,
-      value: isCreating && isSubmitting ? "" : field.value || fieldDefaultValue,
+      value: isCreating && isSubmitting ? "" : field?.value || _defaultValue,
       error:
         actionData?.field === field.name
           ? actionData?.fieldMessage || ""
@@ -200,12 +206,24 @@ export const useAdminPage = () => {
     };
   }, [actionData?.message, closedNotification]);
 
+  const getLayoutProps = () => {
+    return {
+      items: Object.entries(model.models).map(([key, value]) => {
+        return {
+          label: key,
+          icon: value.view?.navigation?.icon,
+          isCurrent: key === model.model,
+        };
+      }),
+    };
+  };
+
   // const view: View
   return {
     columns: model.getColumns(),
     optimisicData: dataListToRender,
     data,
-    handelClickAdd,
+    handelClickAdd: model.supportsAdd ? handelClickAdd : undefined,
     handleClickEdit,
     handelClickDelete,
     handleClickBulkDelete: model.supportsBulkDelete
@@ -219,6 +237,7 @@ export const useAdminPage = () => {
     getFormProps,
     getFormFieldProps,
     getNotificationProps,
+    getLayoutProps,
 
     ...model,
   };

@@ -14,6 +14,7 @@ export type Column<T extends ARecord> = {
   accessorKey: keyof T;
   header: string;
   isColor?: boolean;
+  formatValue?: (value: any) => string;
 };
 
 export function Table<TData extends ARecord>({
@@ -81,6 +82,23 @@ export function Table<TData extends ARecord>({
     }
   }
 
+  const [query, setQuery] = useState("");
+  const handleSearch = (query: string) => {
+    setQuery(query);
+  };
+
+  const dataListFiltered = React.useMemo(() => {
+    return dataList.filter((dataItem) => {
+      const values = Object.values(dataItem);
+      const stringValues = values.map((v) => v && v.toString().toLowerCase());
+
+      const isMatch = stringValues.some(
+        (v) => v && v.includes(query ? query?.toLowerCase?.() : "")
+      );
+      return isMatch;
+    });
+  }, [dataList, query]);
+
   return (
     <div className="">
       {/* <div className="px-4 sm:px-6 lg:px-8"> */}
@@ -98,7 +116,7 @@ export function Table<TData extends ARecord>({
       {/* search and actions */}
       <div className="flex flex-row pt-6">
         <div className="flex-1">
-          <Search />
+          <Search title={title} onSearch={handleSearch} />
         </div>
 
         <div>
@@ -118,24 +136,30 @@ export function Table<TData extends ARecord>({
                   </div>
                 ) : null}
 
-                <div className="">
-                  <button
-                    onClick={
-                      selected.length === 0
-                        ? onAdd
-                        : () => onEdit?.(selected[0])
-                    }
-                    type="button"
-                    className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+                {onAdd || (onEdit && selected.length > 0) ? (
+                  <>
+                    <div className="">
+                      <button
+                        onClick={
+                          selected.length === 0
+                            ? onAdd
+                            : () => onEdit?.(selected[0])
+                        }
+                        type="button"
+                        className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
                   ${
                     selected.length === 0
                       ? "bg-black text-white hover:bg-indigo-500 "
                       : "bg-amber-400 text-black hover:bg-amber-300"
                   }`}
-                  >
-                    {selected.length === 0 ? "New Tag" : "Edit Tag"}
-                  </button>
-                </div>
+                      >
+                        {selected.length === 0
+                          ? `New ${title}`
+                          : `Edit ${title}`}
+                      </button>
+                    </div>
+                  </>
+                ) : null}
               </>
             ) : (
               <>
@@ -207,7 +231,7 @@ export function Table<TData extends ARecord>({
                   }}
                   className="divide-y divide-gray-100 bg-white border-t-[1px] border-t-red-200"
                 > */}
-                  {dataList.map((dataItem, index) => {
+                  {dataListFiltered.map((dataItem, index) => {
                     return (
                       <tr
                         key={`row-${dataItem.id}`}
@@ -263,7 +287,11 @@ export function Table<TData extends ARecord>({
                                         : "text-gray-900"
                                     )}
                                   >
-                                    {dataItem[column.accessorKey]}
+                                    {column?.formatValue
+                                      ? column?.formatValue?.(
+                                          dataItem[column.accessorKey]
+                                        )
+                                      : dataItem[column.accessorKey]}
                                   </td>
                                 </>
                               )}
@@ -340,22 +368,13 @@ function ActionDropdown({ onBulkDelete }: { onBulkDelete?: () => void }) {
   );
 }
 
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
-
-function Search() {
+function Search({
+  title,
+  onSearch,
+}: {
+  title: string;
+  onSearch: (query: string) => void;
+}) {
   return (
     <div>
       <div className="mt-2 flex w-[40%] border-0 overflow-hidden ">
@@ -367,11 +386,11 @@ function Search() {
             />
           </div>
           <input
-            type="email"
-            name="email"
-            id="email"
+            onChange={(e) => onSearch(e.target.value)}
+            name="query"
+            id="query"
             className="block w-full rounded-full border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            placeholder="Search tags..."
+            placeholder={`Search ${title}...`}
           />
         </div>
       </div>

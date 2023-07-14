@@ -1,63 +1,93 @@
-import { type Vacation } from "@prisma/client";
+import { type VacationDescription } from "@prisma/client";
 import { Form } from "~/components";
 import { prisma } from "~/db.server";
 
+import { GlobeAmericasIcon } from "@heroicons/react/20/solid";
 import type { ModelConfig } from "~/utils/lib/types";
 import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
+import { getFormDataValue } from "~/utils/lib/core";
+import invariant from "tiny-invariant";
 
-export type VacationInterface = Vacation & {
-  email: string;
+export type VacationInterface = VacationDescription & {
   location: string;
-  activity: string;
 };
 
-const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacation");
+const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacationDescription");
 
 export const VacationConfig: ModelConfig<VacationInterface> = {
   title: "Vacation",
   loader: async () => {
-    const vacations = await prisma.vacation.findMany({
+    const vacations = await prisma.vacationDescription.findMany({
       include: {
-        User: true,
         Location: true,
-        VacationActivity: {
-          include: {
-            ActivityBooking: {
-              include: {
-                AcitivityDescription: true,
-              },
-            },
-          },
-        },
       },
     });
 
     return vacations.map((v) => ({
       ...v,
-      email: v.User?.email || "",
       location: v.Location?.name || "",
-      activity: "",
+      name: v.name || "",
+      description: v.description || "",
     }));
   },
 
   onDelete: (props) => prismaCrudHandler.delete(props),
 
-  onAdd: async (props) =>
-    prismaCrudHandler.add({
-      ...props,
-      fields: ["name", "description"],
-    }),
+  onAdd: async (props) => {
+    const name = getFormDataValue(props.formData, "name");
+    const description = getFormDataValue(props.formData, "description");
+    const locationId = getFormDataValue(props.formData, "location");
 
-  onEdit: async (props) =>
-    prismaCrudHandler.update({
-      ...props,
-      fields: ["name", "description"],
-    }),
+    invariant(name, "Name is required");
+    invariant(description, "Description is required");
+    invariant(locationId, "Location is required");
+
+    await prisma.vacationDescription.create({
+      data: {
+        name,
+        description,
+        locationId: +locationId,
+      },
+    });
+  },
+
+  onEdit: async (props) => {
+    const url = new URL(props.request.url);
+    const id = +(url.searchParams.get("id") || "");
+    const name = getFormDataValue(props.formData, "name");
+    const description = getFormDataValue(props.formData, "description");
+    const locationId = getFormDataValue(props.formData, "location");
+
+    invariant(name, "Name is required");
+    invariant(description, "Description is required");
+    invariant(locationId, "Location is required");
+
+    console.log({
+      id,
+      name,
+      description,
+      locationId,
+    });
+
+    await prisma.vacationDescription.update({
+      where: {
+        id: +id,
+      },
+      data: {
+        name,
+        description,
+        locationId: +locationId,
+      },
+    });
+  },
 
   onBulkDelete: async (props) => prismaCrudHandler.bulkDelete(props),
 
   redirect: "/admin/Tag",
   view: {
+    navigation: {
+      icon: GlobeAmericasIcon,
+    },
     table: {
       columns: [
         {
@@ -67,65 +97,41 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
         {
           accessorKey: "description",
           header: "Description",
-        },
-        {
-          accessorKey: "email",
-          header: "Email",
+          formatValue(value) {
+            return value.length > 40 ? value.slice(0, 40) + "..." : value;
+          },
         },
         {
           accessorKey: "location",
           header: "Location",
         },
-        {
-          accessorKey: "startDate",
-          header: "Start Date",
-        },
-        {
-          accessorKey: "endDate",
-          header: "End Date",
-        },
       ],
     },
-    detail: {},
+    // detail: {},
     AddForm: {
-      title: "Activity",
+      title: "Create New Vacation",
       fields: [
         {
           Component: Form.DefaultInput,
           name: "name",
-          label: "Name",
+          label: "Vacation Name",
           minLength: 4,
+          required: true,
         },
         {
           name: "description",
           label: "Description",
           Component: Form.DefaultInput,
           minLength: 8,
+          required: true,
         },
         {
-          name: "email",
-          label: "Email",
-          Component: Form.DefaultInput,
-          minLength: 8,
-        },
-        {
-          name: "startDate",
-          label: "Start Date",
-          Component: Form.DefaultInput,
-          minLength: 8,
-        },
-        {
-          name: "endDate",
-          label: "End Date",
-          Component: Form.DefaultInput,
-          minLength: 8,
-        },
-        {
-          name: "activity",
+          name: "location",
           label: "Location",
+          required: true,
           Component: Form.Select,
           onGetOptions: async (query) => {
-            const results = await prisma.acitivityDescription.findMany({
+            const results = await prisma.location.findMany({
               where: {
                 OR: {
                   name: {

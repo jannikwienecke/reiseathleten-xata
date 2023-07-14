@@ -13,6 +13,13 @@ export class VacationRepoPrisma implements VacationRepo {
   }
   async getVacationsByUserId(userId: number): Promise<VacationsDtoProps> {
     const rawVacations = await this.client.vacation.findMany({
+      include: {
+        VacationDescription: {
+          include: {
+            Location: true,
+          },
+        },
+      },
       where: {
         userId,
       },
@@ -23,7 +30,8 @@ export class VacationRepoPrisma implements VacationRepo {
         ...rawVacation,
         startDate: rawVacation.startDate.toISOString(),
         endDate: rawVacation.endDate.toISOString(),
-        description: rawVacation.description || undefined,
+        description: rawVacation.VacationDescription.description || undefined,
+        name: rawVacation.VacationDescription.name,
       };
     });
 
@@ -37,12 +45,15 @@ export class VacationRepoPrisma implements VacationRepo {
         id,
       },
       include: {
-        Location: true,
+        VacationDescription: {
+          include: {
+            Location: true,
+          },
+        },
         VacationActivity: {
           include: {
-            ActivityBooking: {
+            AcitivityDescription: {
               include: {
-                AcitivityDescription: true,
                 AcitivityTag: {
                   include: {
                     Tag: {
@@ -52,6 +63,7 @@ export class VacationRepoPrisma implements VacationRepo {
                     },
                   },
                 },
+                VacationActivity: true,
               },
             },
           },
@@ -68,22 +80,22 @@ export class VacationRepoPrisma implements VacationRepo {
         ...rawVacation,
         startDate: rawVacation.startDate.toISOString(),
         endDate: rawVacation.endDate.toISOString(),
-        description: rawVacation.description || undefined,
+        description: rawVacation.VacationDescription.description || undefined,
+        name: rawVacation.VacationDescription.name,
       },
       location: {
-        ...rawVacation.Location,
-        description: rawVacation.Location.description || "",
+        ...rawVacation.VacationDescription.Location,
+        description: rawVacation.VacationDescription.Location.description || "",
       },
       activities: rawVacation.VacationActivity.map((va) => {
         return {
-          ...va.ActivityBooking,
-          name: va.ActivityBooking.AcitivityDescription?.name,
-          datetime: va.ActivityBooking.datetime?.toISOString(),
-          isFixedDate: va.ActivityBooking.isFixedDate,
-
-          description:
-            va.ActivityBooking.AcitivityDescription?.description || "",
-          tags: va.ActivityBooking.AcitivityTag.map((at) => {
+          ...va,
+          id: va.id,
+          name: va.AcitivityDescription.name,
+          datetime: va.datetime?.toISOString(),
+          isFixedDate: Boolean(va.AcitivityDescription.fixed_day),
+          description: va.AcitivityDescription?.description || "",
+          tags: va.AcitivityDescription.AcitivityTag.map((at) => {
             return {
               ...at.Tag,
               color: at.Tag.Color.name || "",

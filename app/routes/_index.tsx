@@ -17,5 +17,13 @@ export default function Index() {
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
-  return <GeneralErrorBoundary />;
+  return (
+    <GeneralErrorBoundary
+      statusHandlers={{
+        404: ({ params }) => (
+          <p>No user with the username "{params.username}" exists</p>
+        ),
+      }}
+    />
+  );
 }

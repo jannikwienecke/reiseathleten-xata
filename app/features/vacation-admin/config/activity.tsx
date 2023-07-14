@@ -2,19 +2,34 @@ import { type AcitivityDescription } from "@prisma/client";
 import { Form } from "~/components";
 import { prisma } from "~/db.server";
 
+import { RocketLaunchIcon } from "@heroicons/react/20/solid";
 import type { ModelConfig } from "~/utils/lib/types";
+import { getWeekDayString } from "../utils/helpers";
 import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
 
-export type ActivityInterface = AcitivityDescription;
+export type ActivityInterface = AcitivityDescription & {
+  fixedTime: string;
+};
 
 const prismaCrudHandler = new PrismaCrudHandler(prisma, "acitivityDescription");
 
 export const ActivityConfig: ModelConfig<ActivityInterface> = {
   title: "Activity",
   loader: async () => {
-    const activity = await prisma.acitivityDescription.findMany();
+    const activities = await prisma.acitivityDescription.findMany();
 
-    return activity;
+    return activities.map((a) => {
+      const hasFixedTime = a.fixed_hour && a.fixed_minute && a.fixed_day;
+      const weekday = a.fixed_day ? getWeekDayString(a.fixed_day) : "";
+      const fixedTimeString = hasFixedTime
+        ? `${weekday} ${a.fixed_hour}:${a.fixed_minute}`
+        : "";
+
+      return {
+        ...a,
+        fixedTime: fixedTimeString,
+      };
+    });
   },
 
   onDelete: (props) => prismaCrudHandler.delete(props),
@@ -22,19 +37,44 @@ export const ActivityConfig: ModelConfig<ActivityInterface> = {
   onAdd: async (props) =>
     prismaCrudHandler.add({
       ...props,
-      fields: ["name", "description"],
+      fields: [
+        "name",
+        "description",
+        "fixed_hour",
+        "fixed_minute",
+        "fixed_day",
+      ],
+      fieldTransforms: {
+        fixed_hour: (value) => Number(value),
+        fixed_minute: (value) => Number(value),
+        fixed_day: (value) => Number(value),
+      },
     }),
 
   onEdit: async (props) =>
     prismaCrudHandler.update({
       ...props,
-      fields: ["name", "description"],
+      fields: [
+        "name",
+        "description",
+        "fixed_hour",
+        "fixed_minute",
+        "fixed_day",
+      ],
+      fieldTransforms: {
+        fixed_hour: (value) => Number(value),
+        fixed_minute: (value) => Number(value),
+        fixed_day: (value) => Number(value),
+      },
     }),
 
   onBulkDelete: async (props) => prismaCrudHandler.bulkDelete(props),
 
   redirect: "/admin/Tag",
   view: {
+    navigation: {
+      icon: RocketLaunchIcon,
+    },
     table: {
       columns: [
         {
@@ -44,6 +84,10 @@ export const ActivityConfig: ModelConfig<ActivityInterface> = {
         {
           accessorKey: "description",
           header: "Description",
+        },
+        {
+          accessorKey: "fixedTime",
+          header: "Fixed Time",
         },
       ],
     },
@@ -61,6 +105,30 @@ export const ActivityConfig: ModelConfig<ActivityInterface> = {
           label: "Description",
           Component: Form.DefaultInput,
           minLength: 8,
+        },
+        {
+          name: "fixed_hour",
+          label: "At fixed hour",
+          Component: Form.DefaultInput,
+          type: "number",
+          min: 0,
+          max: 23,
+        },
+        {
+          name: "fixed_minute",
+          label: "At fixed minute",
+          Component: Form.DefaultInput,
+          type: "number",
+          min: 0,
+          max: 59,
+        },
+        {
+          name: "fixed_day",
+          label: "At fixed day",
+          Component: Form.DefaultInput,
+          type: "number",
+          min: 0,
+          max: 6,
         },
       ],
     },

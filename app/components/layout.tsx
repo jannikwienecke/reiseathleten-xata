@@ -17,20 +17,15 @@ import {
 import { Fragment, useState } from "react";
 
 import logo from "../logo.png";
+import { Link } from "@remix-run/react";
 
 const navigation = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-  { name: "Team", href: "#", icon: UsersIcon, current: false },
-  { name: "Projects", href: "#", icon: FolderIcon, current: false },
-  { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
-  { name: "Documents", href: "#", icon: DocumentDuplicateIcon, current: false },
-  { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
 ];
 const teams = [
   { id: 1, name: "Heroicons", href: "#", initial: "H", current: false },
-  { id: 2, name: "Tailwind Labs", href: "#", initial: "T", current: false },
-  { id: 3, name: "Workcation", href: "#", initial: "W", current: false },
 ];
+
 const userNavigation = [
   { name: "Your profile", href: "#" },
   { name: "Sign out", href: "#" },
@@ -40,7 +35,17 @@ function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({
+  children,
+  items,
+}: {
+  children: React.ReactNode;
+  items: {
+    label: string;
+    icon: React.ComponentType<any>;
+    isCurrent?: boolean;
+  }[];
+}) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -194,25 +199,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <ul className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul className="-mx-2 space-y-1">
-                    {navigation.map((item) => (
-                      <li key={item.name}>
-                        <a
-                          href={item.href}
-                          className={classNames(
-                            item.current
-                              ? "bg-gray-800 text-white"
-                              : "text-gray-400 hover:text-white hover:bg-gray-800",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                          )}
-                        >
-                          <item.icon
-                            className="h-6 w-6 shrink-0"
-                            aria-hidden="true"
-                          />
-                          {item.name}
-                        </a>
-                      </li>
-                    ))}
+                    {items.map((item) => {
+                      return (
+                        <li key={item.label}>
+                          <Link
+                            to={`/admin/${item.label}`}
+                            className={classNames(
+                              item.isCurrent
+                                ? "bg-gray-800 text-white"
+                                : "text-gray-400 hover:text-white hover:bg-gray-800",
+                              "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                            )}
+                          >
+                            {item?.icon ? (
+                              <item.icon
+                                className="h-6 w-6 shrink-0"
+                                aria-hidden="true"
+                              />
+                            ) : null}
+
+                            {item.label}
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </li>
                 <li>

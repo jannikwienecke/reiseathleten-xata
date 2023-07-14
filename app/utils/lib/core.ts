@@ -22,6 +22,13 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
     const modelConfig: ModelConfig =
       config["models"][props.params.model as keyof typeof config["models"]];
 
+    if (!modelConfig) {
+      throw new Response(null, {
+        status: 404,
+        statusText: "Not found",
+      });
+    }
+
     return {
       data: await modelConfig.loader(props),
     };
@@ -40,8 +47,6 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
 
     const formAction = getFormDataValue(formData, "action");
 
-    console.log("===action", action);
-
     let actionToRun = modelConfig.onAdd;
     if (action === "edit") {
       actionToRun = modelConfig.onEdit;
@@ -55,7 +60,7 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
 
     try {
       return (
-        (await actionToRun({
+        (await actionToRun?.({
           ...props,
           formData,
           config: modelConfig,
@@ -72,6 +77,10 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
         message,
         ...(error as {}),
       };
+      console.log("-----ERROR-----");
+      console.log(errorReturn);
+      console.log(" ");
+
       return errorReturn;
     }
   };

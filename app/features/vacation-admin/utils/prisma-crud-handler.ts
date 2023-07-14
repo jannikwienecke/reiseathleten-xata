@@ -3,7 +3,13 @@ import invariant from "tiny-invariant";
 import { getFormDataValue } from "~/utils/lib/core";
 import { type ActionFunctionArgs } from "~/utils/lib/types";
 
-type Model = "acitivityDescription" | "tag" | "location" | "vacation";
+type Model =
+  | "acitivityDescription"
+  | "tag"
+  | "location"
+  | "vacation"
+  | "vacationDescription"
+  | "vacationActivity";
 
 export class PrismaCrudHandler {
   private prisma: PrismaClient;
@@ -27,16 +33,26 @@ export class PrismaCrudHandler {
   async add(
     props: ActionFunctionArgs & {
       fields: string[];
+      fieldTransforms?: {
+        [key: string]: (value: any) => any;
+      };
+      optionalFields?: string[];
     }
   ) {
+    const data = this._getFieldValues(props);
+
     await this.prisma[this.model]?.create({
-      data: this._getFieldValues(props),
+      data,
     });
   }
 
   async update(
     props: ActionFunctionArgs & {
       fields: string[];
+      optionalFields?: string[];
+      fieldTransforms?: {
+        [key: string]: (value: any) => any;
+      };
     }
   ) {
     const url = new URL(props.request.url);
@@ -67,16 +83,28 @@ export class PrismaCrudHandler {
   _getFieldValues({
     fields,
     formData,
+    fieldTransforms,
+    optionalFields,
   }: {
     formData?: FormData;
     fields: string[];
+    optionalFields?: string[];
+    fieldTransforms?: {
+      [key: string]: (value: any) => any;
+    };
   }) {
     return fields.reduce((prev, current) => {
       const value = getFormDataValue(formData, current);
-      invariant(value, `${current} is required`);
+
+      const isOptional = optionalFields?.includes(current);
+
+      !isOptional && invariant(value, `${current} is required`);
       return {
         ...prev,
-        [current]: value,
+        [current]:
+          isOptional && !value
+            ? null
+            : fieldTransforms?.[current]?.(value) || value,
       };
     }, {});
   }

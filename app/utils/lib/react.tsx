@@ -1,8 +1,9 @@
 import { useNavigation } from "@remix-run/react";
 import React from "react";
-import { Form } from "./components/form";
+import { FormOld } from "./components/form";
 import { SlideOver } from "./components/slide-over";
 import type { ConfigType } from "./types";
+import { Form } from "~/components";
 
 export const LibContext = React.createContext<{
   config: ConfigType;
@@ -22,7 +23,7 @@ export const LibProvider = ({
   );
 };
 
-export const LibForm = ({
+export const LibFormOld = ({
   title,
   children,
   onCancel,
@@ -45,7 +46,7 @@ export const LibForm = ({
       title={title}
       method="POST"
       SaveButton={
-        <Form.SaveButton
+        <FormOld.SaveButton
           label={state === "submitting" ? "Saving..." : "Save"}
           isLoading={state === "submitting"}
         />
