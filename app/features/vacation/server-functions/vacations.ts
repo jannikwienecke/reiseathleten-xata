@@ -16,7 +16,7 @@ export const vacationsLoader = createLoader(
     invariant(user, "user is required");
 
     const vacations = await repository.vacation.getVacationsByUserId(
-      Number(user.id)
+      Number(user.props.id)
     );
     return { vacations };
   }
