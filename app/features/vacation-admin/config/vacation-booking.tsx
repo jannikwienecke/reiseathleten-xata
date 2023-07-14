@@ -13,6 +13,7 @@ export type VacationBookingInterface = Vacation & {
   user: string;
   activity: string;
   name: string;
+  activityDescription: string;
 };
 
 const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacation");
@@ -24,19 +25,6 @@ export const VacationBookingsConfig: ModelConfig<VacationBookingInterface> = {
       include: {
         User: true,
         VacationDescription: true,
-        // VacationActivity: {
-
-        // }
-
-        // VacationActivity: {
-        //   include: {
-        //     ActivityBooking: {
-        //       include: {
-        //         AcitivityDescription: true,
-        //       },
-        //     },
-        //   },
-        // },
       },
     });
 
@@ -44,6 +32,7 @@ export const VacationBookingsConfig: ModelConfig<VacationBookingInterface> = {
       ...v,
       user: v.User?.email || "",
       activity: "",
+      activityDescription: "",
       name: v.VacationDescription.name || "",
     }));
   },
@@ -52,12 +41,12 @@ export const VacationBookingsConfig: ModelConfig<VacationBookingInterface> = {
 
   onAdd: async (props) => {
     const userId = getFormDataValue(props.formData, "user");
-    const vacationId = getFormDataValue(props.formData, "name");
     const startDate = getFormDataValue(props.formData, "startDate");
     const endDate = getFormDataValue(props.formData, "endDate");
+    const vacationDescriptionId = getFormDataValue(props.formData, "name");
 
     invariant(userId, "User is required");
-    invariant(vacationId, "Vacation is required");
+    invariant(vacationDescriptionId, "Vacation is required");
     invariant(startDate, "Start Date is required");
     invariant(endDate, "End Date is required");
 
@@ -67,29 +56,11 @@ export const VacationBookingsConfig: ModelConfig<VacationBookingInterface> = {
           activityDescriptionId: true,
         },
         where: {
-          vacationDescriptionId: +vacationId,
+          vacationDescriptionId: +vacationDescriptionId,
         },
       });
 
-    // TODO HIER WEITER MACHEN
-    // await prisma.activityBooking.createMany({
-    //   data: defaultActivitiesForThisVacation.map((a) => ({
-    //     datetime: new Date(),
-    //     //  isFixedDate
-
-    //     acitivityDescriptionId: a.activityDescriptionId,
-    //   })),
-    // });
-
-    // await prisma.vacationActivity.createMany({
-    //   data:  defaultActivitiesForThisVacation.map((a) => ({
-    //     activityBookingId
-    //     vacationId: 1,
-    //   })),
-
-    // });
-
-    await prisma.vacation.create({
+    const vacationBooking = await prisma.vacation.create({
       data: {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
@@ -100,15 +71,39 @@ export const VacationBookingsConfig: ModelConfig<VacationBookingInterface> = {
         },
         VacationDescription: {
           connect: {
-            id: +vacationId,
+            id: +vacationDescriptionId,
           },
         },
       },
     });
+
+    await prisma.vacationActivity.createMany({
+      data: defaultActivitiesForThisVacation.map((a) => ({
+        activityDescriptionId: a.activityDescriptionId,
+        vacationId: vacationBooking.id,
+      })),
+    });
   },
 
   onEdit: async (props) => {
-    //
+    const url = new URL(props.request.url);
+    const activityId = url.searchParams.get("id");
+    const startDate = getFormDataValue(props.formData, "startDate");
+    const endDate = getFormDataValue(props.formData, "endDate");
+
+    invariant(startDate, "Start Date is required");
+    invariant(endDate, "End Date is required");
+    invariant(activityId, "Activity is required");
+
+    await prisma.vacation.update({
+      where: {
+        id: +activityId,
+      },
+      data: {
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+      },
+    });
   },
 
   onBulkDelete: async (props) => prismaCrudHandler.bulkDelete(props),
@@ -201,28 +196,6 @@ export const VacationBookingsConfig: ModelConfig<VacationBookingInterface> = {
           type: "date",
           formatValue: formatDateString,
           Component: Form.DefaultInput,
-        },
-        {
-          name: "activityDescription",
-          label: "Activity",
-          Component: Form.Select,
-          onGetOptions: async (query) => {
-            const results = await prisma.acitivityDescription.findMany({
-              where: {
-                OR: {
-                  name: {
-                    contains: query,
-                    mode: "insensitive",
-                  },
-                },
-              },
-            });
-
-            return results.map((r) => ({
-              id: r.id,
-              name: r.name,
-            }));
-          },
         },
       ],
     },

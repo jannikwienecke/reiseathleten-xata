@@ -16,8 +16,15 @@ interface ActivityType {
   id: number;
 }
 
-export const loader = async ({ request }: DataFunctionArgs) => {
-  const v = await prisma.vacation.findFirst({
+export const loader = async ({ request, params }: DataFunctionArgs) => {
+  const { id } = params;
+
+  invariant(id, "id is required");
+
+  const v = await prisma.vacation.findUnique({
+    where: {
+      id: +id,
+    },
     include: {
       User: true,
       VacationDescription: {

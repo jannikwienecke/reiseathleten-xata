@@ -4,11 +4,45 @@ import {
   Form as RemixForm,
   useFetcher,
   useParams,
+  useNavigation,
 } from "@remix-run/react";
 import React from "react";
 import { type Color, ComboBox } from "./combobox";
 import invariant from "tiny-invariant";
-import { getDateString } from "~/utils/helper";
+
+export const LibForm = ({
+  title,
+  children,
+  onCancel,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onCancel?: () => void;
+}) => {
+  const { state } = useNavigation();
+
+  const stateRef = React.useRef(state);
+  React.useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  return (
+    <Form
+      onCancel={onCancel}
+      // isDone={stateRef.current === "loading" && state === "submitting"}
+      title={title}
+      method="POST"
+      SaveButton={
+        <Form.SaveButton
+          label={state === "submitting" ? "Saving..." : "Save"}
+          isLoading={state === "submitting"}
+        />
+      }
+    >
+      {children}
+    </Form>
+  );
+};
 
 export function Form({
   title,
@@ -154,7 +188,7 @@ const SaveButton = ({
   return (
     <button
       type="submit"
-      className="rounded-md bg-indigo-600 items-center flex flex-row gap-2 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      className="rounded-md bg-black items-center flex flex-row gap-2 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
     >
       {isLoading ? (
         <div
@@ -171,7 +205,6 @@ const SaveButton = ({
     </button>
   );
 };
-
 export interface ISelectOption {
   id: number | string;
   name: string;

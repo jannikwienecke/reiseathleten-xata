@@ -46,7 +46,7 @@ export const LibFormOld = ({
       title={title}
       method="POST"
       SaveButton={
-        <FormOld.SaveButton
+        <Form.SaveButton
           label={state === "submitting" ? "Saving..." : "Save"}
           isLoading={state === "submitting"}
         />

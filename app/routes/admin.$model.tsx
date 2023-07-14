@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Outlet, useParams } from "@remix-run/react";
 import { Fragment, useState } from "react";
-import { Form, Notification, Table } from "~/components";
+import { LibForm, Notification, Table } from "~/components";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { CONFIG } from "~/features/vacation-admin/config";
 import { createPageFunction } from "~/utils/lib/core";
@@ -49,7 +49,7 @@ const Content = () => {
         ) : (
           <>
             <LibSliderOver {...getOverlayProps()}>
-              <Form {...getFormProps()}>
+              <LibForm {...getFormProps()}>
                 {addForm?.fields.map((field) => {
                   return (
                     <field.Component
@@ -58,7 +58,7 @@ const Content = () => {
                     />
                   );
                 })}
-              </Form>
+              </LibForm>
             </LibSliderOver>
             <TableView {...adminPageProps} />
           </>
@@ -146,7 +146,7 @@ function Commandbar() {
             leaveTo="opacity-0 scale-95"
           >
             <Dialog.Panel className="mx-auto max-w-2xl transform divide-y divide-gray-500 divide-opacity-20 overflow-hidden rounded-xl bg-gray-900 shadow-2xl transition-all">
-              <Combobox onChange={(item) => (window.location = item.url)}>
+              <Combobox onChange={(item) => (window.location = item?.url)}>
                 <div className="relative">
                   <MagnifyingGlassIcon
                     className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-gray-500"

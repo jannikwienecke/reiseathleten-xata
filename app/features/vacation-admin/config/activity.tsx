@@ -9,6 +9,7 @@ import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
 
 export type ActivityInterface = AcitivityDescription & {
   fixedTime: string;
+  tags: string;
 };
 
 const prismaCrudHandler = new PrismaCrudHandler(prisma, "acitivityDescription");
@@ -16,7 +17,15 @@ const prismaCrudHandler = new PrismaCrudHandler(prisma, "acitivityDescription");
 export const ActivityConfig: ModelConfig<ActivityInterface> = {
   title: "Activity",
   loader: async () => {
-    const activities = await prisma.acitivityDescription.findMany();
+    const activities = await prisma.acitivityDescription.findMany({
+      include: {
+        AcitivityTag: {
+          include: {
+            Tag: true,
+          },
+        },
+      },
+    });
 
     return activities.map((a) => {
       const hasFixedTime = a.fixed_hour && a.fixed_minute && a.fixed_day;
@@ -28,6 +37,7 @@ export const ActivityConfig: ModelConfig<ActivityInterface> = {
       return {
         ...a,
         fixedTime: fixedTimeString,
+        tags: a.AcitivityTag.map((at) => at.Tag.label).join(", "),
       };
     });
   },
@@ -88,6 +98,10 @@ export const ActivityConfig: ModelConfig<ActivityInterface> = {
         {
           accessorKey: "fixedTime",
           header: "Fixed Time",
+        },
+        {
+          accessorKey: "tags",
+          header: "Tags",
         },
       ],
     },

@@ -6,6 +6,8 @@ import { ActivityConfig } from "./activity";
 import { VacationBookingsConfig } from "./vacation-booking";
 import { VacationConfig } from "./vacation";
 import { VacationActivityBookingConfig } from "./activity-booking";
+import { ActivityTagConfig } from "./activity-tag";
+import { ColorConfig } from "./color";
 
 export const CONFIG: ConfigType = {
   models: {
@@ -15,6 +17,8 @@ export const CONFIG: ConfigType = {
     Location: LocationConfig,
     Tag: TagConfig,
     Activity: ActivityConfig,
+    ActivityTag: ActivityTagConfig,
+    Color: ColorConfig,
 
     // ActivityBooking: ActivityBookingConfig,
   },
