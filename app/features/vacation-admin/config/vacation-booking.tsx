@@ -51,7 +51,6 @@ export const VacationBookingsConfig: ModelConfig<VacationBookingInterface> = {
   onDelete: (props) => prismaCrudHandler.delete(props),
 
   onAdd: async (props) => {
-    // console.log("PROPS: ", props.formData);
     const userId = getFormDataValue(props.formData, "user");
     const vacationId = getFormDataValue(props.formData, "name");
     const startDate = getFormDataValue(props.formData, "startDate");
@@ -72,8 +71,7 @@ export const VacationBookingsConfig: ModelConfig<VacationBookingInterface> = {
         },
       });
 
-    console.log({ defaultActivitiesForThisVacation });
-
+    // TODO HIER WEITER MACHEN
     // await prisma.activityBooking.createMany({
     //   data: defaultActivitiesForThisVacation.map((a) => ({
     //     datetime: new Date(),

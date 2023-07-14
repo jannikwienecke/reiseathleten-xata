@@ -42,7 +42,6 @@ export const TagConfig: ModelConfig<TagInterface> = {
   onAdd: async ({ formData }: ActionFunctionArgs) => {
     const label = getFormDataValue(formData, "label");
     const color = getFormDataValue(formData, "color");
-    console.log("====", { label, color });
 
     invariant(label, "label is required");
     invariant(color, "color is required");
