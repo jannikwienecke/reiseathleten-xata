@@ -23,6 +23,9 @@ export function ErrorBoundary({ error }: { error: Error }) {
         404: ({ params }) => (
           <p>No user with the username "{params.username}" exists</p>
         ),
+        401: ({ params }) => (
+          <p>No user with the username "{params.username}" exists</p>
+        ),
       }}
     />
   );

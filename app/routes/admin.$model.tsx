@@ -414,6 +414,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
             </div>
           </div>
         ),
+        401: ({ params }) => <div>Unauthorized</div>,
       }}
     />
   );
