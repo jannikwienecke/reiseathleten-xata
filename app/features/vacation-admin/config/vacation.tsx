@@ -122,6 +122,7 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
           name: "description",
           label: "Description",
           Component: Form.DefaultInput,
+          type: "textarea",
           minLength: 8,
           required: true,
         },
