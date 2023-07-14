@@ -19,7 +19,7 @@ export const vacationLoader = createLoader(
 
     const vacation = await repository.vacation.getVacationById(
       Number(id),
-      Number(user?.id)
+      Number(user?.props.id)
     );
     return { vacation };
   }
