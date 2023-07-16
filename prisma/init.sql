@@ -46,6 +46,30 @@ CREATE TABLE "public"."User" (
     PRIMARY KEY ("id")
 );
 
+CREATE TABLE "public"."Customer" (
+    "id" SERIAL,
+    "first_name" text  NOT NULL ,
+    "last_name" text  NOT NULL ,
+    "company" text  NOT NULL ,
+    "address_1" text  NOT NULL ,
+    "address_2" text  NOT NULL ,
+    "email" text  NOT NULL UNIQUE,
+    "city" text  NOT NULL ,
+    "state" text  NOT NULL ,
+    "postcode" text  NOT NULL ,
+    "country" text  NOT NULL ,
+    "phone" text  NOT NULL ,
+    "title" text  NOT NULL ,
+    "title_formatted" text  NOT NULL ,
+    -- JSON
+    "shipping_address" text  NOT NULL ,
+    -- user 
+    "user_id" integer  NOT NULL,
+    PRIMARY KEY ("id")
+    FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
 CREATE TABLE "public"."Location" (
     "id" SERIAL,
     "name" text  NOT NULL UNIQUE,
@@ -119,6 +143,7 @@ INSERT INTO "public"."Tag" ("label", "colorId") VALUES ('Nature', 3);
 INSERT INTO "public"."Tag" ("label", "colorId") VALUES ('Culture', 4);
 
 INSERT INTO "public"."User" ("email", "password") VALUES ('admin@admin.de', '$2a$10$eCpSPy/E9R5yMBgrmERfN.9ywbnFkexKMfLgHwWscfsVC92R7.mq2');
+INSERT INTO "public"."User" ("email", "password") VALUES ('max@mustermann.de', '$2a$10$eCpSPy/E9R5yMBgrmERfN.9ywbnFkexKMfLgHwWscfsVC92R7.mq2');
 
 INSERT INTO "public"."Location" ("name", "description") VALUES ('Berlin', 'Capital of Germany');
 INSERT INTO "public"."Location" ("name", "description") VALUES ('Hamburg', 'City in the north of Germany');
@@ -136,6 +161,7 @@ INSERT INTO "public"."AcitivityDescription" ("name", "description") VALUES ('Vis
 INSERT INTO "public"."VacationDescription" ("name", "description", "locationId") VALUES ('Tenerife', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
 
 INSERT INTO "public"."Vacation" ("userId", "startDate", "endDate", "vacationDescriptionId") VALUES (1, '2023-07-09T08:53:23.808Z', '2023-07-16T08:53:23.809Z', 1);
+INSERT INTO "public"."Vacation" ("userId", "startDate", "endDate", "vacationDescriptionId") VALUES (2, '2023-07-09T08:53:23.808Z', '2023-07-16T08:53:23.809Z', 1);
 
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (1, 1);
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (2, 2);
@@ -152,3 +178,5 @@ INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId", 
 
 -- insert into default -> tenerife has default 2 crossfit sessions
 INSERT INTO "public"."DefaultVacationActivity" ("vacationDescriptionId", "activityDescriptionId") VALUES (1, 1);
+
+INSERT INTO "public"."Customer" ("first_name", "last_name", "company", "address_1", "address_2", "email", "city", "state", "postcode", "country", "phone", "title", "title_formatted", "shipping_address", "user_id") VALUES ('Max', 'Mustermann', '', 'Musterstraße 1', '', '', 'Musterstadt', 'Musterland', '12345', 'Musterland', '0123456789', 'Mr', 'Mr', '{}', 2);

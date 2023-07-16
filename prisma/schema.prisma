@@ -55,6 +55,7 @@ model User {
   id       Int        @id @default(autoincrement())
   email    String     @unique
   password String
+  Customer Customer[]
   Vacation Vacation[]
 }
 
@@ -94,4 +95,24 @@ model DefaultVacationActivity {
   activityDescriptionId Int
   AcitivityDescription  AcitivityDescription @relation(fields: [activityDescriptionId], references: [id], onDelete: Cascade)
   VacationDescription   VacationDescription  @relation(fields: [vacationDescriptionId], references: [id], onDelete: Cascade)
+}
+
+model Customer {
+  id               Int    @id @default(autoincrement())
+  first_name       String
+  last_name        String
+  company          String
+  address_1        String
+  address_2        String
+  email            String @unique
+  city             String
+  state            String
+  postcode         String
+  country          String
+  phone            String
+  title            String
+  title_formatted  String
+  shipping_address String
+  user_id          Int
+  User             User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

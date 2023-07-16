@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { MemberEntity } from "../../domain/Member";
 import type { UserRepo } from "../userRepo";
 import { MOCK_SERVER_URL } from "~/shared/constants/base";
+import { UserEntity } from "../../domain/User";
 
 export class UserRepoMock implements UserRepo {
   private client: PrismaClient;
@@ -15,7 +15,7 @@ export class UserRepoMock implements UserRepo {
   }: {
     email: string;
     password: string;
-  }): Promise<MemberEntity> {
+  }): Promise<UserEntity> {
     const result = await fetch(`${MOCK_SERVER_URL}/auth/signup`, {
       method: "POST",
       headers: {
@@ -33,7 +33,7 @@ export class UserRepoMock implements UserRepo {
       throw new Error("Cannot create user");
     }
 
-    return MemberEntity.create({
+    return UserEntity.create({
       ...data,
     });
   }
@@ -44,7 +44,7 @@ export class UserRepoMock implements UserRepo {
   }: {
     email: string;
     password: string;
-  }): Promise<MemberEntity | null> {
+  }): Promise<UserEntity | null> {
     const result = await fetch(`${MOCK_SERVER_URL}/auth/login`, {
       method: "POST",
       headers: {
@@ -60,8 +60,24 @@ export class UserRepoMock implements UserRepo {
 
     if (!data) return null;
 
-    return MemberEntity.create({
+    return UserEntity.create({
       ...data,
     });
+  }
+
+  async hasUserWithEmail(email: string): Promise<boolean> {
+    const result = await fetch(`${MOCK_SERVER_URL}/auth/hasUserWithEmail`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+      }),
+    });
+
+    const data = await result.json();
+
+    return Boolean(data.user);
   }
 }

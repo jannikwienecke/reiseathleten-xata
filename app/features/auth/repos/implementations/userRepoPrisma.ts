@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
-import { MemberEntity } from "../../domain/Member";
 import type { UserRepo } from "../userRepo";
+import { UserEntity } from "../../domain/User";
 
 export class UserRepoPrisma implements UserRepo {
   private client: PrismaClient;
@@ -14,7 +14,7 @@ export class UserRepoPrisma implements UserRepo {
   }: {
     email: string;
     password: string;
-  }): Promise<MemberEntity> {
+  }): Promise<UserEntity> {
     const user = await this.client.user.create({
       data: {
         email,
@@ -22,12 +22,12 @@ export class UserRepoPrisma implements UserRepo {
       },
     });
 
-    return MemberEntity.create({
+    return UserEntity.create({
       ...user,
     });
   }
 
-  async login({ email }: { email: string }): Promise<MemberEntity | null> {
+  async login({ email }: { email: string }): Promise<UserEntity | null> {
     const user = await this.client.user.findFirst({
       where: {
         email,
@@ -36,8 +36,23 @@ export class UserRepoPrisma implements UserRepo {
 
     if (!user) return null;
 
-    return MemberEntity.create({
+    return UserEntity.create({
       ...user,
     });
+  }
+
+  async hasUserWithEmail(email: string): Promise<boolean> {
+    const user = await this.client.user.findFirst({
+      where: {
+        email,
+      },
+    });
+
+    console.log({
+      user,
+      email,
+    });
+
+    return !!user;
   }
 }

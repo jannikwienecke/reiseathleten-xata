@@ -54,17 +54,17 @@ const NotesContent = () => {
             <VacationDatePicker />
           </div>
 
+          <ActivityList
+            title={format(selectedDay, "dd.MM.yyyy")}
+            activities={activitiesSelectedDay}
+          />
+
           {activitiesUnallocated.length ? (
             <ActivityList
               title={"Open Activities"}
               activities={activitiesUnallocated}
             />
           ) : null}
-
-          <ActivityList
-            title={format(selectedDay, "dd.MM.yyyy")}
-            activities={activitiesSelectedDay}
-          />
         </div>
       </div>
     </>

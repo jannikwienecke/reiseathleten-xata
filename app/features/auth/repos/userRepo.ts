@@ -1,4 +1,4 @@
-import type { MemberEntity } from "../domain/Member";
+import type { UserEntity } from "../domain/User";
 
 export interface UserRepo {
   signup({
@@ -7,7 +7,7 @@ export interface UserRepo {
   }: {
     email: string;
     password: string;
-  }): Promise<MemberEntity>;
+  }): Promise<UserEntity>;
 
   login({
     email,
@@ -15,5 +15,7 @@ export interface UserRepo {
   }: {
     email: string;
     password: string;
-  }): Promise<MemberEntity | null>;
+  }): Promise<UserEntity | null>;
+
+  hasUserWithEmail(email: string): Promise<boolean>;
 }

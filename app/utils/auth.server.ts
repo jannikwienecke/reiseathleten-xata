@@ -2,15 +2,15 @@ import bcrypt from "bcryptjs";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import { prisma } from "~/db.server";
-import { type MemberEntity } from "~/features/auth/domain/Member";
 import { UserRepoMock } from "~/features/auth/repos/implementations/userRepoMockServer";
 import { UserRepoPrisma } from "~/features/auth/repos/implementations/userRepoPrisma";
 import type { UserRepo } from "~/features/auth/repos/userRepo";
 import { IS_PRODUCTION } from "~/shared/constants/base";
 import { waitFor } from "./misc";
 import { sessionStorage } from "./session.server";
+import type { UserEntity } from "~/features/auth/domain/User";
 
-const authenticator = new Authenticator<MemberEntity>(sessionStorage);
+const authenticator = new Authenticator<UserEntity>(sessionStorage);
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {

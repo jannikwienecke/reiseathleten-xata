@@ -1,10 +1,12 @@
 import bcrypt from "bcryptjs";
 import type { VacationDtoProps } from "../features/vacation";
+import { RawOrder } from "~/features/orders-sync/api/types";
 const jsonServer = require("json-server");
 const server = jsonServer.create();
 const router = jsonServer.router("db.json");
 const dbJson: {
   vacations: VacationDtoProps[];
+  orders: RawOrder[];
 } = require("./db.json");
 
 const ENV = process.env;
@@ -83,6 +85,13 @@ server.post("/vacations/:id/update-activity-date", (req: any, res: any) => {
   res.jsonp({ status: "success" });
 });
 
+// /orders
+server.get("/orders", (req: any, res: any) => {
+  res.jsonp({
+    data: dbJson.orders,
+  });
+});
+
 server.post("/auth/signup", (req: any, res: any) => {
   const { email, password } = req.body;
 
@@ -120,6 +129,27 @@ server.post("/auth/login", async (req: any, res: any) => {
   };
 
   res.jsonp(user);
+});
+
+// POST /auth/hasUserWithEmail
+server.post("/auth/hasUserWithEmail", async (req: any, res: any) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400).jsonp({
+      error: "Missing email",
+    });
+  }
+
+  const user = {
+    id: 1,
+    email,
+  };
+
+  // res.jsonp(user);
+  res.jsonp({
+    user: null,
+  });
 });
 
 // Use default router
