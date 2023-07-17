@@ -88,7 +88,7 @@ server.post("/vacations/:id/update-activity-date", (req: any, res: any) => {
 // /orders
 server.get("/orders", (req: any, res: any) => {
   res.jsonp({
-    data: dbJson.orders,
+    data: JSON.stringify(dbJson.orders),
   });
 });
 

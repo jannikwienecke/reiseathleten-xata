@@ -50,9 +50,6 @@ export const ORDERS = [
     payment_method_title:
       "Kauf auf Rechnung (Überweisung). PayPal, MasterCard &amp; Visa Card sind auf Wunsch auch möglich",
     transaction_id: "",
-    customer_ip_address: "31.18.251.245",
-    customer_user_agent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.79",
     created_via: "checkout",
     customer_note: "",
     date_completed: null,
@@ -136,9 +133,167 @@ export const ORDERS = [
         value: "1",
       },
     ],
+    // each
     line_items: [
       {
         id: 1440,
+        name: "Auspowern & Entspannen in den Bergen Österreichs – Vitalurlaub Tirol – Fitnessurlaub Österreich",
+        product_id: 68861,
+        variation_id: 0,
+        quantity: 1,
+        tax_class: "",
+        subtotal: "598.00",
+        subtotal_tax: "0.00",
+        total: "598.00",
+        total_tax: "0.00",
+        taxes: [],
+        meta_data: [
+          {
+            id: 37925,
+            key: "_unit",
+            value: "",
+            display_key: "_unit",
+            display_value: "",
+          },
+          {
+            id: 37926,
+            key: "_unit_base",
+            value: "",
+            display_key: "_unit_base",
+            display_value: "",
+          },
+          {
+            id: 37927,
+            key: "_unit_product",
+            value: "",
+            display_key: "_unit_product",
+            display_value: "",
+          },
+          {
+            id: 37928,
+            key: "_item_desc",
+            value:
+              '<hr />\n<p><span style="font-size: 18pt"><em>Noch ein Schritt zum Fitness Abenteuer in den Bergen...</em> </span></p>\n<p>Erlebe ein umfassendes Vital- und Sportprogramm von sportlichen Gastgebern. Basierend auf einer ganzheitlichen Philosophie “<span style="font-family: realvish;color: #1e73be;font-size: 18pt"><strong>Genuss. Wellness. Aktive Erholung. Sport</strong></span>” erwartet dich eine umfassende Bandbreite an Aktivitäten in Österreich.</p>\n<p style="text-align: justify"><span style="font-weight: 400;font-size: 14pt"><strong>Inbegriffen sind u. a. folgende Leistungen:</strong></span></p>\n<ul>\n<li><span style="color: #1e73be"><span style="font-family: realvish;font-size: 22pt">Unterkunft:</span> </span>Übernachtungen im Hotel Vier Jahreszeiten ****, Pitztal</li>\n<li><span style="font-weight: 400"><span style="color: #1e73be;font-family: realvish;font-size: 22pt">Verpflegung: </span>Gesunde Sportler-Vollpension: Frühstücksbuffet, Lunchbuffet, 5-Gang-Wahl-Menü am Abend </span></li>\n<li><span style="color: #1e73be"><span style="font-family: realvish;font-size: 22pt">Sport:</span> </span><span style="color: #000000">Vital- und Sportprogramm (u.a. Krafttraining, HIIT, Aqua Fit, Spinning, BPB), Wandern, Trailrunning, Mountainbiking, Klettern</span></li>\n<li><span style="color: #1e73be"><span style="font-family: realvish;font-size: 22pt">Regeneration: </span></span><span style="color: #000000">Unbegrenzte Nutzung des Wellnessbereiches (1.500 m²), Yoga &amp; Meditation</span></li>\n<li><span style="font-weight: 400"><span style="color: #1e73be;font-family: realvish;font-size: 22pt">Sonstiges:</span> <span style="color: #000000">verschiedene Touren, sportbegeisterte Gastgeber, deutschsprachige Ansprechpartner vor Ort, ganzheitliche Betreuung, Reisesicherungsschein (R+V Versicherung), Kurtaxe</span></span></li>\n</ul>\n',
+            display_key: "_item_desc",
+            display_value:
+              "Noch ein Schritt zum Fitness Abenteuer in den Bergen... Erlebe ein umfassendes Vital- und Sportprogramm von sportlichen Gastgebern. Basierend auf einer ganzheitlichen Philosophie “Genuss. Wellness. Aktive Erholung. Sport” erwartet dich eine umfassende Bandbreite an Aktivitäten in Österreich. Inbegriffen sind u. a. folgende Leistungen: Unterkunft: Übernachtungen im Hotel Vier Jahreszeiten ****, Pitztal Verpflegung: Gesunde Sportler-Vollpension: Frühstücksbuffet, Lunchbuffet, 5-Gang-Wahl-Menü am Abend Sport: Vital- und Sportprogramm (u.a. Krafttraining, HIIT, Aqua Fit, Spinning, BPB), Wandern, Trailrunning, Mountainbiking, Klettern Regeneration: Unbegrenzte Nutzung des Wellnessbereiches (1.500 m²), Yoga &amp; Meditation Sonstiges: verschiedene Touren, sportbegeisterte Gastgeber, deutschsprachige Ansprechpartner vor Ort, ganzheitliche Betreuung, Reisesicherungsschein (R+V Versicherung), Kurtaxe",
+          },
+          {
+            id: 37929,
+            key: "_defect_description",
+            value: "",
+            display_key: "_defect_description",
+            display_value: "",
+          },
+          {
+            id: 37930,
+            key: "_delivery_time",
+            value: "",
+            display_key: "_delivery_time",
+            display_value: "",
+          },
+          {
+            id: 37931,
+            key: "_min_age",
+            value: "",
+            display_key: "_min_age",
+            display_value: "",
+          },
+          {
+            id: 37932,
+            key: "yith_booking_data",
+            value: {
+              from: 1690070400,
+              to: 1690329600,
+              duration: 3,
+              persons: 2,
+              person_types: {
+                "132": "1",
+                "25080": "1",
+                "25078": "0",
+                "25076": "0",
+                "25075": "0",
+                "41890": "0",
+                "41892": "0",
+              },
+              booking_services: [1435, 6911, 6909, 7140, 1690, 6910, 1417],
+              booking_service_quantities: {
+                "215": "1",
+              },
+              resource_ids: [],
+              "_added-to-cart-timestamp": 1689450048,
+            },
+            display_key: "yith_booking_data",
+            display_value: {
+              from: 1690070400,
+              to: 1690329600,
+              duration: 3,
+              persons: 2,
+              person_types: {
+                "132": "1",
+                "25080": "1",
+                "25078": "0",
+                "25076": "0",
+                "25075": "0",
+                "41890": "0",
+                "41892": "0",
+              },
+              booking_services: [1435, 6911, 6909, 7140, 1690, 6910, 1417],
+              booking_service_quantities: {
+                "215": "1",
+              },
+              resource_ids: [],
+              "_added-to-cart-timestamp": 1689450048,
+            },
+          },
+          {
+            id: 37933,
+            key: "_booking_id",
+            value: "70008",
+            display_key: "Buchung",
+            display_value: "#70008",
+          },
+          {
+            id: 37934,
+            key: "yith_wcbk_formatted_meta",
+            value: [
+              {
+                display_key: "Von",
+                display_value: "23.07.2023",
+              },
+              {
+                display_key: "Bis",
+                display_value: "26.07.2023",
+              },
+              {
+                display_key: "Dauer",
+                display_value: "3 Tage",
+              },
+              {
+                display_key: "Personen",
+                display_value:
+                  "2 (Anzahl Reiseteilnehmer gesamt &#8211; bitte wähle zusätzlich mind. eine gewünschte Zimmerkategorie aus: 1, Ferienzimmer &#8211; (1 Person): 1)",
+              },
+              {
+                display_key: "Services",
+                display_value:
+                  "Fitnesseinheiten, Geführte Lauf,- und Trailrunning Einheiten, Geführte Wanderungen (lt. Wochenprogramm), Kurtaxe Pitztal, Unterkunft, Vital- und Sportprogramm, Vollpension",
+              },
+            ],
+            display_key: "Von",
+            display_value: "23.07.2023",
+          },
+        ],
+        sku: "",
+        price: 598,
+        image: {
+          id: "60213",
+          src: "https://reiseathleten.de/wp-content/uploads/Fitnessurlaub-in-Österreich-Wintertage-im-Pitztal-mit-Reiseathleten.jpeg",
+        },
+        parent_name: null,
+      },
+      {
+        id: 14402,
         name: "Auspowern & Entspannen in den Bergen Österreichs – Vitalurlaub Tirol – Fitnessurlaub Österreich",
         product_id: 68861,
         variation_id: 0,
@@ -477,8 +632,10 @@ export const ORDERS = [
     line_items: [
       {
         id: 1439,
-        name: "Surfen & Fitness im Surfparadies Ericeira - Fitnessurlaub in Portugal ➤ Anreisetag am Sonntag",
+        // vacation -> create a new vacation based on this id and name if not exits
         product_id: 61336,
+        name: "Surfen & Fitness im Surfparadies Ericeira - Fitnessurlaub in Portugal ➤ Anreisetag am Sonntag",
+
         variation_id: 0,
         quantity: 1,
         tax_class: "",
@@ -723,9 +880,6 @@ export const ORDERS = [
     payment_method: "direct-debit",
     payment_method_title: "Lastschrift",
     transaction_id: "",
-    customer_ip_address: "90.186.18.193",
-    customer_user_agent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
     created_via: "checkout",
     customer_note: "",
     date_completed: null,

@@ -35,6 +35,7 @@ export const lineItemSchem = z.object({
   id: z.number(),
   name: z.string(),
   product_id: z.number(),
+  total: z.string(),
   meta_data: z.array(
     z.object({
       id: z.number(),
@@ -63,6 +64,7 @@ export const orderSchema = z.object({
   shipping: shippingSchema,
   payment_method: z.string(),
   payment_method_title: z.string(),
+  // from here we need only the 'geburtsdatum', 'community', 'kenntnis'
   meta_data: z.array(
     z.object({
       id: z.number(),
@@ -70,9 +72,20 @@ export const orderSchema = z.object({
       value: z.union([z.string(), z.array(z.number())]),
     })
   ),
+
+  // each item in the array is a new order
+  // so if the order has 3 items, we will create three orders with one item each
   line_items: z.array(lineItemSchem),
 });
 
 export const orderResultSchema = z.object({
   data: z.array(orderSchema),
 });
+
+// TODO STEPS
+// create new order table with all the fields we need (also the fields from the meta_data)
+// a order === 1 specific vacation
+// if vacation exists, update it
+// if vacation does not exist, create it
+// each vacation has a set of services included that are fixed
+// in the order we have also the services that are added by the user in the checkout

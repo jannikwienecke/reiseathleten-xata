@@ -17,6 +17,7 @@ interface UserProps {
   title_formatted: string;
   shipping_address: string;
   user_id: number;
+  birth_date: Date | null;
 }
 
 export class CustomerEntity extends Entity<UserProps> {

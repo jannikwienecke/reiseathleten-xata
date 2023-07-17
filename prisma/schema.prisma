@@ -56,6 +56,7 @@ model User {
   email    String     @unique
   password String
   Customer Customer[]
+  Order    Order[]
   Vacation Vacation[]
 }
 
@@ -65,9 +66,11 @@ model Vacation {
   startDate             DateTime            @default(now())
   endDate               DateTime            @default(now())
   vacationDescriptionId Int
+  Order                 Order[]
   User                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   VacationDescription   VacationDescription @relation(fields: [vacationDescriptionId], references: [id], onDelete: Cascade)
   VacationActivity      VacationActivity[]
+  VacationServices      VacationServices[]
 }
 
 model VacationActivity {
@@ -83,6 +86,7 @@ model VacationDescription {
   id                      Int                       @id @default(autoincrement())
   name                    String                    @unique
   description             String?
+  image_url               String?
   locationId              Int
   DefaultVacationActivity DefaultVacationActivity[]
   Vacation                Vacation[]
@@ -98,13 +102,13 @@ model DefaultVacationActivity {
 }
 
 model Customer {
-  id               Int    @id @default(autoincrement())
+  id               Int      @id @default(autoincrement())
   first_name       String
   last_name        String
   company          String
   address_1        String
   address_2        String
-  email            String @unique
+  email            String   @unique
   city             String
   state            String
   postcode         String
@@ -113,6 +117,45 @@ model Customer {
   title            String
   title_formatted  String
   shipping_address String
+  birth_date       DateTime @db.Date
   user_id          Int
-  User             User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  User             User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id                   Int      @id
+  order_key            String   @unique
+  date_created         DateTime @default(now()) @db.Date
+  date_modified        DateTime @default(now()) @db.Date
+  date_imported        DateTime @default(now()) @db.Date
+  price                Decimal  @db.Decimal
+  vacation_id          Int
+  start_date           DateTime @db.Date
+  end_date             DateTime @db.Date
+  duration             Int
+  persons              Int
+  room_description     String
+  payment_method       String
+  payment_method_title String
+  add_to_community     String   @default("")
+  knowledge_from       String
+  crossfit_box         String?
+  user_id              Int
+  User                 User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  Vacation             Vacation @relation(fields: [vacation_id], references: [id], onDelete: NoAction)
+}
+
+model Service {
+  id               Int                @id @default(autoincrement())
+  name             String
+  description      String             @default("")
+  VacationServices VacationServices[]
+}
+
+model VacationServices {
+  id          Int      @id @default(autoincrement())
+  vacation_id Int
+  service_id  Int
+  Service     Service  @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  Vacation    Vacation @relation(fields: [vacation_id], references: [id], onDelete: Cascade)
 }

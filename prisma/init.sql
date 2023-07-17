@@ -11,7 +11,10 @@ DROP TABLE "public"."Color" CASCADE;
 DROP TABLE "public"."AcitivityDescription" CASCADE;
 DROP TABLE "public"."DefaultVacationActivity" CASCADE;
 DROP TABLE "public"."VacationDescription" CASCADE;
-
+DROP TABLE "public"."Customer" CASCADE;
+DROP TABLE "public"."Service" CASCADE;
+DROP TABLE "public"."VacationServices" CASCADE;
+DROP TABLE "public"."Order" CASCADE;
 
 CREATE TABLE "public"."Color" (
     "id" SERIAL,
@@ -61,11 +64,10 @@ CREATE TABLE "public"."Customer" (
     "phone" text  NOT NULL ,
     "title" text  NOT NULL ,
     "title_formatted" text  NOT NULL ,
-    -- JSON
     "shipping_address" text  NOT NULL ,
-    -- user 
+    "birth_date" DATE  NOT NULL ,
     "user_id" integer  NOT NULL,
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
     FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -90,7 +92,8 @@ CREATE TABLE "public"."AcitivityTag" (
 CREATE TABLE "public"."VacationDescription" (
     "id" SERIAL,
     "name" text  NOT NULL UNIQUE,
-    "description" text   ,
+    "description" text,
+    "image_url" text,
     PRIMARY KEY ("id"),
     "locationId" integer  NOT NULL ,
     FOREIGN KEY ("locationId") REFERENCES "public"."Location"("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -130,6 +133,62 @@ CREATE TABLE "public"."DefaultVacationActivity" (
     FOREIGN KEY ("vacationDescriptionId") REFERENCES "public"."VacationDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY ("activityDescriptionId") REFERENCES "public"."AcitivityDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
+
+CREATE TABLE "public"."Service" (
+    "id" SERIAL,
+    "name" text  NOT NULL ,
+    "description" text  NOT NULL DEFAULT '',
+    PRIMARY KEY ("id")
+);
+
+CREATE TABLE "public"."VacationServices" (
+    "id" SERIAL,
+    "vacation_id" integer  NOT NULL ,
+    "service_id" integer  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("vacation_id") REFERENCES "public"."Vacation"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("service_id") REFERENCES "public"."Service"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE "public"."Order" (
+    -- ORDER OVERVIEW
+    "id" integer NOT NULL UNIQUE,
+    "order_key" text  NOT NULL UNIQUE,
+    "date_created" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "date_modified" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "date_imported" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- use the price from the line item  
+    "price" DECIMAL  NOT NULL,
+
+    -- Order Description
+    "vacation_id" integer  NOT NULL ,
+    "start_date" DATE  NOT NULL ,
+    "end_date" DATE  NOT NULL ,
+    "duration" integer  NOT NULL ,
+    "persons" integer  NOT NULL ,
+    "room_description" text  NOT NULL,
+    -- must be linked to a many to many table vacation_services
+    -- "additional_services" text  NOT NULL,
+
+    -- PAYMENT
+    "payment_method" text  NOT NULL ,
+    "payment_method_title" text  NOT NULL ,
+    "add_to_community" text  NOT NULL DEFAULT '',
+
+    -- META
+    "knowledge_from" text  NOT NULL,
+    "crossfit_box" text,
+
+    -- user
+    "user_id" integer  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("vacation_id") REFERENCES "public"."Vacation"("id") ON UPDATE CASCADE
+);
+
 
 
 INSERT INTO "public"."Color" ("name") VALUES ('blue');
@@ -179,4 +238,12 @@ INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId", 
 -- insert into default -> tenerife has default 2 crossfit sessions
 INSERT INTO "public"."DefaultVacationActivity" ("vacationDescriptionId", "activityDescriptionId") VALUES (1, 1);
 
-INSERT INTO "public"."Customer" ("first_name", "last_name", "company", "address_1", "address_2", "email", "city", "state", "postcode", "country", "phone", "title", "title_formatted", "shipping_address", "user_id") VALUES ('Max', 'Mustermann', '', 'Musterstraße 1', '', '', 'Musterstadt', 'Musterland', '12345', 'Musterland', '0123456789', 'Mr', 'Mr', '{}', 2);
+INSERT INTO "public"."Customer" ("first_name", "last_name", "company", "address_1", "address_2", "email", "city", "state", "postcode", "country", "phone", "title", "title_formatted", "shipping_address", "user_id", "birth_date") VALUES ('Max', 'Mustermann', '', 'Musterstraße 1', '', '', 'Musterstadt', 'Musterland', '12345', 'Musterland', '0123456789', 'Mr', 'Mr', '{}', 2, '1990-01-01');
+
+INSERT INTO "public"."Service" ("name", "description") VALUES ('Crossfit Session', 'Crossfit Session with a trainer');
+INSERT INTO "public"."Service" ("name", "description") VALUES ('Personal Training', 'Personal Training with a trainer');
+INSERT INTO "public"."Service" ("name", "description") VALUES ('Sightseeing', 'Sightseeing in the city');
+
+INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (1, 1);
+INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (1, 2);
+INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (1, 3);

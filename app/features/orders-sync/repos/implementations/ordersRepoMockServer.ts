@@ -10,9 +10,13 @@ export class OrdersRepoMockServer implements OrdersRepository {
     await waitFor(1000);
 
     const result = await fetch(`${MOCK_SERVER_URL}/orders`);
-    const jsonResult = await result.json();
 
-    const parsedResult = orderResultSchema.safeParse(jsonResult);
+    const jsonResult = await result.json();
+    const jsonParsed = JSON.parse(jsonResult.data);
+
+    const parsedResult = orderResultSchema.safeParse({
+      data: jsonParsed,
+    });
 
     if (!parsedResult.success) {
       console.log("-----PARSING MOCK ERROR-----");
@@ -23,6 +27,6 @@ export class OrdersRepoMockServer implements OrdersRepository {
       throw new InvalidSchemaError(`Invalid schema for mock orders`);
     }
 
-    return parsedResult.data.data;
+    return jsonParsed;
   }
 }
