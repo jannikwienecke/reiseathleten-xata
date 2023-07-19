@@ -11,6 +11,8 @@ export class ServiceList extends ValueObject<ServiceValueObject[]> {
   }
 
   static createServicesFromString(servicesString: string): ServiceList {
+    console.log({ servicesString });
+
     const services = servicesString
       .split(", ")
       .map((s) => s.trim())

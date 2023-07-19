@@ -121,6 +121,7 @@ export const syncOrdersLoader = createLoader(
         startDate: DateValueObject.create({ value: from }),
         endDate: DateValueObject.create({ value: to }),
         numberPersons: persons,
+        // FIX THIS
         services: [],
         imageUrl,
       });
@@ -128,9 +129,12 @@ export const syncOrdersLoader = createLoader(
 
     function getFormattedMeta(order: RawOrder) {
       const lineItem = order.line_items[0];
-      return lineItem.meta_data.find(
+
+      const formattedMeta = lineItem.meta_data.find(
         (meta) => meta.key === KEYS_LINE_ITEM_META.formattedMeta
       )?.value;
+
+      return formattedMeta;
     }
 
     function getBookingValues(bookingData: ReturnType<typeof getBookingData>) {
@@ -236,25 +240,33 @@ export const syncOrdersLoader = createLoader(
       );
 
       console.log({ newOrder });
+      return newOrder;
     }
 
     const orders = await useCases.syncOrders.execute();
 
     const userRepo = repository.user;
 
-    orders.forEach(async (order) => {
+    const newOrdersPromises = orders.map(async (order) => {
       console.log("======");
       console.log("ORDER: ", order.id);
 
       const user = await _handleUserAndCustomerCreation(order);
-      await _handleOrderCreation({
+      const newOrder = await _handleOrderCreation({
         user,
         order,
       });
+
+      console.log("SAVE ORDER");
+      await repository.order.save(newOrder);
+
+      return newOrder;
     });
 
+    const newOrders = await Promise.all(newOrdersPromises);
+
     return {
-      orders,
+      orders: newOrders,
     };
   }
 );
