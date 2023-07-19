@@ -13,6 +13,7 @@ interface VacationBookingProps {
   duration: number;
   imageUrl: string;
   name: string;
+  description?: string;
 }
 
 export class VacationBooking extends Entity<VacationBookingProps> {

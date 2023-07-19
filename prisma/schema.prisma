@@ -66,11 +66,9 @@ model Vacation {
   startDate             DateTime            @default(now())
   endDate               DateTime            @default(now())
   vacationDescriptionId Int
-  Order                 Order[]
   User                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   VacationDescription   VacationDescription @relation(fields: [vacationDescriptionId], references: [id], onDelete: Cascade)
   VacationActivity      VacationActivity[]
-  VacationServices      VacationServices[]
 }
 
 model VacationActivity {
@@ -89,8 +87,10 @@ model VacationDescription {
   image_url               String?
   locationId              Int
   DefaultVacationActivity DefaultVacationActivity[]
+  Order                   Order[]
   Vacation                Vacation[]
   Location                Location                  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  VacationServices        VacationServices[]
 }
 
 model DefaultVacationActivity {
@@ -123,26 +123,27 @@ model Customer {
 }
 
 model Order {
-  id                   Int      @id
-  order_key            String   @unique
-  date_created         DateTime @default(now()) @db.Date
-  date_modified        DateTime @default(now()) @db.Date
-  date_imported        DateTime @default(now()) @db.Date
-  price                Decimal  @db.Decimal
+  id                   Int                 @id
+  order_key            String              @unique
+  date_created         DateTime            @default(now()) @db.Date
+  date_modified        DateTime            @default(now()) @db.Date
+  date_imported        DateTime            @default(now()) @db.Date
+  price                Decimal             @db.Decimal
   vacation_id          Int
-  start_date           DateTime @db.Date
-  end_date             DateTime @db.Date
+  start_date           DateTime            @db.Date
+  end_date             DateTime            @db.Date
   duration             Int
   persons              Int
   room_description     String
   payment_method       String
   payment_method_title String
-  add_to_community     String   @default("")
+  add_to_community     String              @default("")
   knowledge_from       String
   crossfit_box         String?
+  status               String              @default("pending")
   user_id              Int
-  User                 User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  Vacation             Vacation @relation(fields: [vacation_id], references: [id], onDelete: NoAction)
+  User                 User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  Vacation             VacationDescription @relation(fields: [vacation_id], references: [id], onDelete: NoAction)
 }
 
 model Service {
@@ -153,9 +154,9 @@ model Service {
 }
 
 model VacationServices {
-  id          Int      @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   vacation_id Int
   service_id  Int
-  Service     Service  @relation(fields: [service_id], references: [id], onDelete: Cascade)
-  Vacation    Vacation @relation(fields: [vacation_id], references: [id], onDelete: Cascade)
+  Service     Service             @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  Vacation    VacationDescription @relation(fields: [vacation_id], references: [id], onDelete: Cascade)
 }

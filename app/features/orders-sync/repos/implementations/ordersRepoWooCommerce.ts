@@ -1,14 +1,11 @@
 import type WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
-import type { RawOrder } from "../../api/types";
-import type { OrdersRepository } from "../ordersRepo";
 import { orderResultSchema } from "../../api/schema";
+import type { RawOrder } from "../../api/types";
 import { InvalidSchemaError } from "../../errors/invalid-schema-error";
+import type { OrdersRepository } from "../ordersRepo";
 
 export class OrdersRepoWooCommerce implements OrdersRepository {
-  private client: WooCommerceRestApi;
-  constructor(client: WooCommerceRestApi) {
-    this.client = client;
-  }
+  constructor(private client: WooCommerceRestApi) {}
 
   async getLatest(): Promise<RawOrder[]> {
     const result = await this.client.get("orders", {
@@ -26,6 +23,6 @@ export class OrdersRepoWooCommerce implements OrdersRepository {
       throw new InvalidSchemaError(`Invalid schema for orders`);
     }
 
-    return parsedResult.data.data;
+    return result.data;
   }
 }

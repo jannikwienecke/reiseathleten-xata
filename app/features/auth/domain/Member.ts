@@ -21,11 +21,15 @@ interface UserProps {
 }
 
 export class CustomerEntity extends Entity<UserProps> {
-  private constructor(props: UserProps, id?: string) {
+  private constructor(props: UserProps, id?: number) {
     super(props, id);
   }
 
-  static create(props: UserProps, id?: string) {
+  static create(props: UserProps, id?: number) {
     return new CustomerEntity(props, id);
+  }
+
+  get id() {
+    return this._id as number;
   }
 }

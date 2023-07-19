@@ -148,7 +148,7 @@ CREATE TABLE "public"."VacationServices" (
     "vacation_id" integer  NOT NULL ,
     "service_id" integer  NOT NULL ,
     PRIMARY KEY ("id"),
-    FOREIGN KEY ("vacation_id") REFERENCES "public"."Vacation"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("vacation_id") REFERENCES "public"."VacationDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY ("service_id") REFERENCES "public"."Service"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -182,11 +182,14 @@ CREATE TABLE "public"."Order" (
     "knowledge_from" text  NOT NULL,
     "crossfit_box" text,
 
+    -- status
+    "status" text  NOT NULL DEFAULT 'pending',
+
     -- user
     "user_id" integer  NOT NULL ,
     PRIMARY KEY ("id"),
     FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY ("vacation_id") REFERENCES "public"."Vacation"("id") ON UPDATE CASCADE
+    FOREIGN KEY ("vacation_id") REFERENCES "public"."VacationDescription"("id") ON UPDATE CASCADE
 );
 
 
