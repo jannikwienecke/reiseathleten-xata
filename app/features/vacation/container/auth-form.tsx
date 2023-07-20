@@ -103,6 +103,7 @@ export function AuthForm({ type }: { type: "login" | "signup" }) {
 
             <div>
               <button
+                id="submit-auth"
                 disabled={isLoading}
                 type="submit"
                 className={clsx(

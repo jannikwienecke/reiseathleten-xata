@@ -21,3 +21,6 @@ export const getWeekDayString = (day: number) => {
 
   return dict[day as keyof typeof dict];
 };
+
+export const PARENT_BASE_KEY = "base";
+export const VACATION_BOOKING_APP_key = "vacation-booking-app";

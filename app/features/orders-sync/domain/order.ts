@@ -5,8 +5,9 @@ import { type OrderMetaValueObject } from "./order-meta";
 import { type OrderStatusValueObject } from "./order-status";
 import { type ServiceList } from "./service-list";
 import { type VacationBooking } from "./vacation";
+import { ServiceValueObject } from "./service";
 
-interface OrderProps {
+export interface OrderProps {
   id: number;
   orderKeyId: string;
   dateCreated: DateValueObject;
@@ -28,5 +29,17 @@ export class OrderEntity extends Entity<OrderProps> {
 
   static create(props: OrderProps, id?: number) {
     return new OrderEntity(props, id);
+  }
+
+  get statusButtonText(): string {
+    return this.props.status.buttonText;
+  }
+
+  get standardServices(): ServiceValueObject[] {
+    return this.props.vacation.services;
+  }
+
+  get additionalServices(): ServiceValueObject[] {
+    return this.props.additionalServices.list;
   }
 }

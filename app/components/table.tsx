@@ -4,6 +4,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { useSearchParams } from "@remix-run/react";
+import clsx from "clsx";
 import React from "react";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { classNames } from "~/utils/helper";
@@ -27,6 +28,8 @@ export function Table<TData extends ARecord>({
   onAdd,
   onDelete,
   onDetailView,
+  disableSearch,
+  compact,
 }: {
   dataList: TData[];
   columns: Column<TData>[];
@@ -37,6 +40,8 @@ export function Table<TData extends ARecord>({
   onDelete?: (dataItem: TData) => void;
   onBulkDelete?: (dataItem: TData[]) => void;
   onDetailView?: (dataItem: TData) => void;
+  disableSearch?: boolean;
+  compact?: boolean;
 }) {
   const checkbox = useRef<any>();
   const [checked, setChecked] = useState(false);
@@ -60,7 +65,7 @@ export function Table<TData extends ARecord>({
       selected.length > 0 && selected.length < dataList.length;
     setChecked(selected.length === dataList.length);
     setIndeterminate(isIndeterminate);
-    checkbox.current.indeterminate = isIndeterminate;
+    if (checkbox.current) checkbox.current.indeterminate = isIndeterminate;
   }, [dataList.length, selected]);
 
   function toggleAll() {
@@ -99,85 +104,112 @@ export function Table<TData extends ARecord>({
     });
   }, [dataList, query]);
 
+  if (dataList.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <h1 className="text-2xl font-semibold leading-9 tracking-tight  text-black">
+          No {title.toLowerCase()} found.
+        </h1>
+      </div>
+    );
+  }
+
   return (
     <div className="">
       {/* <div className="px-4 sm:px-6 lg:px-8"> */}
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold leading-9 -tracking-tight  text-black">
-            {title}
-          </h1>
-          <p className="mt-1 text-lg text-gray-700">
-            {subtitle ?? "All users that are currently registered."}
-          </p>
+
+      <div className="flex flex-row w-full justify-between">
+        <div className="sm:flex sm:items-center flex flex-col flex-1">
+          <div className="sm:flex-auto w-full">
+            <h1
+              className={clsx(
+                "font-semibold leading-9 -tracking-tight  text-black",
+                compact ? "text-base" : "text-2xl"
+              )}
+            >
+              {title}
+            </h1>
+
+            {subtitle ? (
+              <p className="mt-1 text-lg text-gray-700">
+                {subtitle ?? "All users that are currently registered."}
+              </p>
+            ) : null}
+          </div>
+
+          {/* search */}
+          <div className="w-full">
+            {!disableSearch ? (
+              <div className="pb-4">
+                <Search title={title} onSearch={handleSearch} />
+              </div>
+            ) : null}
+          </div>
         </div>
-      </div>
 
-      {/* search and actions */}
-      <div className="flex flex-row pt-6">
-        <div className="flex-1">
-          <Search title={title} onSearch={handleSearch} />
-        </div>
-
-        <div>
-          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
-            {selected.length < 2 ? (
-              <>
-                {selected.length === 1 && onDetailView ? (
-                  <div className="">
-                    <button
-                      onClick={() => onDetailView?.(selected[0])}
-                      type="button"
-                      className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white text-black border-2 border-black hover:bg-indigo-200 "
-                     }`}
-                    >
-                      View Detail
-                    </button>
-                  </div>
-                ) : null}
-
-                {onAdd || (onEdit && selected.length > 0) ? (
+        {onAdd || onEdit || !disableSearch ? (
+          <div className="flex flex-row">
+            <div>
+              <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
+                {selected.length < 2 ? (
                   <>
-                    <div className="">
-                      <button
-                        onClick={
-                          selected.length === 0
-                            ? onAdd
-                            : () => onEdit?.(selected[0])
-                        }
-                        type="button"
-                        className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+                    {selected.length === 1 && onDetailView ? (
+                      <div className="">
+                        <button
+                          onClick={() => onDetailView?.(selected[0])}
+                          type="button"
+                          className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white text-black border-2 border-black hover:bg-indigo-200 "
+                     }`}
+                        >
+                          View Detail
+                        </button>
+                      </div>
+                    ) : null}
+
+                    {onAdd || (onEdit && selected.length > 0) ? (
+                      <>
+                        <div className="">
+                          <button
+                            onClick={
+                              selected.length === 0
+                                ? onAdd
+                                : () => onEdit?.(selected[0])
+                            }
+                            type="button"
+                            className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
                   ${
                     selected.length === 0
                       ? "bg-black text-white hover:bg-indigo-500 "
                       : "bg-amber-400 text-black hover:bg-amber-300"
                   }`}
-                      >
-                        {selected.length === 0
-                          ? `New ${title}`
-                          : `Edit ${title}`}
-                      </button>
+                          >
+                            {selected.length === 0
+                              ? `New ${title}`
+                              : `Edit ${title}`}
+                          </button>
+                        </div>
+                      </>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <div className="">
+                      <ActionDropdown
+                        onBulkDelete={() => {
+                          onBulkDelete?.(selected);
+                          _setSelected([]);
+                        }}
+                      />
                     </div>
                   </>
-                ) : null}
-              </>
-            ) : (
-              <>
-                <div className="">
-                  <ActionDropdown
-                    onBulkDelete={() => {
-                      onBulkDelete?.(selected);
-                      _setSelected([]);
-                    }}
-                  />
-                </div>
-              </>
-            )}
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
 
-      <div className="mt-8 flow-root ">
+      <div className={clsx(`flow-root`, compact ? "mt-0" : "mt-4")}>
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="relative">
@@ -215,13 +247,14 @@ export function Table<TData extends ARecord>({
                         </th>
                       );
                     })}
-                    <th scope="col" className="relative py-1 pl-3 pr-4 sm:pr-3">
-                      {/* <th
-                      scope="col"
-                      className="relative py-1 pl-3 pr-4 sm:pr-3 bg-gray-50"
-                    > */}
-                      <span className="sr-only">Edit</span>
-                    </th>
+                    {onDelete ? (
+                      <th
+                        scope="col"
+                        className="relative py-1 pl-3 pr-4 sm:pr-3"
+                      >
+                        <span className="sr-only">Delete</span>
+                      </th>
+                    ) : null}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
@@ -299,18 +332,20 @@ export function Table<TData extends ARecord>({
                           );
                         })}
 
-                        <td className="whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
+                        {onDelete ? (
+                          <td className="whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
 
-                              onDelete?.(dataItem);
-                            }}
-                            className="text-red-600 z-20 hover:text-indigo-900 bg-red-100 hover:bg-indigo-100 px-2 py-1 rounded-md text-xs font-medium"
-                          >
-                            Delete
-                          </button>
-                        </td>
+                                onDelete?.(dataItem);
+                              }}
+                              className="text-red-600 z-20 hover:text-indigo-900 bg-red-100 hover:bg-indigo-100 px-2 py-1 rounded-md text-xs font-medium"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        ) : null}
                       </tr>
                     );
                   })}

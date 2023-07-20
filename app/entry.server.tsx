@@ -12,16 +12,22 @@ import { RemixServer } from "@remix-run/react";
 import isbot from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { XataClient } from "utils/xata";
+import { renderToStream } from "@react-pdf/renderer";
+import PDF, { loader } from "./routes/my-pdf.server";
 
 const ABORT_DELAY = 5_000;
 
-export default function handleRequest(
+export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
   loadContext: AppLoadContext
 ) {
+  if (new URL(request.url).pathname === "/my-pdf.pdf") {
+    return await handlePDFRequest(request, responseHeaders);
+  }
+
   return isbot(request.headers.get("user-agent"))
     ? handleBotRequest(
         request,
@@ -122,3 +128,27 @@ function handleBrowserRequest(
 }
 
 export const client = new XataClient({});
+
+async function handlePDFRequest(request: Request, headers: Headers) {
+  // get the data for the PDF
+  let response = await loader({ request, context: {}, params: {} });
+  // if it's a response return it, this means we redirected
+  if (response instanceof Response) return response;
+  // set the correct content-type
+  headers.set("Content-Type", "application/pdf");
+  // render the PDF to a stream
+  let stream = await renderToStream(<PDF {...response} />);
+  // wait for the stream to end and transform it to a Buffer
+  let body: Buffer = await new Promise((resolve, reject) => {
+    let buffers: Uint8Array[] = [];
+    stream.on("data", (data) => {
+      buffers.push(data);
+    });
+    stream.on("end", () => {
+      resolve(Buffer.concat(buffers));
+    });
+    stream.on("error", reject);
+  });
+  // renturn the response
+  return new Response(body, { status: 200, headers });
+}

@@ -15,11 +15,12 @@ export type GetOptionsFunction = (query: string) => Promise<
 export type ModelConfig<T extends Dict = { id: number }> = {
   title: string;
   loader: (args: LoaderFunctionArgs) => Promise<T[]>;
-  onDelete: (args: ActionFunctionArgs) => Promise<unknown>;
+  onDelete?: (args: ActionFunctionArgs) => Promise<unknown>;
   onBulkDelete?: (args: ActionFunctionArgs) => Promise<unknown>;
   onAdd?: (args: ActionFunctionArgs) => Promise<unknown>;
-  onEdit: (args: ActionFunctionArgs) => Promise<unknown>;
+  onEdit?: (args: ActionFunctionArgs) => Promise<unknown>;
   redirect: string;
+  parent?: string;
   view: {
     table: {
       columns: {
@@ -29,7 +30,9 @@ export type ModelConfig<T extends Dict = { id: number }> = {
         formatValue?: (value: any) => any;
       }[];
     };
-    detail?: {};
+    detail?: {
+      getUrl: (id: string | number) => string;
+    };
     navigation: {
       icon: React.ComponentType<any>;
     };
@@ -81,4 +84,12 @@ export interface LibActionData {
   message: string;
   field?: string;
   fieldMessage?: string;
+}
+
+export interface NavigationItem {
+  parent?: string;
+  label: string;
+  name: string;
+  icon: React.ComponentType<any>;
+  isCurrent: boolean;
 }

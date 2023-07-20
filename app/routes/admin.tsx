@@ -2,6 +2,7 @@ import { type DataFunctionArgs, redirect } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 import { Layout } from "~/components";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
+import { CONFIG_ORDERS_PAGE } from "~/features/orders-sync/config";
 import { CONFIG } from "~/features/vacation-admin/config";
 import { isLoggedIn } from "~/utils/helper";
 import { useAdminPage } from "~/utils/lib/hooks";
@@ -10,8 +11,9 @@ import { LibProvider } from "~/utils/lib/react";
 export const loader = async (props: DataFunctionArgs) => {
   const url = new URL(props.request.url);
   const pathname = url.pathname;
+
   const user = await isLoggedIn(props.request, {
-    failureRedirect: `/login?redirect=${pathname}`,
+    failureRedirect: `/login?redirect=${pathname}?${url.searchParams}`,
   });
 
   if (!user) {
@@ -31,7 +33,14 @@ export const loader = async (props: DataFunctionArgs) => {
 
 export default function Index() {
   return (
-    <LibProvider config={CONFIG}>
+    <LibProvider
+      config={{
+        models: {
+          ...CONFIG.models,
+          ...CONFIG_ORDERS_PAGE.models,
+        },
+      }}
+    >
       <Content />
     </LibProvider>
   );

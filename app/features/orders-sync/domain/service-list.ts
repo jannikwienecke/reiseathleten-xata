@@ -11,13 +11,15 @@ export class ServiceList extends ValueObject<ServiceValueObject[]> {
   }
 
   static createServicesFromString(servicesString: string): ServiceList {
-    console.log({ servicesString });
-
     const services = servicesString
       .split(", ")
       .map((s) => s.trim())
       .map((s) => ServiceValueObject.create({ name: s, description: "" }));
 
     return this.create(services);
+  }
+
+  get list() {
+    return Object.values(this.props);
   }
 }

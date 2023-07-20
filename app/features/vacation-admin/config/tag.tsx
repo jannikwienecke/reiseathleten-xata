@@ -7,6 +7,7 @@ import { prisma } from "~/db.server";
 import { getFormDataValue } from "~/utils/lib/core";
 
 import type { ActionFunctionArgs, ModelConfig } from "~/utils/lib/types";
+import { PARENT_BASE_KEY } from "../utils/helpers";
 
 export type TagInterface = Tag & {
   color: string;
@@ -15,6 +16,7 @@ export type TagInterface = Tag & {
 
 export const TagConfig: ModelConfig<TagInterface> = {
   title: "Tags",
+  parent: PARENT_BASE_KEY,
   loader: async () => {
     const tags = await prisma.tag.findMany({
       include: {

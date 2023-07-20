@@ -8,6 +8,8 @@ import { OrderMetaValueObject } from "../domain/order-meta";
 import { ServiceList } from "../domain/service-list";
 import { VacationBooking } from "../domain/vacation";
 import { OrderStatusValueObject } from "../domain/order-status";
+import { ServiceValueObject } from "../domain/service";
+import { OrderMapper } from "../mapper/orderMap";
 
 const KEYS_META = {
   birthDate: "geburtsdatum",
@@ -99,7 +101,18 @@ export const syncOrdersLoader = createLoader(
       )?.value;
     }
 
-    function _getVacationInfo(order: RawOrder) {
+    async function getServicesForBookingFromDb(
+      order: RawOrder
+    ): Promise<ServiceList> {
+      const lineItem = order.line_items[0];
+      const services = await repository.vacationServices.getServicesForVacation(
+        lineItem.product_id
+      );
+
+      return services;
+    }
+
+    async function _getVacationInfo(order: RawOrder) {
       const lineItem = order.line_items[0];
       const productId = lineItem.product_id;
       const name = lineItem.name;
@@ -111,6 +124,7 @@ export const syncOrdersLoader = createLoader(
 
       const bookingData = getBookingData(order);
       const { duration, from, to, persons } = getBookingValues(bookingData);
+      const servicesForVacation = await getServicesForBookingFromDb(order);
 
       return VacationBooking.create({
         id: productId,
@@ -121,8 +135,7 @@ export const syncOrdersLoader = createLoader(
         startDate: DateValueObject.create({ value: from }),
         endDate: DateValueObject.create({ value: to }),
         numberPersons: persons,
-        // FIX THIS
-        services: [],
+        services: servicesForVacation,
         imageUrl,
       });
     }
@@ -184,10 +197,23 @@ export const syncOrdersLoader = createLoader(
       )?.display_value as string;
     }
 
-    function _getAdditionalServices(order: RawOrder) {
+    function getAddtionalServices(order: RawOrder) {
       const servicesString = _getServiceString(getFormattedMeta(order));
 
-      return ServiceList.createServicesFromString(servicesString);
+      const services = ServiceList.createServicesFromString(servicesString);
+
+      const additionalServices: ServiceValueObject[] = [];
+
+      services.list.forEach((service) => {
+        const hasX = service.props.name.toLowerCase().includes("(x");
+        const hasUpgrade = service.props.name.toLowerCase().includes("upgrade");
+
+        if (hasX || hasUpgrade) {
+          additionalServices.push(service);
+        }
+      });
+
+      return additionalServices;
     }
 
     async function _handleOrderCreation(
@@ -203,7 +229,7 @@ export const syncOrdersLoader = createLoader(
       const lineItems = order.line_items;
 
       if (lineItems.length > 1) {
-        _handleOrderCreation(
+        await _handleOrderCreation(
           {
             user,
             order: {
@@ -216,13 +242,14 @@ export const syncOrdersLoader = createLoader(
       }
 
       const orderMeta = _getOrderMeta(order);
-      const vacation = _getVacationInfo(order);
-      const additionalServices = _getAdditionalServices(order);
+      const additionalServices = getAddtionalServices(order);
+
+      const vacation = await _getVacationInfo(order);
 
       const newOrder = OrderEntity.create(
         {
           vacation,
-          additionalServices,
+          additionalServices: ServiceList.create(additionalServices),
           user,
           dateImported: DateValueObject.create({
             value: new Date().toISOString(),
@@ -230,43 +257,37 @@ export const syncOrdersLoader = createLoader(
           dateCreated: DateValueObject.create({ value: order.date_created }),
           dateModified: DateValueObject.create({ value: order.date_modified }),
           orderMeta,
-          id: 0,
+          id: lineItems[0].id,
           orderKeyId: order.order_key,
           paymentMethod: "",
           paymentMethod_title: "",
           status: OrderStatusValueObject.create({ value: "pending" }),
         },
-        order.id
+        lineItems[0].id
       );
 
-      console.log({ newOrder });
-      return newOrder;
+      await repository.order.save(newOrder);
+      newOrders.push(newOrder);
     }
 
     const orders = await useCases.syncOrders.execute();
 
     const userRepo = repository.user;
 
-    const newOrdersPromises = orders.map(async (order) => {
-      console.log("======");
-      console.log("ORDER: ", order.id);
-
+    let newOrders: OrderEntity[] = [];
+    const promises = [orders[0]].map(async (order) => {
       const user = await _handleUserAndCustomerCreation(order);
-      const newOrder = await _handleOrderCreation({
+
+      await _handleOrderCreation({
         user,
         order,
       });
-
-      console.log("SAVE ORDER");
-      await repository.order.save(newOrder);
-
-      return newOrder;
     });
 
-    const newOrders = await Promise.all(newOrdersPromises);
+    await Promise.all(promises);
 
     return {
-      orders: newOrders,
+      orders: newOrders.map((order) => OrderMapper.toDto(order)),
     };
   }
 );

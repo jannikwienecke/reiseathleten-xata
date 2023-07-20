@@ -4,8 +4,8 @@
       "vacation": {
         "id": 1,
         "name": "My Vacation",
-        "startDate": "2023-07-17T07:14:50.760Z",
-        "endDate": "2023-07-24T07:14:50.761Z",
+        "startDate": "2023-07-19T16:49:19.247Z",
+        "endDate": "2023-07-26T16:49:19.250Z",
         "description": "My Vacation Description"
       },
       "activities": [
@@ -35,7 +35,7 @@
           "name": "Hike the Teide",
           "description": "Hike the Teide with a guide",
           "isFixedDate": true,
-          "datetime": "2023-07-17T07:14:50.760Z",
+          "datetime": "2023-07-19T16:49:19.247Z",
           "tags": [{ "label": "Beach", "color": "blue" }]
         },
         {
@@ -43,7 +43,7 @@
           "name": "Visit the Cathedral",
           "description": "Visit the Cathedral with a guide",
           "isFixedDate": true,
-          "datetime": "2023-07-17T07:14:50.760Z",
+          "datetime": "2023-07-19T16:49:19.247Z",
           "tags": [{ "label": "Beach", "color": "blue" }]
         }
       ],
@@ -402,7 +402,7 @@
                 },
                 {
                   "display_key": "Services",
-                  "display_value": "Fitnesseinheiten, Geführte Lauf,- und Trailrunning Einheiten, Geführte Wanderungen (lt. Wochenprogramm), Kurtaxe Pitztal, Unterkunft, Vital- und Sportprogramm, Vollpension"
+                  "display_value": "1x Kurs/WOD im CrossFit Mallorca – 20€ (x 2), Frühstück, Privater Flughafentransfer (Hinfahrt) - H10 Casa del Mar - 50€ (x 1), Privater Flughafentransfer (Rückfahrt) – H10 Casa del Mar – 50€ (x 1), Unterkunft, Upgrade auf Halbpension (H10 Casa del Mar) - 12€/Tag (x 1), WODs im CrossFit Mallorca"
                 }
               ],
               "display_key": "Von",

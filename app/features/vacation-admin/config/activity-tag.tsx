@@ -6,6 +6,7 @@ import { prisma } from "~/db.server";
 import { getFormDataValue } from "~/utils/lib/core";
 
 import type { ActionFunctionArgs, ModelConfig } from "~/utils/lib/types";
+import { VACATION_BOOKING_APP_key } from "../utils/helpers";
 
 export type ActivityTagsInterface = AcitivityTag & {
   tag: string;
@@ -15,6 +16,7 @@ export type ActivityTagsInterface = AcitivityTag & {
 
 export const ActivityTagConfig: ModelConfig<ActivityTagsInterface> = {
   title: "Activity Tags",
+  parent: VACATION_BOOKING_APP_key,
   loader: async () => {
     const tags = await prisma.acitivityTag.findMany({
       include: {

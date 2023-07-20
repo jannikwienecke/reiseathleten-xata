@@ -124,7 +124,7 @@ model Customer {
 
 model Order {
   id                   Int                 @id
-  order_key            String              @unique
+  order_key            String
   date_created         DateTime            @default(now()) @db.Date
   date_modified        DateTime            @default(now()) @db.Date
   date_imported        DateTime            @default(now()) @db.Date
@@ -141,6 +141,7 @@ model Order {
   knowledge_from       String
   crossfit_box         String?
   status               String              @default("pending")
+  additional_services  String              @default("")
   user_id              Int
   User                 User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
   Vacation             VacationDescription @relation(fields: [vacation_id], references: [id], onDelete: NoAction)

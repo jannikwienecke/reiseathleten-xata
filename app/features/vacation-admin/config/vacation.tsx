@@ -3,10 +3,11 @@ import { Form } from "~/components";
 import { prisma } from "~/db.server";
 
 import { GlobeAmericasIcon } from "@heroicons/react/20/solid";
-import type { ModelConfig } from "~/utils/lib/types";
-import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
-import { getFormDataValue } from "~/utils/lib/core";
 import invariant from "tiny-invariant";
+import { getFormDataValue } from "~/utils/lib/core";
+import type { ModelConfig } from "~/utils/lib/types";
+import { PARENT_BASE_KEY } from "../utils/helpers";
+import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
 
 export type VacationInterface = VacationDescription & {
   location: string;
@@ -16,6 +17,7 @@ const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacationDescription");
 
 export const VacationConfig: ModelConfig<VacationInterface> = {
   title: "Vacation",
+  parent: PARENT_BASE_KEY,
   loader: async () => {
     const vacations = await prisma.vacationDescription.findMany({
       include: {
@@ -61,13 +63,6 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
     invariant(name, "Name is required");
     invariant(description, "Description is required");
     invariant(locationId, "Location is required");
-
-    console.log({
-      id,
-      name,
-      description,
-      locationId,
-    });
 
     await prisma.vacationDescription.update({
       where: {

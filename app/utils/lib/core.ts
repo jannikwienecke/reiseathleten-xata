@@ -37,15 +37,16 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
   const action = async (props: DataFunctionArgs) => {
     const formData = await props.request.formData();
 
+    const formAction = getFormDataValue(formData, "action");
+    const model = getFormDataValue(formData, "model");
+
     const modelConfig: ModelConfig =
-      config["models"][props.params.model as keyof typeof config["models"]];
+      config["models"][model as keyof typeof config["models"]];
 
     //   get search Params
     const url = new URL(props.request.url);
     const searchParams = url.searchParams;
     const action = searchParams.get("action");
-
-    const formAction = getFormDataValue(formData, "action");
 
     let actionToRun = modelConfig.onAdd;
     if (action === "edit") {

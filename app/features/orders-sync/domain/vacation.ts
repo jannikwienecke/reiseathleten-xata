@@ -24,4 +24,8 @@ export class VacationBooking extends Entity<VacationBookingProps> {
   static create(props: VacationBookingProps, id?: string) {
     return new VacationBooking(props, id);
   }
+
+  get services() {
+    return Object.values(this.props.services.props);
+  }
 }

@@ -5,6 +5,7 @@ import { prisma } from "~/db.server";
 
 import type { ModelConfig } from "~/utils/lib/types";
 import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
+import { PARENT_BASE_KEY } from "../utils/helpers";
 
 export type ColorInterface = Color & {
   color: string;
@@ -14,6 +15,7 @@ const prismaCrudHandler = new PrismaCrudHandler(prisma, "color");
 
 export const ColorConfig: ModelConfig<ColorInterface> = {
   title: "Colors",
+  parent: PARENT_BASE_KEY,
   loader: async () => {
     const colors = await prisma.color.findMany({});
 

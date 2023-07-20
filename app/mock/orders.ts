@@ -434,7 +434,7 @@ export const ORDERS = [
               {
                 display_key: "Services",
                 display_value:
-                  "Fitnesseinheiten, Geführte Lauf,- und Trailrunning Einheiten, Geführte Wanderungen (lt. Wochenprogramm), Kurtaxe Pitztal, Unterkunft, Vital- und Sportprogramm, Vollpension",
+                  "1x Kurs/WOD im CrossFit Mallorca – 20€ (x 2), Frühstück, Privater Flughafentransfer (Hinfahrt) - H10 Casa del Mar - 50€ (x 1), Privater Flughafentransfer (Rückfahrt) – H10 Casa del Mar – 50€ (x 1), Unterkunft, Upgrade auf Halbpension (H10 Casa del Mar) - 12€/Tag (x 1), WODs im CrossFit Mallorca",
               },
             ],
             display_key: "Von",

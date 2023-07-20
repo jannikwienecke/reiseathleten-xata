@@ -39,8 +39,6 @@ export class VacationRepoPrisma implements VacationRepo {
   }
 
   async getVacationById(id: number, userId: number) {
-    console.log({ userId });
-
     const rawVacation = await this.client.vacation.findFirst({
       where: {
         userId,

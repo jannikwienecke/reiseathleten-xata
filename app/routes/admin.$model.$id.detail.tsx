@@ -66,8 +66,6 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
   const action = getFormDataValue(formData, "action");
   const activity = getFormDataValue(formData, "activityDescription");
 
-  console.log("===datetime", datetime);
-
   const handleUpdate = async () => {
     invariant(datetime, "datetime is required");
     invariant(id, "id is required");
@@ -114,8 +112,6 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
       },
     });
   };
-
-  // console.log({ url, activityId });
 
   if (action === "delete") {
     await handleDelete();

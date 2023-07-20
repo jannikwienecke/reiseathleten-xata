@@ -156,7 +156,7 @@ CREATE TABLE "public"."VacationServices" (
 CREATE TABLE "public"."Order" (
     -- ORDER OVERVIEW
     "id" integer NOT NULL UNIQUE,
-    "order_key" text  NOT NULL UNIQUE,
+    "order_key" text  NOT NULL,
     "date_created" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "date_modified" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "date_imported" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -184,6 +184,9 @@ CREATE TABLE "public"."Order" (
 
     -- status
     "status" text  NOT NULL DEFAULT 'pending',
+
+    -- additonal services (json)
+    "additional_services" text  NOT NULL DEFAULT '',
 
     -- user
     "user_id" integer  NOT NULL ,
@@ -220,10 +223,10 @@ INSERT INTO "public"."AcitivityDescription" ("name", "description") VALUES ('Yog
 INSERT INTO "public"."AcitivityDescription" ("name", "description", "fixed_hour", "fixed_minute", "fixed_day") VALUES ('Hike the Teide', 'Hike the Teide with a guide', 16, 30, 4);
 INSERT INTO "public"."AcitivityDescription" ("name", "description") VALUES ('Visit the Cathedral', 'Visit the Cathedral with a guide');
 
-INSERT INTO "public"."VacationDescription" ("name", "description", "locationId") VALUES ('Tenerife', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
+INSERT INTO "public"."VacationDescription" ("name", "description", "locationId") VALUES ('TenerifeOld', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
+INSERT INTO "public"."VacationDescription" ("id", "name", "description", "locationId") VALUES (68861,'Tenerife', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
 
 INSERT INTO "public"."Vacation" ("userId", "startDate", "endDate", "vacationDescriptionId") VALUES (1, '2023-07-09T08:53:23.808Z', '2023-07-16T08:53:23.809Z', 1);
-INSERT INTO "public"."Vacation" ("userId", "startDate", "endDate", "vacationDescriptionId") VALUES (2, '2023-07-09T08:53:23.808Z', '2023-07-16T08:53:23.809Z', 1);
 
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (1, 1);
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (2, 2);
@@ -250,3 +253,8 @@ INSERT INTO "public"."Service" ("name", "description") VALUES ('Sightseeing', 'S
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (1, 1);
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (1, 2);
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (1, 3);
+
+-- 68861 vacation id
+INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (68861, 1);
+INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (68861, 2);
+INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (68861, 3);

@@ -5,7 +5,7 @@ import { prisma } from "~/db.server";
 import type { ModelConfig } from "~/utils/lib/types";
 import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
 import { GlobeAmericasIcon } from "@heroicons/react/20/solid";
-import { formatDateString } from "../utils/helpers";
+import { VACATION_BOOKING_APP_key, formatDateString } from "../utils/helpers";
 import { getFormDataValue } from "~/utils/lib/core";
 import invariant from "tiny-invariant";
 
@@ -20,6 +20,7 @@ const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacation");
 
 export const VacationBookingsConfig: ModelConfig<VacationBookingInterface> = {
   title: "Vacation Bookings",
+  parent: VACATION_BOOKING_APP_key,
   loader: async () => {
     const vacations = await prisma.vacation.findMany({
       include: {

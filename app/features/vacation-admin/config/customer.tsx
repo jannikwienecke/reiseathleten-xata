@@ -5,6 +5,7 @@ import { prisma } from "~/db.server";
 
 import type { ModelConfig } from "~/utils/lib/types";
 import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
+import { PARENT_BASE_KEY } from "../utils/helpers";
 
 const prismaCrudHandler = new PrismaCrudHandler(prisma, "customer");
 
@@ -12,6 +13,7 @@ export type CustomerInterface = Customer & {};
 
 export const CustomerConfig: ModelConfig<CustomerInterface> = {
   title: "Customers",
+  parent: PARENT_BASE_KEY,
   loader: async () => {
     const customers = await prisma.customer.findMany({});
 

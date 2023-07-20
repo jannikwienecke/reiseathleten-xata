@@ -18,12 +18,21 @@ import { Fragment, useState } from "react";
 
 import logo from "../logo.png";
 import { Link } from "@remix-run/react";
+import { NavigationItem } from "~/utils/lib/types";
 
 const navigation = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
 ];
 const teams = [
-  { id: 1, name: "Heroicons", href: "#", initial: "H", current: false },
+  { id: 1, name: "New Orders", href: "#", initial: "NEW", current: false },
+  { id: 2, name: "Open Orders", href: "#", initial: "OPEN", current: false },
+  {
+    id: 3,
+    name: "Closed ORders",
+    href: "#",
+    initial: "X",
+    current: false,
+  },
 ];
 
 const userNavigation = [
@@ -40,17 +49,13 @@ export function Layout({
   items,
 }: {
   children: React.ReactNode;
-  items: {
-    label: string;
-    icon: React.ComponentType<any>;
-    isCurrent?: boolean;
-  }[];
+  items: NavigationItem[];
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <>
-      <div className="">
+      <div className="h-full">
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
             as="div"
@@ -109,8 +114,7 @@ export function Layout({
                       <img
                         className="h-8 w-auto"
                         src={logo}
-                        // src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                        alt="Your Company"
+                        alt="Reiseathleten"
                       />
                     </div>
                     <nav className="flex flex-1 flex-col">
@@ -138,34 +142,10 @@ export function Layout({
                             ))}
                           </ul>
                         </li>
-                        <li>
-                          <div className="text-xs font-semibold leading-6 text-gray-400">
-                            Your teams
-                          </div>
-                          <ul role="list" className="-mx-2 mt-2 space-y-1">
-                            {teams.map((team) => (
-                              <li key={team.name}>
-                                <a
-                                  href={team.href}
-                                  className={classNames(
-                                    team.current
-                                      ? "bg-gray-800 text-white"
-                                      : "text-gray-400 hover:text-white hover:bg-gray-800",
-                                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                                  )}
-                                >
-                                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
-                                    {team.initial}
-                                  </span>
-                                  <span className="truncate">{team.name}</span>
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </li>
+
                         <li className="mt-auto">
                           <a
-                            href="#"
+                            href="123"
                             className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
                           >
                             <Cog6ToothIcon
@@ -199,57 +179,45 @@ export function Layout({
               <ul className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul className="-mx-2 space-y-1">
-                    {items.map((item) => {
+                    {items.map((item, indexj) => {
+                      const isSameParentAsPrevious =
+                        items[indexj - 1]?.parent === item.parent;
                       return (
-                        <li key={item.label}>
-                          <Link
-                            to={`/admin/${item.label}`}
-                            className={classNames(
-                              item.isCurrent
-                                ? "bg-gray-800 text-white"
-                                : "text-gray-400 hover:text-white hover:bg-gray-800",
-                              "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                            )}
-                          >
-                            {item?.icon ? (
-                              <item.icon
-                                className="h-6 w-6 shrink-0"
-                                aria-hidden="true"
-                              />
-                            ) : null}
+                        <>
+                          {item.parent && !isSameParentAsPrevious ? (
+                            <div className="pt-4 text-xs font-semibold leading-6 text-gray-400">
+                              {/* first letter uppercase */}
+                              {item.parent.charAt(0).toUpperCase() +
+                                item.parent.slice(1)}
+                            </div>
+                          ) : null}
 
-                            {item.label}
-                          </Link>
-                        </li>
+                          <li key={item.label}>
+                            <Link
+                              to={`/admin/${item.name}`}
+                              className={classNames(
+                                item.isCurrent
+                                  ? "bg-gray-800 text-white"
+                                  : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                              )}
+                            >
+                              {item?.icon ? (
+                                <item.icon
+                                  className="h-6 w-6 shrink-0"
+                                  aria-hidden="true"
+                                />
+                              ) : null}
+
+                              {item.label}
+                            </Link>
+                          </li>
+                        </>
                       );
                     })}
                   </ul>
                 </li>
-                <li>
-                  <div className="text-xs font-semibold leading-6 text-gray-400">
-                    Your teams
-                  </div>
-                  <ul className="-mx-2 mt-2 space-y-1">
-                    {teams.map((team) => (
-                      <li key={team.name}>
-                        <a
-                          href={team.href}
-                          className={classNames(
-                            team.current
-                              ? "bg-gray-800 text-white"
-                              : "text-gray-400 hover:text-white hover:bg-gray-800",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                          )}
-                        >
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
-                            {team.initial}
-                          </span>
-                          <span className="truncate">{team.name}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
+
                 <li className="mt-auto">
                   <a
                     href="#"
@@ -267,27 +235,10 @@ export function Layout({
           </div>
         </div>
 
-        <div className="bg-black lg:pl-72 pt-1 rounded-lg overflow-hidden">
-          <div className="bg-black mt-[4px] rounded-tl-lg overflow-hidden">
-            {/* <div className="sticky top-0 flex h-16 shrink-0 items-center gap-x-4  bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-              <button
-                type="button"
-                className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <span className="sr-only">Open sidebar</span>
-                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-              </button>
-
-              {/* Separator */}
-            {/* <div
-                className="h-6 w-px bg-black/10 lg:hidden"
-                aria-hidden="true"
-              /> */}
-            {/* </div> */}
-
-            <main className="py-10 bg-white">
-              <div className="px-4 sm:px-6 lg:px-8">{children}</div>
+        <div className="bg-black lg:pl-72 pt-1 rounded-lg overflow-hidden h-full">
+          <div className="bg-black mt-[4px] rounded-tl-lg overflow-hidden h-full">
+            <main className="py-10 h-full bg-white">
+              <div className="px-4 sm:px-6 lg:px-8 h-full">{children}</div>
             </main>
           </div>
         </div>

@@ -11,13 +11,19 @@ import { Outlet, useParams } from "@remix-run/react";
 import { Fragment, useState } from "react";
 import { LibForm, Notification, Table } from "~/components";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
+import { CONFIG_ORDERS_PAGE } from "~/features/orders-sync/config";
 import { CONFIG } from "~/features/vacation-admin/config";
 import { createPageFunction } from "~/utils/lib/core";
 import { useAdminPage } from "~/utils/lib/hooks";
 import { LibSliderOver } from "~/utils/lib/react";
 
 export const pageFunction = createPageFunction({
-  config: CONFIG,
+  config: {
+    models: {
+      ...CONFIG.models,
+      ...CONFIG_ORDERS_PAGE.models,
+    },
+  },
 });
 
 export const loader = pageFunction.loader;

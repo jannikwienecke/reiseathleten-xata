@@ -9,11 +9,13 @@ import type {
   LoaderFunctionArgs,
   ModelConfig,
 } from "~/utils/lib/types";
+import { PARENT_BASE_KEY } from "../utils/helpers";
 
 type LocationInterface = Location;
 
 export const LocationConfig: ModelConfig<LocationInterface> = {
   title: "Locations",
+  parent: PARENT_BASE_KEY,
   loader: async ({ request }: LoaderFunctionArgs) => {
     const locations = await prisma.location.findMany({});
 

@@ -10,18 +10,26 @@ import {
 import React, { useContext } from "react";
 import invariant from "tiny-invariant";
 import { LibContext } from "./react";
-import type { LibActionData, LibLoaderData, ModelConfig } from "./types";
+import type {
+  LibActionData,
+  LibLoaderData,
+  ModelConfig,
+  NavigationItem,
+} from "./types";
 
-export const useModel = () => {
+export const useModel = (options?: { model?: string }) => {
   const { config } = useContext(LibContext);
+  const { model: modelFromOptions } = options || {};
 
   if (!config.models) {
     throw new Error("Please Provide the config in the LibProvider");
   }
 
-  const { model } = useParams<{
+  const { model: modelFromParams } = useParams<{
     model: string;
   }>();
+
+  const model = modelFromOptions || modelFromParams;
 
   // invariant(model, "Model is required");
 
@@ -37,6 +45,8 @@ export const useModel = () => {
   const supportsBulkDelete = modelConfig?.onBulkDelete !== undefined;
   const supportsDetailView = modelConfig?.view.detail !== undefined;
   const supportsAdd = modelConfig?.onAdd !== undefined;
+  const supportsEdit = modelConfig?.onEdit !== undefined;
+  const supportsDelete = modelConfig?.onDelete !== undefined;
 
   return {
     getColumns,
@@ -45,15 +55,19 @@ export const useModel = () => {
     supportsBulkDelete,
     supportsDetailView,
     supportsAdd,
+    supportsEdit,
+    supportsDelete,
     model,
     ...config,
+    ...modelConfig,
   };
 };
 
-export const useAdminPage = () => {
-  const model = useModel();
+export const useAdminPage = (options?: { model?: string }) => {
+  const model = useModel(options);
   const navigate = useNavigate();
   const { data } = useLoaderData<LibLoaderData>() || {};
+
   const actionData = useActionData<LibActionData>();
   const [searchParams, setSearchParams] = useSearchParams();
   const submit = useSubmit();
@@ -85,6 +99,7 @@ export const useAdminPage = () => {
       {
         id: dataItem.id,
         action: "delete",
+        model: model.model || "",
       },
       {
         method: "POST",
@@ -105,7 +120,9 @@ export const useAdminPage = () => {
   };
 
   const handleClickDetailView = (dataItem: any) => {
-    navigate(`${dataItem.id}/detail`);
+    const url = model.view?.detail?.getUrl(dataItem.id);
+
+    navigate(url || `${dataItem.id}/detail`);
   };
 
   const dataListToRender = (
@@ -134,6 +151,7 @@ export const useAdminPage = () => {
   const getFormProps = () => {
     return {
       title: model.addForm?.title || "",
+      model: model.model,
       onCancel: () => {
         searchParams.delete("action");
         searchParams.delete("id");
@@ -207,13 +225,33 @@ export const useAdminPage = () => {
   }, [actionData?.message, closedNotification]);
 
   const getLayoutProps = () => {
+    const itemsWithoutParent: NavigationItem[] = [];
+    const itemsWithParent: NavigationItem[] = [];
+
+    Object.entries(model.models).forEach(([key, value]) => {
+      const item = {
+        parent: value.parent,
+        label: value.title,
+        icon: value.view?.navigation?.icon,
+        isCurrent: key === model.model,
+        name: key,
+      };
+
+      if (value.parent) {
+        itemsWithParent.push(item);
+      } else {
+        itemsWithoutParent.push(item);
+      }
+    });
+
     return {
-      items: Object.entries(model.models).map(([key, value]) => {
-        return {
-          label: key,
-          icon: value.view?.navigation?.icon,
-          isCurrent: key === model.model,
-        };
+      items: [...itemsWithoutParent, ...itemsWithParent].sort((a, b) => {
+        // sort by parent name
+        if (a.parent && b.parent) {
+          return a.parent.localeCompare(b.parent);
+        }
+
+        return 0;
       }),
     };
   };
@@ -224,8 +262,8 @@ export const useAdminPage = () => {
     optimisicData: dataListToRender,
     data,
     handelClickAdd: model.supportsAdd ? handelClickAdd : undefined,
-    handleClickEdit,
-    handelClickDelete,
+    handleClickEdit: model.supportsEdit ? handleClickEdit : undefined,
+    handelClickDelete: model.supportsDelete ? handelClickDelete : undefined,
     handleClickBulkDelete: model.supportsBulkDelete
       ? handleClickBulkDelete
       : undefined,

@@ -24,6 +24,8 @@ import { OrderRepoPrisma } from "~/features/orders-sync/repos/implementations/or
 import { VacationBookingRepoPrisma } from "~/features/orders-sync/repos/implementations/vacationBookingRepoPrisma";
 import { type OrderRepository } from "~/features/orders-sync/repos/orderRepo";
 import { type VacationBookingRepo } from "~/features/orders-sync/repos/vacationRepo";
+import { VacationServicesRepoPrisma } from "~/features/orders-sync/repos/implementations/vacationServicesRepoPrisma";
+import { VacationServicesRepo } from "~/features/orders-sync/repos/vacationServicesRepo";
 
 export class AddHandlerServer implements PageHandler {
   async makeRequest(props: ActionFunctionArgs) {
@@ -41,6 +43,7 @@ interface Repository {
   customer: CustomerRepository;
   order: OrderRepository;
   vacationBooking: VacationBookingRepo;
+  vacationServices: VacationServicesRepo;
 }
 
 interface UseCase<T> {
@@ -99,9 +102,15 @@ const vacationBookingRepo = IS_PRODUCTION
   : // TODO fix this
     new VacationBookingRepoPrisma(prisma);
 
+// TODO fix this
 const orderRepo = IS_PRODUCTION
   ? new OrderRepoPrisma(prisma, vacationBookingRepo)
   : new OrderRepoPrisma(prisma, vacationBookingRepo);
+
+// TODO fix this
+const vacationServicesRepo = IS_PRODUCTION
+  ? new VacationServicesRepoPrisma(prisma)
+  : new VacationServicesRepoPrisma(prisma);
 
 export const { createLoader, createAction } = initDataFunctions({
   repository: {
@@ -112,6 +121,7 @@ export const { createLoader, createAction } = initDataFunctions({
     customer: customerRepo,
     order: orderRepo,
     vacationBooking: vacationBookingRepo,
+    vacationServices: vacationServicesRepo,
   },
   useCases: {
     syncOrders: new SyncOrdersUseCase(ordersRepo),

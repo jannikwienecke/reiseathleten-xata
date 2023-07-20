@@ -21,7 +21,5 @@ export const CONFIG: ConfigType = {
     ActivityTag: ActivityTagConfig,
     Color: ColorConfig,
     Customer: CustomerConfig,
-
-    // ActivityBooking: ActivityBookingConfig,
   },
 };

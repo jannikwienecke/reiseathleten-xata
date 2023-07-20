@@ -10,7 +10,6 @@ export const loader = vacationsLoader;
 
 export default function Index() {
   const { vacations } = useLoaderData<VacationsLoaderData>();
-  console.log(vacations);
 
   return (
     <div>

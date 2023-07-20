@@ -17,7 +17,7 @@ export class VacationBookingRepoPrisma implements VacationBookingRepo {
         data: rawVacationBooking,
       });
     } else {
-      this.client.vacationDescription.update({
+      await this.client.vacationDescription.update({
         where: {
           id: vacationBooking.props.id,
         },

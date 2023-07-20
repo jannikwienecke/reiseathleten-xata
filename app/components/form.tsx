@@ -14,10 +14,12 @@ export const LibForm = ({
   title,
   children,
   onCancel,
+  model,
 }: {
   title: string;
   children: React.ReactNode;
   onCancel?: () => void;
+  model?: string;
 }) => {
   const { state } = useNavigation();
 
@@ -39,6 +41,7 @@ export const LibForm = ({
         />
       }
     >
+      <input type="hidden" name="model" value={model} />
       {children}
     </Form>
   );
