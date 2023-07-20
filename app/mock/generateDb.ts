@@ -1,5 +1,7 @@
 import { VACATIONS } from "./vacation";
 import { ORDERS } from "./orders";
+import { VACATION_DESCRIPTIONS } from "./vacation-description";
+import { vacationServices, services } from "./vacation-services";
 const fsPromises = require("fs").promises;
 
 fsPromises
@@ -8,6 +10,9 @@ fsPromises
     JSON.stringify({
       vacations: VACATIONS,
       orders: ORDERS,
+      vacationDescriptions: VACATION_DESCRIPTIONS,
+      vacationServices,
+      services,
     })
   )
   .then(() => {

@@ -3,6 +3,7 @@ import { type Order } from "@prisma/client";
 import invariant from "tiny-invariant";
 import { Form } from "~/components";
 import { prisma } from "~/db.server";
+import { formatDateString } from "~/features/vacation-admin/utils/helpers";
 import { getFormDataValue } from "~/utils/lib/core";
 
 import type { ActionFunctionArgs, ModelConfig } from "~/utils/lib/types";
@@ -42,8 +43,26 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
           header: "Order",
         },
         {
+          accessorKey: "date_created",
+          header: "Created",
+          formatValue: formatDateString,
+        },
+        {
+          accessorKey: "start_date",
+          header: "Start",
+          formatValue: formatDateString,
+        },
+        {
+          accessorKey: "end_date",
+          header: "End",
+          formatValue: formatDateString,
+        },
+        {
           accessorKey: "price",
-          header: "€",
+          header: "Price",
+          formatValue(value) {
+            return `${value.toFixed(2)} €`;
+          },
         },
       ],
     },

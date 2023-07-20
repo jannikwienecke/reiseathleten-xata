@@ -25,7 +25,10 @@ import { VacationBookingRepoPrisma } from "~/features/orders-sync/repos/implemen
 import { type OrderRepository } from "~/features/orders-sync/repos/orderRepo";
 import { type VacationBookingRepo } from "~/features/orders-sync/repos/vacationRepo";
 import { VacationServicesRepoPrisma } from "~/features/orders-sync/repos/implementations/vacationServicesRepoPrisma";
-import { VacationServicesRepo } from "~/features/orders-sync/repos/vacationServicesRepo";
+import type { VacationServicesRepo } from "~/features/orders-sync/repos/vacationServicesRepo";
+import { VacationBookingRepoMockServer } from "~/features/orders-sync/repos/implementations/vacationBookingRepoMockServer";
+import { VacationServicesRepoMockServer } from "~/features/orders-sync/repos/implementations/vacationServicesRepoMockServer";
+import { OrderRepoMockServer } from "~/features/orders-sync/repos/implementations/orderRepoMockServer";
 
 export class AddHandlerServer implements PageHandler {
   async makeRequest(props: ActionFunctionArgs) {
@@ -90,8 +93,7 @@ const userRepo = IS_PRODUCTION
 
 const ordersRepo = IS_PRODUCTION
   ? new OrdersRepoWooCommerce(createWooCommerceClient())
-  : // new OrdersRepoMockServer()
-    new OrdersRepoMockServer();
+  : new OrdersRepoMockServer();
 
 const customerRepo = IS_PRODUCTION
   ? new CustomerRepoPrisma(prisma)
@@ -99,18 +101,15 @@ const customerRepo = IS_PRODUCTION
 
 const vacationBookingRepo = IS_PRODUCTION
   ? new VacationBookingRepoPrisma(prisma)
-  : // TODO fix this
-    new VacationBookingRepoPrisma(prisma);
+  : new VacationBookingRepoMockServer();
 
-// TODO fix this
 const orderRepo = IS_PRODUCTION
   ? new OrderRepoPrisma(prisma, vacationBookingRepo)
-  : new OrderRepoPrisma(prisma, vacationBookingRepo);
+  : new OrderRepoMockServer();
 
-// TODO fix this
 const vacationServicesRepo = IS_PRODUCTION
   ? new VacationServicesRepoPrisma(prisma)
-  : new VacationServicesRepoPrisma(prisma);
+  : new VacationServicesRepoMockServer();
 
 export const { createLoader, createAction } = initDataFunctions({
   repository: {

@@ -152,29 +152,36 @@ export const syncOrdersLoader = createLoader(
 
     function getBookingValues(bookingData: ReturnType<typeof getBookingData>) {
       let duration = 1;
-      let from = "";
-      let to = "";
+      let from = 0;
+      let to = 0;
       let persons = 1;
+      console.log({ bookingData });
+
       if (typeof bookingData !== "object")
-        return { duration, from, to, persons };
+        return { duration, from: "", to: "", persons };
 
       if ("duration" in bookingData) {
         duration = bookingData?.duration as number;
       }
 
       if ("from" in bookingData) {
-        from = bookingData?.from as string;
+        from = (bookingData?.from as number) * 1000;
       }
 
       if ("to" in bookingData) {
-        to = bookingData?.to as string;
+        to = (bookingData?.to as number) * 1000;
       }
 
       if ("persons" in bookingData) {
         persons = bookingData?.persons as number;
       }
 
-      return { duration, from, to, persons };
+      return {
+        duration,
+        from: new Date(from).toISOString(),
+        to: new Date(to).toISOString(),
+        persons,
+      };
     }
 
     function _getRoomDescription(
@@ -245,6 +252,8 @@ export const syncOrdersLoader = createLoader(
       const additionalServices = getAddtionalServices(order);
 
       const vacation = await _getVacationInfo(order);
+
+      console.log({ start: vacation.props.startDate.value });
 
       const newOrder = OrderEntity.create(
         {

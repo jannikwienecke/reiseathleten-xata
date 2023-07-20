@@ -1,12 +1,16 @@
 import bcrypt from "bcryptjs";
 import type { VacationDtoProps } from "../features/vacation";
 import { RawOrder } from "~/features/orders-sync/api/types";
+import { Service, VacationDescription, VacationServices } from "@prisma/client";
 const jsonServer = require("json-server");
 const server = jsonServer.create();
 const router = jsonServer.router("db.json");
 const dbJson: {
   vacations: VacationDtoProps[];
   orders: RawOrder[];
+  vacationDescriptions: VacationDescription[];
+  vacationServices: VacationServices[];
+  services: Service[];
 } = require("./db.json");
 
 const ENV = process.env;
@@ -90,6 +94,118 @@ server.get("/orders", (req: any, res: any) => {
   res.jsonp({
     data: JSON.stringify(dbJson.orders),
   });
+});
+
+server.get("/vacation-descriptions", (req: any, res: any) => {
+  console.log("GET", dbJson.vacationDescriptions);
+
+  res.jsonp({
+    data: dbJson.vacationDescriptions,
+  });
+});
+
+server.get("/vacation-descriptions/:id", (req: any, res: any) => {
+  const vacationDescription = dbJson.vacationDescriptions.find(
+    (v) => v.id.toString() === req.params.id
+  );
+
+  res.jsonp({
+    data: vacationDescription,
+  });
+});
+
+server.get("/vacation/:id/services", (req: any, res: any) => {
+  const filtered = dbJson.vacationServices.filter(
+    (v) => v.vacation_id.toString() === req.params.id.toString()
+  );
+
+  const filteredServices = dbJson.services.filter((service) => {
+    return filtered.find((v) => v.service_id === service.id);
+  });
+
+  res.jsonp({
+    data: filteredServices,
+  });
+});
+
+server.get("/order/:id", (req: any, res: any) => {
+  const order = dbJson.orders.find((v) => v.id.toString() === req.params.id);
+
+  res.jsonp({
+    data: order,
+  });
+});
+
+server.post("/order", (req: any, res: any) => {
+  const newOrder = req.body;
+
+  if (!newOrder) {
+    res.status(400).jsonp({
+      error: "New Order Missing params",
+    });
+  }
+
+  dbJson.orders.push(newOrder);
+
+  res.jsonp({ success: true });
+});
+
+server.put("/order", (req: any, res: any) => {
+  const newOrder = req.body;
+
+  if (!newOrder) {
+    res.status(400).jsonp({
+      error: "New Order Missing params",
+    });
+  }
+
+  dbJson.orders = dbJson.orders.map((order) => {
+    if (order.id.toString() === newOrder.id.toString()) {
+      return newOrder;
+    } else {
+      return order;
+    }
+  });
+
+  res.jsonp({ success: true });
+});
+
+server.post("/vacation-descriptions", (req: any, res: any) => {
+  const newVacationDescription = req.body;
+
+  if (!newVacationDescription) {
+    res.status(400).jsonp({
+      error: "Missing params",
+    });
+  }
+
+  dbJson.vacationDescriptions.push(newVacationDescription);
+
+  res.jsonp({ success: true });
+});
+
+server.put("/vacation-descriptions", (req: any, res: any) => {
+  const newVacationDescription = req.body;
+
+  console.log("id", newVacationDescription.id);
+  console.log({ newVacationDescription });
+
+  if (!newVacationDescription) {
+    res.status(400).jsonp({
+      error: "Missing params",
+    });
+  }
+
+  dbJson.vacationDescriptions = dbJson.vacationDescriptions.map((v) => {
+    if (v.id.toString() === newVacationDescription.id.toString()) {
+      console.log("return ", newVacationDescription);
+
+      return newVacationDescription;
+    }
+    return v;
+  });
+
+  res.jsonp({ success: true, ok: true });
 });
 
 server.post("/auth/signup", (req: any, res: any) => {

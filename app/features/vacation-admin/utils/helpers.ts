@@ -5,6 +5,8 @@ export const formatDateTimeString = (value: Date) => {
 };
 
 export const formatDateString = (value: Date) => {
+  console.log("value", value);
+
   return value ? getDateString(new Date(value || "")).slice(0, 10) : "";
 };
 

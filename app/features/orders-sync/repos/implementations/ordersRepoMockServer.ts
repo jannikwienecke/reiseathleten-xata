@@ -7,7 +7,7 @@ import type { OrdersRepository } from "../ordersRepo";
 
 export class OrdersRepoMockServer implements OrdersRepository {
   async getLatest(): Promise<RawOrder[]> {
-    await waitFor(1000);
+    await waitFor(500);
 
     const result = await fetch(`${MOCK_SERVER_URL}/orders`);
 
