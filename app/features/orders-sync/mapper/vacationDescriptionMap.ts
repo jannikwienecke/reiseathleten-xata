@@ -10,8 +10,8 @@ export class VacationDescriptionMap {
       description: vacationBooking.props.description || "",
       image_url: vacationBooking.props.imageUrl,
       name: vacationBooking.props.name,
-      //  FIX THIS
-      locationId: 1,
+      // FIX THIS -> after migration db should be ok
+      locationId: null,
     };
   }
 }

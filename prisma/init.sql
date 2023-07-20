@@ -95,8 +95,8 @@ CREATE TABLE "public"."VacationDescription" (
     "description" text,
     "image_url" text,
     PRIMARY KEY ("id"),
-    "locationId" integer  NOT NULL ,
-    FOREIGN KEY ("locationId") REFERENCES "public"."Location"("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "locationId" integer  NULL,
+    FOREIGN KEY ("locationId") REFERENCES "public"."Location"("id") ON UPDATE CASCADE
     
 );
 
