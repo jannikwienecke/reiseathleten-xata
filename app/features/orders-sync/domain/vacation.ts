@@ -1,6 +1,7 @@
 import { Entity } from "~/shared/domain/entity";
 import { type ServiceList } from "./service-list";
 import { type DateValueObject } from "~/features/vacation/domain/date";
+import { type LocationEntity } from "./location";
 
 interface VacationBookingProps {
   id: number;
@@ -14,6 +15,7 @@ interface VacationBookingProps {
   imageUrl: string;
   name: string;
   description?: string;
+  location?: LocationEntity;
 }
 
 export class VacationBooking extends Entity<VacationBookingProps> {

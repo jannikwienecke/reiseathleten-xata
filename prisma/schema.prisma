@@ -85,11 +85,11 @@ model VacationDescription {
   name                    String                    @unique
   description             String?
   image_url               String?
-  locationId              Int
+  locationId              Int?
   DefaultVacationActivity DefaultVacationActivity[]
   Order                   Order[]
   Vacation                Vacation[]
-  Location                Location                  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  Location                Location?                 @relation(fields: [locationId], references: [id], onDelete: NoAction)
   VacationServices        VacationServices[]
 }
 
