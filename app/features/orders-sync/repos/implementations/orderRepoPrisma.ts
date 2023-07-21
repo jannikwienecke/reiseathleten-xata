@@ -1,13 +1,24 @@
-import { OrderMapper } from "../../mapper/orderMap";
-import type { PrismaClient } from "@prisma/client";
+import type { Order, PrismaClient } from "@prisma/client";
 import { type OrderEntity } from "../../domain/order";
+import { OrderMapper } from "../../mapper/orderMap";
+import { type OrderRepository } from "../orderRepo";
 import { type VacationBookingRepo } from "../vacationRepo";
 
-export class OrderRepoPrisma implements OrderMapper {
+export class OrderRepoPrisma implements OrderRepository {
   constructor(
     private client: PrismaClient,
     private vacationRepo: VacationBookingRepo // private serviceRepo: ServiceRepoPrisma
   ) {}
+  async getLatest(): Promise<Order | null> {
+    // get the latest order from the database
+    const order = await this.client.order.findFirst({
+      orderBy: {
+        date_created: "desc",
+      },
+    });
+
+    return order;
+  }
 
   async save(order: OrderEntity): Promise<void> {
     const exists = await this.exists(order.props.id);
@@ -44,10 +55,20 @@ export class OrderRepoPrisma implements OrderMapper {
     }
   }
 
-  private async exists(orderId: number): Promise<boolean> {
+  async exists(orderId: number): Promise<boolean> {
     const order = await this.client.order.findFirst({
       where: {
         id: orderId,
+      },
+    });
+
+    return !!order;
+  }
+
+  async existsByParentOrderId(parentOrderId: number): Promise<boolean> {
+    const order = await this.client.order.findFirst({
+      where: {
+        order_id: parentOrderId,
       },
     });
 

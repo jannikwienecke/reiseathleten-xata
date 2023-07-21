@@ -1,9 +1,10 @@
 import { useLoaderData } from "@remix-run/react";
 import { type OrderEntity } from "~/features/orders-sync/domain/order";
 import { OrderMapper } from "~/features/orders-sync/mapper/orderMap";
-import { syncOrdersLoader } from "~/features/orders-sync/server-functions/sync-orders";
+import { syncOrdersUsecase } from "~/features/orders-sync/server-functions/sync-orders";
+import { createLoader } from "~/utils/stuff.server";
 
-export const loader = syncOrdersLoader;
+export const loader = createLoader(syncOrdersUsecase);
 
 export default function Index() {
   const data = useLoaderData();

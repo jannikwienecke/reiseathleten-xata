@@ -1,4 +1,3 @@
-import type { DataFunctionArgs } from "@remix-run/node";
 import type { ActivityRepo } from "~/features/vacation/repos/activityRepo";
 import { prisma } from "~/db.server";
 import { ActivityRepoMockServer } from "~/features/vacation/repos/implementations/activityRepoMockServer";
@@ -14,7 +13,11 @@ import { OrdersRepoWooCommerce } from "~/features/orders-sync/repos/implementati
 import { createWooCommerceClient } from "~/features/orders-sync/api/helper";
 import { OrdersRepoMockServer } from "~/features/orders-sync/repos/implementations/ordersRepoMockServer";
 import type { OrdersRepository } from "~/features/orders-sync/repos/ordersRepo";
-import type { ActionFunctionArgs, PageHandler } from "./lib/types";
+import type {
+  ActionFunctionArgs,
+  DataFunctionArgs,
+  PageHandler,
+} from "./lib/types";
 import { SyncOrdersUseCase } from "~/features/orders-sync/use-cases/sync-orders";
 import type { RawOrder } from "~/features/orders-sync/api/types";
 import { CustomerRepoPrisma } from "~/features/orders-sync/repos/implementations/customerRepoPrisma";
@@ -30,15 +33,7 @@ import { VacationBookingRepoMockServer } from "~/features/orders-sync/repos/impl
 import { VacationServicesRepoMockServer } from "~/features/orders-sync/repos/implementations/vacationServicesRepoMockServer";
 import { OrderRepoMockServer } from "~/features/orders-sync/repos/implementations/orderRepoMockServer";
 
-export class AddHandlerServer implements PageHandler {
-  async makeRequest(props: ActionFunctionArgs) {
-    const { config } = props;
-
-    await config.onAdd?.(props);
-  }
-}
-
-interface Repository {
+export interface Repository {
   vacation: VacationRepo;
   activity: ActivityRepo;
   user: UserRepo;
@@ -53,9 +48,14 @@ interface UseCase<T> {
   execute: () => Promise<T>;
 }
 
-interface UseCases {
+export interface UseCases {
   syncOrders: UseCase<RawOrder[]>;
 }
+
+export type ServerFunctionArgs = DataFunctionArgs & {
+  repository: Repository;
+  useCases: UseCases;
+};
 
 const initDataFunctions = (args: {
   repository: Repository;
@@ -63,14 +63,7 @@ const initDataFunctions = (args: {
 }) => {
   const { repository, useCases } = args;
 
-  const createLoader = <T>(
-    loader: (
-      args: DataFunctionArgs & {
-        repository: Repository;
-        useCases: UseCases;
-      }
-    ) => T
-  ) => {
+  const createLoader = <T>(loader: (args: ServerFunctionArgs) => T) => {
     return async (args: DataFunctionArgs) => {
       return loader({ ...args, repository, useCases });
     };
@@ -123,6 +116,6 @@ export const { createLoader, createAction } = initDataFunctions({
     vacationServices: vacationServicesRepo,
   },
   useCases: {
-    syncOrders: new SyncOrdersUseCase(ordersRepo),
+    syncOrders: new SyncOrdersUseCase(ordersRepo, orderRepo),
   },
 });

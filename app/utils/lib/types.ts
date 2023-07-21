@@ -1,4 +1,4 @@
-type Dict = {
+export type Dict = {
   [key: string]: string | number | boolean | undefined | null | Date;
 } & {
   id: string | number;
@@ -52,6 +52,7 @@ export type ModelConfig<T extends Dict = { id: number }> = {
           } & React.HTMLProps<HTMLInputElement>)[];
     };
   };
+  actions?: TableActionType<T>[];
 };
 
 export type ConfigType = {
@@ -64,6 +65,7 @@ export type DataFunctionArgs = {
   request: Request;
   params: Record<string, string>;
 };
+
 export type ActionFunctionArgs = DataFunctionArgs & {
   formData: FormData | undefined;
   config: ModelConfig;
@@ -92,4 +94,10 @@ export interface NavigationItem {
   name: string;
   icon: React.ComponentType<any>;
   isCurrent: boolean;
+}
+
+export interface TableActionType<T> {
+  name: string;
+  label: string;
+  handler: (args: DataFunctionArgs) => Promise<unknown>;
 }

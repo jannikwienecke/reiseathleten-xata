@@ -20,6 +20,7 @@ export interface OrderProps {
   additionalServices: ServiceList;
   vacation: VacationBooking;
   status: OrderStatusValueObject;
+  orderId: number;
 }
 
 export class OrderEntity extends Entity<OrderProps> {

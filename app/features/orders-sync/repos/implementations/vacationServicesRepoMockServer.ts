@@ -6,17 +6,21 @@ import { type VacationServicesRepo } from "../vacationServicesRepo";
 
 export class VacationServicesRepoMockServer implements VacationServicesRepo {
   async getServicesForVacation(vacationId: number) {
-    const result = await fetch(`${MOCK_SERVER_URL}/vacation/:id/services`);
+    const response = await fetch(`${MOCK_SERVER_URL}/vacation/:id/services`);
 
-    const services = (await result.json()) as Service[];
+    const result = (await response.json()) as {
+      data: {
+        services: Service[] | null;
+      };
+    };
 
     return ServiceList.create(
-      services.map((s) =>
+      result.data?.services?.map((s) =>
         ServiceValueObject.create({
           name: s.name,
           description: s.description,
         })
-      )
+      ) ?? []
     );
   }
 }

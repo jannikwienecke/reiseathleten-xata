@@ -639,6 +639,7 @@ const ServiceTable = () => {
   return (
     <>
       <Table
+        actions={[]}
         disableSearch={true}
         compact={true}
         dataList={services.map((service) => {

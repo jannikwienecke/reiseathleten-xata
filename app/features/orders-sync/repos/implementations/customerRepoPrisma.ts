@@ -9,6 +9,7 @@ export class CustomerRepoPrisma implements CustomerRepository {
   async create(customer: CustomerEntity): Promise<void> {
     const rawCustomer = CustomerMap.toPersistence(customer);
     const { user_id, id, ...customerProps } = rawCustomer;
+
     await this.client.customer.create({
       data: {
         ...customerProps,

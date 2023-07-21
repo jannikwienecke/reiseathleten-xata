@@ -17,7 +17,12 @@ export const getFormDataValue = (
   return val?.toString();
 };
 
-export const createPageFunction = ({ config }: { config: ConfigType }) => {
+export const createPageFunction = ({
+  config,
+  ...args
+}: {
+  config: ConfigType;
+}) => {
   const loader = async (props: DataFunctionArgs): Promise<LibLoaderData> => {
     const modelConfig: ModelConfig =
       config["models"][props.params.model as keyof typeof config["models"]];
@@ -38,6 +43,7 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
     const formData = await props.request.formData();
 
     const formAction = getFormDataValue(formData, "action");
+    const customActionName = getFormDataValue(formData, "actionName");
     const model = getFormDataValue(formData, "model");
 
     const modelConfig: ModelConfig =
@@ -48,7 +54,7 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
     const searchParams = url.searchParams;
     const action = searchParams.get("action");
 
-    let actionToRun = modelConfig.onAdd;
+    let actionToRun = modelConfig?.onAdd;
     if (action === "edit") {
       actionToRun = modelConfig.onEdit;
     } else if (formAction === "delete") {
@@ -57,6 +63,16 @@ export const createPageFunction = ({ config }: { config: ConfigType }) => {
       actionToRun = modelConfig.onBulkDelete;
     } else if (formAction === "bulkDelete" && !modelConfig.onBulkDelete) {
       throw new Error("Bulk delete is not supported");
+    } else if (formAction === "custom_action") {
+      const customActionToRu = modelConfig.actions?.find(
+        (action) => action.name === customActionName
+      );
+
+      if (!customActionToRu) {
+        throw new Error(`Custom action ${customActionName} not found`);
+      } else {
+        actionToRun = customActionToRu.handler;
+      }
     }
 
     try {

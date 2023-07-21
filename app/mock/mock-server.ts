@@ -187,9 +187,6 @@ server.post("/vacation-descriptions", (req: any, res: any) => {
 server.put("/vacation-descriptions", (req: any, res: any) => {
   const newVacationDescription = req.body;
 
-  console.log("id", newVacationDescription.id);
-  console.log({ newVacationDescription });
-
   if (!newVacationDescription) {
     res.status(400).jsonp({
       error: "Missing params",

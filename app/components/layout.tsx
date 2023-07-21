@@ -183,9 +183,12 @@ export function Layout({
                       const isSameParentAsPrevious =
                         items[indexj - 1]?.parent === item.parent;
                       return (
-                        <>
+                        <div key={`${item.parent}-${item.label}`}>
                           {item.parent && !isSameParentAsPrevious ? (
-                            <div className="pt-4 text-xs font-semibold leading-6 text-gray-400">
+                            <div
+                              key={item.parent}
+                              className="pt-4 text-xs font-semibold leading-6 text-gray-400"
+                            >
                               {/* first letter uppercase */}
                               {item.parent.charAt(0).toUpperCase() +
                                 item.parent.slice(1)}
@@ -212,7 +215,7 @@ export function Layout({
                               {item.label}
                             </Link>
                           </li>
-                        </>
+                        </div>
                       );
                     })}
                   </ul>

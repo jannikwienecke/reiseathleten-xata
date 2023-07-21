@@ -65,7 +65,7 @@ CREATE TABLE "public"."Customer" (
     "title" text  NOT NULL ,
     "title_formatted" text  NOT NULL ,
     "shipping_address" text  NOT NULL ,
-    "birth_date" DATE  NOT NULL ,
+    "birth_date" text NOT NULL DEFAULT '',
     "user_id" integer  NOT NULL,
     PRIMARY KEY ("id"),
     FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -187,6 +187,9 @@ CREATE TABLE "public"."Order" (
 
     -- additonal services (json)
     "additional_services" text  NOT NULL DEFAULT '',
+
+-- the order id which can be in multiple lines
+    order_id integer  NOT NULL,
 
     -- user
     "user_id" integer  NOT NULL ,

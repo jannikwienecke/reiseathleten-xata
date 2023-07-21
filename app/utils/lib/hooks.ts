@@ -11,10 +11,12 @@ import React, { useContext } from "react";
 import invariant from "tiny-invariant";
 import { LibContext } from "./react";
 import type {
+  Dict,
   LibActionData,
   LibLoaderData,
   ModelConfig,
   NavigationItem,
+  TableActionType,
 } from "./types";
 
 export const useModel = (options?: { model?: string }) => {
@@ -77,10 +79,15 @@ export const useAdminPage = (options?: { model?: string }) => {
     (item: any) => item.id.toString() === id?.toString()
   );
 
+  const currentFormAction = navigationState.formData?.get("action");
   const dataItemDeleted = navigationState.formData?.get("id");
   const dataItemsDeleted = navigationState.formData
     ? JSON.parse(navigationState.formData?.get("ids")?.toString() || "[]")
     : undefined;
+
+  const isSubmitting = navigationState.state === "submitting";
+  const isRunningCutomAction =
+    currentFormAction === "custom_action" && isSubmitting;
 
   const handleClickEdit = (dataItem: any) => {
     searchParams.set("action", "edit");
@@ -112,6 +119,7 @@ export const useAdminPage = (options?: { model?: string }) => {
       {
         ids: JSON.stringify(dataItems.map((item) => item.id)),
         action: "bulkDelete",
+        model: model.model || "",
       },
       {
         method: "POST",
@@ -256,6 +264,22 @@ export const useAdminPage = (options?: { model?: string }) => {
     };
   };
 
+  const onClickAction = (action: TableActionType<any>, dataItems: any[]) => {
+    submit(
+      {
+        ids: JSON.stringify(dataItems.map((item) => item.id)),
+        action: "custom_action",
+        actionName: action.name,
+        model: model.model || "",
+      },
+      {
+        method: "POST",
+      }
+    );
+  };
+
+  const actions = model.actions || [];
+
   // const view: View
   return {
     columns: model.getColumns(),
@@ -276,6 +300,9 @@ export const useAdminPage = (options?: { model?: string }) => {
     getFormFieldProps,
     getNotificationProps,
     getLayoutProps,
+    actions,
+    onClickAction,
+    isRunningCutomAction,
 
     ...model,
   };

@@ -7,9 +7,10 @@ import type { OrdersRepository } from "../ordersRepo";
 export class OrdersRepoWooCommerce implements OrdersRepository {
   constructor(private client: WooCommerceRestApi) {}
 
-  async getLatest(): Promise<RawOrder[]> {
+  async getLatest({ after }: { after?: string }): Promise<RawOrder[]> {
     const result = await this.client.get("orders", {
-      per_page: 1,
+      per_page: 3,
+      after: after || "2023-07-17T00:00:00",
     });
 
     const parsedResult = orderResultSchema.safeParse(result);

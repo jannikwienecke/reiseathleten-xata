@@ -102,13 +102,13 @@ model DefaultVacationActivity {
 }
 
 model Customer {
-  id               Int      @id @default(autoincrement())
+  id               Int    @id @default(autoincrement())
   first_name       String
   last_name        String
   company          String
   address_1        String
   address_2        String
-  email            String   @unique
+  email            String @unique
   city             String
   state            String
   postcode         String
@@ -117,9 +117,9 @@ model Customer {
   title            String
   title_formatted  String
   shipping_address String
-  birth_date       DateTime @db.Date
+  birth_date       String @default("")
   user_id          Int
-  User             User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  User             User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Order {
@@ -142,6 +142,7 @@ model Order {
   crossfit_box         String?
   status               String              @default("pending")
   additional_services  String              @default("")
+  order_id             Int
   user_id              Int
   User                 User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
   Vacation             VacationDescription @relation(fields: [vacation_id], references: [id], onDelete: NoAction)

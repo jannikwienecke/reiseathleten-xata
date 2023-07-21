@@ -1,48 +1,14 @@
-import { type Order, Prisma } from "@prisma/client";
-import { OrderProps, OrderEntity } from "../domain/order";
-import { ServiceValueObject } from "../domain/service";
-import { OrderStatusValueObject } from "../domain/order-status";
-import { OrderMetaValueObject } from "../domain/order-meta";
-import { VacationBooking } from "../domain/vacation";
-import { DateValueObject } from "~/features/vacation/domain/date";
-import { ServiceList } from "../domain/service-list";
+import { Prisma, type Order } from "@prisma/client";
 import { UserEntity } from "~/features/auth/domain/User";
+import { DateValueObject } from "~/features/vacation/domain/date";
+import { OrderEntity } from "../domain/order";
+import { OrderMetaValueObject } from "../domain/order-meta";
+import { OrderStatusValueObject } from "../domain/order-status";
+import { ServiceValueObject } from "../domain/service";
+import { ServiceList } from "../domain/service-list";
+import { VacationBooking } from "../domain/vacation";
 
 export class OrderMapper {
-  // static toDomain({
-  //   raw,
-  //   meta,
-  //   user,
-  //   additionalServices,
-  //   vacation,
-  // }: {
-  //   raw: RawOrder;
-  //   user: UserEntity;
-  //   additionalServices: ServiceList;
-  //   meta: {
-  //     crossfitBox: string;
-  //     knowledgeFrom: string;
-  //     addToCommunity: string;
-  //   };
-  //   vacation: VacationBooking;
-  // }): OrderEntity {
-  //   return OrderEntity.create({
-  //     id: raw.id,
-  //     orderKeyId: raw.order_key,
-  //     dateCreated: new Date(raw.date_created),
-  //     date_modified: new Date(raw.date_modified),
-  //     date_imported: new Date(),
-  //     payment_method: raw.payment_method,
-  //     payment_method_title: raw.payment_method_title,
-  //     add_to_community: meta.addToCommunity,
-  //     knowledge_from: meta.knowledgeFrom,
-  //     crossfit_box: meta.crossfitBox,
-  //     user_id: +user.id,
-  //     additionalServices,
-  //     vacation,
-  //   });
-  // }
-
   static toPersistence(order: OrderEntity): Order {
     if (!order.props.dateCreated.value)
       throw new Error("DateCreated is required");
@@ -59,6 +25,7 @@ export class OrderMapper {
 
     const _order: Order = {
       id: order.props.id,
+      order_id: order.props.orderId,
       date_created: order.props.dateCreated.value,
       date_modified: order.props.dateModified.value,
       date_imported: order.props.dateImported.value,
@@ -137,6 +104,8 @@ export class OrderMapper {
         addToCommunity: order.props.orderMeta.props.addToCommunity,
       },
 
+      orderId: order.props.orderId,
+
       // orderKey
       orderKey: order.props.orderKeyId,
     } as const;
@@ -171,8 +140,6 @@ export class OrderMapper {
       password: "",
     });
 
-    // const services =
-
     return OrderEntity.create({
       ...order,
       id: order.id,
@@ -193,6 +160,7 @@ export class OrderMapper {
       status,
       orderMeta,
       user,
+      orderId: order.id,
     });
   }
 }

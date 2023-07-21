@@ -8,6 +8,7 @@ import clsx from "clsx";
 import React from "react";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { classNames } from "~/utils/helper";
+import { TableActionType } from "~/utils/lib/types";
 
 type ARecord = Record<string, any>;
 
@@ -30,6 +31,9 @@ export function Table<TData extends ARecord>({
   onDetailView,
   disableSearch,
   compact,
+  actions,
+  onClickAction,
+  isRunningCutomAction,
 }: {
   dataList: TData[];
   columns: Column<TData>[];
@@ -42,6 +46,9 @@ export function Table<TData extends ARecord>({
   onDetailView?: (dataItem: TData) => void;
   disableSearch?: boolean;
   compact?: boolean;
+  actions?: TableActionType<TData>[];
+  onClickAction?: (action: TableActionType<TData>, dataItems: TData[]) => void;
+  isRunningCutomAction?: boolean;
 }) {
   const checkbox = useRef<any>();
   const [checked, setChecked] = useState(false);
@@ -104,20 +111,8 @@ export function Table<TData extends ARecord>({
     });
   }, [dataList, query]);
 
-  if (dataList.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <h1 className="text-2xl font-semibold leading-9 tracking-tight  text-black">
-          No {title.toLowerCase()} found.
-        </h1>
-      </div>
-    );
-  }
-
   return (
     <div className="">
-      {/* <div className="px-4 sm:px-6 lg:px-8"> */}
-
       <div className="flex flex-row w-full justify-between">
         <div className="sm:flex sm:items-center flex flex-col flex-1">
           <div className="sm:flex-auto w-full">
@@ -147,7 +142,7 @@ export function Table<TData extends ARecord>({
           </div>
         </div>
 
-        {onAdd || onEdit || !disableSearch ? (
+        {actions?.length || onAdd || onEdit || !disableSearch ? (
           <div className="flex flex-row">
             <div>
               <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
@@ -165,6 +160,32 @@ export function Table<TData extends ARecord>({
                         </button>
                       </div>
                     ) : null}
+
+                    {actions?.map((action) => {
+                      return (
+                        <div key={action.name} className="">
+                          <button
+                            onClick={() => {
+                              onClickAction?.(action, selected);
+                            }}
+                            type="button"
+                            className={`
+                              block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+                              ${
+                                selected.length === 0
+                                  ? "bg-black text-white hover:bg-indigo-500 "
+                                  : "bg-amber-400 text-black hover:bg-amber-300"
+                              }`}
+                          >
+                            {isRunningCutomAction ? (
+                              <div>LOADING</div>
+                            ) : (
+                              <>{action.label}</>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
 
                     {onAdd || (onEdit && selected.length > 0) ? (
                       <>
@@ -209,152 +230,169 @@ export function Table<TData extends ARecord>({
         ) : null}
       </div>
 
-      <div className={clsx(`flow-root`, compact ? "mt-0" : "mt-4")}>
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <div className="relative">
-              <table className="min-w-full table-fixed divide-y divide-gray-300 border-gray-100 border-[1px] overflow-hidden rounded-tl-lg rounded-tr-lg">
-                <thead className="">
-                  <tr className="">
-                    <th
-                      scope="col"
-                      className="relative px-7 sm:w-12 sm:px-6 bg-white "
-                    >
-                      <input
-                        type="checkbox"
-                        className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                        ref={checkbox}
-                        checked={checked}
-                        onChange={toggleAll}
-                        style={{
-                          display: onBulkDelete ? "block" : "none",
-                        }}
-                        // style={{
-                        //   left: "1.5rem",
-                        //   top: "1.25rem",
-                        // }}
-                      />
-                    </th>
+      {dataList.length === 0 ? (
+        <>
+          <div className="flex flex-col items-center justify-center h-[33vh]">
+            <h1 className="text-2xl font-semibold leading-9 tracking-tight  text-black">
+              No {title.toLowerCase()} found.
+            </h1>
+          </div>
+        </>
+      ) : null}
 
-                    {columns.map((column) => {
-                      return (
-                        <th
-                          key={`column-${column.accessorKey.toString()}`}
-                          scope="col"
-                          className="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-black bg-white"
-                        >
-                          {column.header}
-                        </th>
-                      );
-                    })}
-                    {onDelete ? (
+      {dataList.length ? (
+        <div className={clsx(`flow-root`, compact ? "mt-0" : "mt-4")}>
+          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <div className="relative">
+                <table className="min-w-full table-fixed divide-y divide-gray-300 border-gray-100 border-[1px] overflow-hidden rounded-tl-lg rounded-tr-lg">
+                  <thead className="">
+                    <tr className="">
                       <th
                         scope="col"
-                        className="relative py-1 pl-3 pr-4 sm:pr-3"
+                        className="relative px-7 sm:w-12 sm:px-6 bg-white "
                       >
-                        <span className="sr-only">Delete</span>
+                        <input
+                          type="checkbox"
+                          className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                          ref={checkbox}
+                          checked={checked}
+                          onChange={toggleAll}
+                          style={{
+                            display: onBulkDelete ? "block" : "none",
+                          }}
+                          // style={{
+                          //   left: "1.5rem",
+                          //   top: "1.25rem",
+                          // }}
+                        />
                       </th>
-                    ) : null}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {/* <tbody
+
+                      {columns.map((column) => {
+                        return (
+                          <th
+                            key={`column-${column.accessorKey.toString()}`}
+                            scope="col"
+                            className="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-black bg-white"
+                          >
+                            {column.header}
+                          </th>
+                        );
+                      })}
+                      {onDelete ? (
+                        <th
+                          scope="col"
+                          className="relative py-1 pl-3 pr-4 sm:pr-3"
+                        >
+                          <span className="sr-only">Delete</span>
+                        </th>
+                      ) : null}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {/* <tbody
                   style={{
                     borderTop: "1px solid rgb(243 244 246)",
                   }}
                   className="divide-y divide-gray-100 bg-white border-t-[1px] border-t-red-200"
                 > */}
-                  {dataListFiltered.map((dataItem, index) => {
-                    return (
-                      <tr
-                        key={`row-${dataItem.id}`}
-                        className={
-                          selected.includes(dataItem) ? "bg-gray-50" : undefined
-                        }
-                      >
-                        <td className="relative px-7 sm:w-12 sm:px-6">
-                          {selected.includes(dataItem) && (
-                            <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-600" />
-                          )}
-                          <input
-                            type="checkbox"
-                            className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                            value={dataItem.email}
-                            checked={selected.includes(dataItem)}
-                            onChange={(e) =>
-                              handleClickInputSelect(dataItem, e.target.checked)
-                            }
-                          />
-                        </td>
-
-                        {columns.map((column, indexColumn) => {
-                          const value = dataItem[column.accessorKey];
-
-                          return (
-                            <>
-                              {/* COLOR */}
-                              {column.isColor ? (
-                                <td
-                                  key={`${index}-${indexColumn}-${value}-1`}
-                                  role="button"
-                                  className="whitespace-nowrap px-3 py-2 text-sm text-gray-500"
-                                >
-                                  <span
-                                    style={{
-                                      backgroundColor: `${value}`,
-                                      color: "white",
-                                    }}
-                                    className={`inline-flex  items-center rounded-md  px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20`}
-                                  >
-                                    {value}
-                                  </span>
-                                </td>
-                              ) : (
-                                <>
-                                  <td
-                                    key={`${index}-${indexColumn}-${value}-2`}
-                                    className={classNames(
-                                      "whitespace-nowrap py-1 pr-3 text-sm font-medium",
-                                      selected.includes(dataItem)
-                                        ? "text-indigo-600"
-                                        : "text-gray-900"
-                                    )}
-                                  >
-                                    {column?.formatValue
-                                      ? column?.formatValue?.(
-                                          dataItem[column.accessorKey]
-                                        )
-                                      : dataItem[column.accessorKey]}
-                                  </td>
-                                </>
-                              )}
-                            </>
-                          );
-                        })}
-
-                        {onDelete ? (
-                          <td className="whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-
-                                onDelete?.(dataItem);
-                              }}
-                              className="text-red-600 z-20 hover:text-indigo-900 bg-red-100 hover:bg-indigo-100 px-2 py-1 rounded-md text-xs font-medium"
-                            >
-                              Delete
-                            </button>
+                    {dataListFiltered.map((dataItem, index) => {
+                      return (
+                        <tr
+                          key={`row-${dataItem.id}`}
+                          className={
+                            selected.includes(dataItem)
+                              ? "bg-gray-50"
+                              : undefined
+                          }
+                        >
+                          <td className="relative px-7 sm:w-12 sm:px-6">
+                            {selected.includes(dataItem) && (
+                              <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-600" />
+                            )}
+                            <input
+                              type="checkbox"
+                              className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                              value={dataItem.email}
+                              checked={selected.includes(dataItem)}
+                              onChange={(e) =>
+                                handleClickInputSelect(
+                                  dataItem,
+                                  e.target.checked
+                                )
+                              }
+                            />
                           </td>
-                        ) : null}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+
+                          {columns.map((column, indexColumn) => {
+                            const value = dataItem[column.accessorKey];
+
+                            return (
+                              <>
+                                {/* COLOR */}
+                                {column.isColor ? (
+                                  <td
+                                    key={`${index}-${indexColumn}-${value}-1`}
+                                    role="button"
+                                    className="whitespace-nowrap px-3 py-2 text-sm text-gray-500"
+                                  >
+                                    <span
+                                      style={{
+                                        backgroundColor: `${value}`,
+                                        color: "white",
+                                      }}
+                                      className={`inline-flex  items-center rounded-md  px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20`}
+                                    >
+                                      {value}
+                                    </span>
+                                  </td>
+                                ) : (
+                                  <>
+                                    <td
+                                      key={`${index}-${indexColumn}-${value}-2`}
+                                      className={classNames(
+                                        "whitespace-nowrap py-1 pr-3 text-sm font-medium",
+                                        selected.includes(dataItem)
+                                          ? "text-indigo-600"
+                                          : "text-gray-900"
+                                      )}
+                                    >
+                                      {column?.formatValue
+                                        ? column?.formatValue?.(
+                                            dataItem[column.accessorKey]
+                                          )
+                                        : dataItem[column.accessorKey]}
+                                    </td>
+                                  </>
+                                )}
+                              </>
+                            );
+                          })}
+
+                          {onDelete ? (
+                            <td className="whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+
+                                  onDelete?.(dataItem);
+                                }}
+                                className="text-red-600 z-20 hover:text-indigo-900 bg-red-100 hover:bg-indigo-100 px-2 py-1 rounded-md text-xs font-medium"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          ) : null}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

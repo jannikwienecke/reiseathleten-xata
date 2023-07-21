@@ -5,6 +5,13 @@ import { OrderMapper } from "../../mapper/orderMap";
 import { type OrderRepository } from "../orderRepo";
 
 export class OrderRepoMockServer implements OrderRepository {
+  async getLatest(): Promise<Order> {
+    const result = await fetch(`${MOCK_SERVER_URL}/order/1`);
+    const data = await result.json();
+
+    return data;
+  }
+
   async save(order: OrderEntity): Promise<void> {
     const exists = await this.exists(order.props.id);
     const isNewVacationBooking = !exists;
@@ -24,9 +31,17 @@ export class OrderRepoMockServer implements OrderRepository {
     });
   }
 
-  private async exists(vacationBookingId: number): Promise<boolean> {
+  async exists(vacationBookingId: number): Promise<boolean> {
     const result = await fetch(`${MOCK_SERVER_URL}/order/${vacationBookingId}`);
     const data = await result.json();
+
+    return !!data.data;
+  }
+
+  async existsByParentOrderId(orderId: number): Promise<boolean> {
+    const result = await fetch(`${MOCK_SERVER_URL}/order/${orderId}`);
+    const data = await result.json();
+
     return !!data.data;
   }
 }

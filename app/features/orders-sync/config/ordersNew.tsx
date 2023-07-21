@@ -1,12 +1,12 @@
-import { InboxIcon, TagIcon } from "@heroicons/react/20/solid";
+import { InboxIcon } from "@heroicons/react/20/solid";
 import { type Order } from "@prisma/client";
-import invariant from "tiny-invariant";
 import { Form } from "~/components";
 import { prisma } from "~/db.server";
 import { formatDateString } from "~/features/vacation-admin/utils/helpers";
-import { getFormDataValue } from "~/utils/lib/core";
 
-import type { ActionFunctionArgs, ModelConfig } from "~/utils/lib/types";
+import type { DataFunctionArgs, ModelConfig } from "~/utils/lib/types";
+import { syncOrdersUsecase } from "../server-functions/sync-orders";
+import { createLoader } from "~/utils/stuff.server";
 
 export type OrderInterface = Omit<Order, "price"> & {
   price: number;
@@ -78,4 +78,13 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
       ],
     },
   },
+  actions: [
+    {
+      name: "syncOrdersWooCommerce",
+      label: "Sync Orders",
+      handler: async (args: DataFunctionArgs) => {
+        await createLoader(syncOrdersUsecase)(args);
+      },
+    },
+  ],
 };
