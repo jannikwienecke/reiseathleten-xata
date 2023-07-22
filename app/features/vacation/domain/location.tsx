@@ -11,10 +11,6 @@ export class LocationEntity extends Entity<LocationProps> {
   }
 
   static create(props: LocationProps, id?: string) {
-    if (!props.name) {
-      throw new Error("Location name is required");
-    }
-
     return new LocationEntity(props, id);
   }
 }

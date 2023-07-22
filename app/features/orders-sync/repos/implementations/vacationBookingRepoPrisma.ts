@@ -27,11 +27,15 @@ export class VacationBookingRepoPrisma implements VacationBookingRepo {
   }
 
   private async exists(vacationBookingId: number): Promise<boolean> {
+    console.log("Exists vacationBookingId", vacationBookingId);
+
     const vacationBooking = await this.client.vacationDescription.findFirst({
       where: {
         id: vacationBookingId,
       },
     });
+
+    console.log(!!vacationBooking);
 
     return !!vacationBooking;
   }

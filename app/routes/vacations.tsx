@@ -19,7 +19,15 @@ export default function Index() {
           Your Vacations
         </h1>
 
-        <VacationList vacations={vacations} />
+        {vacations.length ? (
+          <VacationList vacations={vacations} />
+        ) : (
+          <div>
+            <h1 className="text-lg  text-black mt-4 leading-9 tracking-tight">
+              No Vacations booked yet
+            </h1>
+          </div>
+        )}
       </div>
     </div>
   );

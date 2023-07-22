@@ -12,26 +12,26 @@ export class VacationRepoPrisma implements VacationRepo {
     this.client = client;
   }
   async getVacationsByUserId(userId: number): Promise<VacationsDtoProps> {
-    const rawVacations = await this.client.vacation.findMany({
+    const rawVacations = await this.client.order.findMany({
       include: {
-        VacationDescription: {
+        Vacation: {
           include: {
             Location: true,
           },
         },
       },
       where: {
-        userId,
+        user_id: userId,
       },
     });
 
     const vacations: VacationsDtoProps = rawVacations.map((rawVacation) => {
       return {
         ...rawVacation,
-        startDate: rawVacation.startDate.toISOString(),
-        endDate: rawVacation.endDate.toISOString(),
-        description: rawVacation.VacationDescription.description || undefined,
-        name: rawVacation.VacationDescription.name,
+        startDate: rawVacation.start_date.toISOString(),
+        endDate: rawVacation.end_date.toISOString(),
+        description: rawVacation.Vacation.description || undefined,
+        name: rawVacation.Vacation.name,
       };
     });
 
@@ -39,18 +39,19 @@ export class VacationRepoPrisma implements VacationRepo {
   }
 
   async getVacationById(id: number, userId: number) {
-    const rawVacation = await this.client.vacation.findFirst({
+    const rawVacation = await this.client.order.findFirst({
       where: {
-        userId,
+        user_id: userId,
         id,
       },
       include: {
-        VacationDescription: {
+        Vacation: {
           include: {
             Location: true,
           },
         },
-        VacationActivity: {
+
+        OrderActivity: {
           include: {
             AcitivityDescription: {
               include: {
@@ -63,8 +64,8 @@ export class VacationRepoPrisma implements VacationRepo {
                     },
                   },
                 },
-                VacationActivity: true,
               },
+              // VacationActivity: true,
             },
           },
         },
@@ -78,16 +79,17 @@ export class VacationRepoPrisma implements VacationRepo {
     const vacationDto: VacationDtoProps = {
       vacation: {
         ...rawVacation,
-        startDate: rawVacation.startDate.toISOString(),
-        endDate: rawVacation.endDate.toISOString(),
-        description: rawVacation.VacationDescription.description || undefined,
-        name: rawVacation.VacationDescription.name,
+        startDate: rawVacation.start_date.toISOString(),
+        endDate: rawVacation.end_date.toISOString(),
+        description: rawVacation.Vacation.description || "",
+        name: rawVacation.Vacation.name,
       },
       location: {
-        ...rawVacation.VacationDescription.Location,
-        description: rawVacation.VacationDescription.Location.description || "",
+        ...rawVacation.Vacation.Location,
+        name: rawVacation.Vacation.Location?.name || "",
+        description: rawVacation.Vacation.Location?.description || "",
       },
-      activities: rawVacation.VacationActivity.map((va) => {
+      activities: rawVacation.OrderActivity.map((va) => {
         return {
           ...va,
           id: va.id,

@@ -1,5 +1,5 @@
 import { CustomerEntity } from "~/features/auth/domain/Member";
-import type { UserEntity } from "~/features/auth/domain/User";
+import { UserEntity } from "~/features/auth/domain/User";
 import { DateValueObject } from "~/features/vacation/domain/date";
 import { type RawOrder } from "../api/types";
 import { OrderEntity } from "../domain/order";
@@ -41,16 +41,17 @@ export const syncOrdersUsecase = async ({
 
     let user: UserEntity | null = null;
 
+    const hashedDefaultPassword = await UserEntity.generateDefaultPassword();
     if (!userExists) {
       // create user -> signup
       user = await userRepo.signup({
         email: order.billing.email,
-        password: "123456",
+        password: hashedDefaultPassword,
       });
     } else {
       user = await userRepo.login({
         email: order.billing.email,
-        password: "123456",
+        password: hashedDefaultPassword,
       });
     }
 
@@ -68,7 +69,7 @@ export const syncOrdersUsecase = async ({
       const customer = CustomerEntity.create({
         ...order.billing,
         user_id: +user.id,
-        password: "123456",
+        password: hashedDefaultPassword,
         shipping_address: JSON.stringify(order.shipping),
         birth_date: birthDate as string | null,
       });
@@ -294,7 +295,7 @@ export const syncOrdersUsecase = async ({
 
     if (exists) {
       console.log("order already exists");
-      return;
+      // return;
     }
 
     const user = await _handleUserAndCustomerCreation(order);

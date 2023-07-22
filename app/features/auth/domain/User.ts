@@ -1,4 +1,5 @@
 import { Entity } from "~/shared/domain/entity";
+import bcrypt from "bcryptjs";
 
 interface UserProps {
   email: string;
@@ -17,5 +18,14 @@ export class UserEntity extends Entity<UserProps> {
 
   get id() {
     return this.props.id || this._id;
+  }
+
+  static async generatePasswordHash(password: string) {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+  }
+
+  static async generateDefaultPassword() {
+    return UserEntity.generatePasswordHash("!reiseathleten#fitness");
   }
 }

@@ -48,11 +48,6 @@ export class UserRepoPrisma implements UserRepo {
       },
     });
 
-    console.log({
-      user,
-      email,
-    });
-
     return !!user;
   }
 }

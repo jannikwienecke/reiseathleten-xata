@@ -25,6 +25,7 @@ export default function NotesRoute() {
 
   React.useEffect(() => {
     if (!data.vacation) return;
+
     initVacation(VacationMap.toDomain(data.vacation));
   }, [data.vacation]);
 

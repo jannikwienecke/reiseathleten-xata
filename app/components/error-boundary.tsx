@@ -22,9 +22,7 @@ const DefaultStatusError = ({ error }: { error: ErrorResponse }) => {
 };
 
 const UnexpectedError = ({ error }: { error: unknown }) => {
-  console.log("HIER ERRIR");
   console.log(error);
-
   console.error("STACK", getErrorStack(error));
   return (
     <>

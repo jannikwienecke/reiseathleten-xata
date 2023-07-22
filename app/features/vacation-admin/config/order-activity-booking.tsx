@@ -1,4 +1,3 @@
-import { type VacationActivity } from "@prisma/client";
 import { Form } from "~/components";
 import { prisma } from "~/db.server";
 
@@ -7,8 +6,9 @@ import { getDateString } from "~/utils/helper";
 import type { ModelConfig } from "~/utils/lib/types";
 import { VACATION_BOOKING_APP_key, formatDateString } from "../utils/helpers";
 import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
+import { type OrderActivity } from "@prisma/client";
 
-export type VacationActivityBookingInterface = VacationActivity & {
+export type OrderActivityBookingInterface = OrderActivity & {
   vacationName: string;
   activityName: string;
   email: string;
@@ -17,17 +17,17 @@ export type VacationActivityBookingInterface = VacationActivity & {
 
 const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacationActivity");
 
-export const VacationActivityBookingConfig: ModelConfig<VacationActivityBookingInterface> =
+export const OrderActivityBookingConfig: ModelConfig<OrderActivityBookingInterface> =
   {
-    title: "Vacation Activity Bookings",
+    title: "Order Activity Bookings",
     parent: VACATION_BOOKING_APP_key,
     loader: async () => {
-      const activityBookings = await prisma.vacationActivity.findMany({
+      const activityBookings = await prisma.orderActivity.findMany({
         include: {
-          Vacation: {
+          Order: {
             include: {
-              VacationDescription: true,
               User: true,
+              Vacation: true,
             },
           },
           AcitivityDescription: {
@@ -40,9 +40,9 @@ export const VacationActivityBookingConfig: ModelConfig<VacationActivityBookingI
 
       return activityBookings.map((a) => ({
         ...a,
-        vacationName: a?.Vacation?.VacationDescription.name || "",
-        activityName: a.AcitivityDescription?.name || "",
-        email: a?.Vacation?.User?.email || "",
+        vacationName: a?.Order.Vacation?.name || "",
+        activityName: a.Order.Vacation?.name || "",
+        email: a?.Order?.User?.email || "",
         activity: "",
       }));
     },

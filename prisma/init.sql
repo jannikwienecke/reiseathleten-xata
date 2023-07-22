@@ -5,8 +5,7 @@ DROP TABLE "public"."Tag" CASCADE;
 DROP TABLE "public"."User" CASCADE;
 DROP TABLE "public"."Location" CASCADE;
 DROP TABLE "public"."AcitivityTag" CASCADE;
-DROP TABLE "public"."Vacation" CASCADE;
-DROP TABLE "public"."VacationActivity" CASCADE;
+DROP TABLE "public"."OrderActivity" CASCADE;
 DROP TABLE "public"."Color" CASCADE;
 DROP TABLE "public"."AcitivityDescription" CASCADE;
 DROP TABLE "public"."DefaultVacationActivity" CASCADE;
@@ -100,27 +99,28 @@ CREATE TABLE "public"."VacationDescription" (
     
 );
 
-CREATE TABLE "public"."Vacation" (
-    "id" SERIAL,
-    "userId" integer  NOT NULL ,
-    "startDate" timestamp(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "endDate" timestamp(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "vacationDescriptionId" integer  NOT NULL ,
-    PRIMARY KEY ("id"),
-    FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY ("vacationDescriptionId") REFERENCES "public"."VacationDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
+-- CREATE TABLE "public"."Vacation" (
+--     "id" SERIAL,
+--     "userId" integer  NOT NULL ,
+--     "startDate" timestamp(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     "endDate" timestamp(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     "vacationDescriptionId" integer  NOT NULL ,
+--     PRIMARY KEY ("id"),
+--     FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+--     FOREIGN KEY ("vacationDescriptionId") REFERENCES "public"."VacationDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE
+-- );
 
-CREATE TABLE "public"."VacationActivity" (
-    "id" SERIAL,
-    "vacationId" integer  NOT NULL ,
-    -- "activityBookingId" integer  NOT NULL ,
-    "datetime" timestamp(3)  NULL ,
-    "activityDescriptionId" integer NOT NULL,
-    PRIMARY KEY ("id"),
-    FOREIGN KEY ("vacationId") REFERENCES "public"."Vacation"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY ("activityDescriptionId") REFERENCES "public"."AcitivityDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
+-- CREATE TABLE "public"."VacationActivity" (
+--     "id" SERIAL,
+--     "vacationId" integer  NOT NULL ,
+--     -- "activityBookingId" integer  NOT NULL ,
+--     "datetime" timestamp(3)  NULL ,
+--     "activityDescriptionId" integer NOT NULL,
+--     PRIMARY KEY ("id"),
+--     -- FOREIGN KEY ("vacationId") REFERENCES "public"."Vacation"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+--     FOREIGN KEY ("activityDescriptionId") REFERENCES "public"."AcitivityDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE
+-- );
+
 
 CREATE UNIQUE INDEX "Tag.label_colorId" ON "public"."Tag"("label","colorId");
 
@@ -199,6 +199,18 @@ CREATE TABLE "public"."Order" (
 );
 
 
+CREATE TABLE "public"."OrderActivity" (
+    "id" SERIAL,
+    "order_id" integer  NOT NULL ,
+    "datetime" timestamp(3)  NULL ,
+    "activityDescriptionId" integer NOT NULL,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("activityDescriptionId") REFERENCES "public"."AcitivityDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("order_id") REFERENCES "public"."Order"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+
 
 INSERT INTO "public"."Color" ("name") VALUES ('blue');
 INSERT INTO "public"."Color" ("name") VALUES ('red');
@@ -229,7 +241,7 @@ INSERT INTO "public"."AcitivityDescription" ("name", "description") VALUES ('Vis
 INSERT INTO "public"."VacationDescription" ("name", "description", "locationId") VALUES ('TenerifeOld', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
 INSERT INTO "public"."VacationDescription" ("id", "name", "description", "locationId") VALUES (68861,'Tenerife', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
 
-INSERT INTO "public"."Vacation" ("userId", "startDate", "endDate", "vacationDescriptionId") VALUES (1, '2023-07-09T08:53:23.808Z', '2023-07-16T08:53:23.809Z', 1);
+-- INSERT INTO "public"."Vacation" ("userId", "startDate", "endDate", "vacationDescriptionId") VALUES (1, '2023-07-09T08:53:23.808Z', '2023-07-16T08:53:23.809Z', 1);
 
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (1, 1);
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (2, 2);
@@ -238,11 +250,15 @@ INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (4
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (4, 5);
 
 
-INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId", "datetime") VALUES (1, 1, '2023-07-09T08:53:23.808Z');
-INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId") VALUES (1, 2);
-INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId") VALUES (1, 3);
-INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId", "datetime") VALUES (1, 4, '2023-07-09T08:53:23.808Z');
+-- INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId", "datetime") VALUES (1, 1, '2023-07-09T08:53:23.808Z');
+-- INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId") VALUES (1, 2);
+-- INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId") VALUES (1, 3);
+-- INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId", "datetime") VALUES (1, 4, '2023-07-09T08:53:23.808Z');
 
+-- INSERT INTO "public"."OrderActivity" ("order_id", "activityDescriptionId", "datetime") VALUES (1, 1, '2023-07-09T08:53:23.808Z');
+-- INSERT INTO "public"."OrderActivity" ("order_id", "activityDescriptionId") VALUES (1, 2);
+-- INSERT INTO "public"."OrderActivity" ("order_id", "activityDescriptionId") VALUES (1, 3);
+-- INSERT INTO "public"."OrderActivity" ("order_id", "activityDescriptionId", "datetime") VALUES (1, 4, '2023-07-09T08:53:23.808Z');
 
 -- insert into default -> tenerife has default 2 crossfit sessions
 INSERT INTO "public"."DefaultVacationActivity" ("vacationDescriptionId", "activityDescriptionId") VALUES (1, 1);

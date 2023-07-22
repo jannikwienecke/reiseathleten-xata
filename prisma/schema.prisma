@@ -17,7 +17,7 @@ model AcitivityDescription {
   fixed_day               Int?
   AcitivityTag            AcitivityTag[]
   DefaultVacationActivity DefaultVacationActivity[]
-  VacationActivity        VacationActivity[]
+  OrderActivity           OrderActivity[]
 }
 
 model AcitivityTag {
@@ -57,27 +57,6 @@ model User {
   password String
   Customer Customer[]
   Order    Order[]
-  Vacation Vacation[]
-}
-
-model Vacation {
-  id                    Int                 @id @default(autoincrement())
-  userId                Int
-  startDate             DateTime            @default(now())
-  endDate               DateTime            @default(now())
-  vacationDescriptionId Int
-  User                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  VacationDescription   VacationDescription @relation(fields: [vacationDescriptionId], references: [id], onDelete: Cascade)
-  VacationActivity      VacationActivity[]
-}
-
-model VacationActivity {
-  id                    Int                  @id @default(autoincrement())
-  vacationId            Int
-  datetime              DateTime?
-  activityDescriptionId Int
-  AcitivityDescription  AcitivityDescription @relation(fields: [activityDescriptionId], references: [id], onDelete: Cascade)
-  Vacation              Vacation             @relation(fields: [vacationId], references: [id], onDelete: Cascade)
 }
 
 model VacationDescription {
@@ -88,7 +67,6 @@ model VacationDescription {
   locationId              Int?
   DefaultVacationActivity DefaultVacationActivity[]
   Order                   Order[]
-  Vacation                Vacation[]
   Location                Location?                 @relation(fields: [locationId], references: [id], onDelete: NoAction)
   VacationServices        VacationServices[]
 }
@@ -146,6 +124,7 @@ model Order {
   user_id              Int
   User                 User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
   Vacation             VacationDescription @relation(fields: [vacation_id], references: [id], onDelete: NoAction)
+  OrderActivity        OrderActivity[]
 }
 
 model Service {
@@ -161,4 +140,13 @@ model VacationServices {
   service_id  Int
   Service     Service             @relation(fields: [service_id], references: [id], onDelete: Cascade)
   Vacation    VacationDescription @relation(fields: [vacation_id], references: [id], onDelete: Cascade)
+}
+
+model OrderActivity {
+  id                    Int                  @id @default(autoincrement())
+  order_id              Int
+  datetime              DateTime?
+  activityDescriptionId Int
+  AcitivityDescription  AcitivityDescription @relation(fields: [activityDescriptionId], references: [id], onDelete: Cascade)
+  Order                 Order                @relation(fields: [order_id], references: [id], onDelete: Cascade)
 }

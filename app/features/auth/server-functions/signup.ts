@@ -1,7 +1,7 @@
 import invariant from "tiny-invariant";
-import { createAction } from "~/utils/stuff.server";
-import bcrypt from "bcryptjs";
 import { authenticator } from "~/utils/auth.server";
+import { createAction } from "~/utils/stuff.server";
+import { UserEntity } from "../domain/User";
 
 export const signupAction = createAction(async ({ request, repository }) => {
   const form = await request.formData();
@@ -11,13 +11,10 @@ export const signupAction = createAction(async ({ request, repository }) => {
   invariant(email, "email is required");
   invariant(password, "password is required");
 
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
   try {
     await repository.user.signup({
       email,
-      password: hashedPassword,
+      password: await UserEntity.generatePasswordHash(password),
     });
   } catch (error) {
     const notUnique = "unique constraint failed on the fields";
