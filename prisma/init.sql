@@ -239,7 +239,7 @@ INSERT INTO "public"."AcitivityDescription" ("name", "description", "fixed_hour"
 INSERT INTO "public"."AcitivityDescription" ("name", "description") VALUES ('Visit the Cathedral', 'Visit the Cathedral with a guide');
 
 INSERT INTO "public"."VacationDescription" ("name", "description", "locationId") VALUES ('TenerifeOld', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
-INSERT INTO "public"."VacationDescription" ("id", "name", "description", "locationId") VALUES (68861,'Tenerife', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
+INSERT INTO "public"."VacationDescription" ("id", "name", "description", "locationId") VALUES (24875,'CrossFit 27 Basispaket an der Costa Adeje - Fitnessurlaub auf Teneriffa (Spanien)', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
 
 -- INSERT INTO "public"."Vacation" ("userId", "startDate", "endDate", "vacationDescriptionId") VALUES (1, '2023-07-09T08:53:23.808Z', '2023-07-16T08:53:23.809Z', 1);
 
@@ -249,19 +249,12 @@ INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (3
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (4, 4);
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (4, 5);
 
-
--- INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId", "datetime") VALUES (1, 1, '2023-07-09T08:53:23.808Z');
--- INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId") VALUES (1, 2);
--- INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId") VALUES (1, 3);
--- INSERT INTO "public"."VacationActivity" ("vacationId", "activityDescriptionId", "datetime") VALUES (1, 4, '2023-07-09T08:53:23.808Z');
-
--- INSERT INTO "public"."OrderActivity" ("order_id", "activityDescriptionId", "datetime") VALUES (1, 1, '2023-07-09T08:53:23.808Z');
--- INSERT INTO "public"."OrderActivity" ("order_id", "activityDescriptionId") VALUES (1, 2);
--- INSERT INTO "public"."OrderActivity" ("order_id", "activityDescriptionId") VALUES (1, 3);
--- INSERT INTO "public"."OrderActivity" ("order_id", "activityDescriptionId", "datetime") VALUES (1, 4, '2023-07-09T08:53:23.808Z');
-
 -- insert into default -> tenerife has default 2 crossfit sessions
 INSERT INTO "public"."DefaultVacationActivity" ("vacationDescriptionId", "activityDescriptionId") VALUES (1, 1);
+-- id 24875 === CrossFit 27 Basispaket an der Costa Adeje
+INSERT INTO "public"."DefaultVacationActivity" ("vacationDescriptionId", "activityDescriptionId") VALUES (24875, 1);
+INSERT INTO "public"."DefaultVacationActivity" ("vacationDescriptionId", "activityDescriptionId") VALUES (24875, 2);
+INSERT INTO "public"."DefaultVacationActivity" ("vacationDescriptionId", "activityDescriptionId") VALUES (24875, 3);
 
 INSERT INTO "public"."Customer" ("first_name", "last_name", "company", "address_1", "address_2", "email", "city", "state", "postcode", "country", "phone", "title", "title_formatted", "shipping_address", "user_id", "birth_date") VALUES ('Max', 'Mustermann', '', 'Musterstraße 1', '', '', 'Musterstadt', 'Musterland', '12345', 'Musterland', '0123456789', 'Mr', 'Mr', '{}', 2, '1990-01-01');
 
@@ -269,11 +262,7 @@ INSERT INTO "public"."Service" ("name", "description") VALUES ('Crossfit Session
 INSERT INTO "public"."Service" ("name", "description") VALUES ('Personal Training', 'Personal Training with a trainer');
 INSERT INTO "public"."Service" ("name", "description") VALUES ('Sightseeing', 'Sightseeing in the city');
 
-INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (1, 1);
-INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (1, 2);
-INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (1, 3);
+INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 1);
+INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 2);
+INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 3);
 
--- 68861 vacation id
-INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (68861, 1);
-INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (68861, 2);
-INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (68861, 3);
