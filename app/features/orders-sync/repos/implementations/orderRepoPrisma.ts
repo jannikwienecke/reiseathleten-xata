@@ -29,7 +29,7 @@ export class OrderRepoPrisma implements OrderRepository {
     if (isNewOrder) {
       await this.vacationRepo.save(order.props.vacation);
 
-      await this.client.order.create({
+      const newCreatedOrder = await this.client.order.create({
         data: {
           ...rawOrder,
           Vacation: {
@@ -43,6 +43,26 @@ export class OrderRepoPrisma implements OrderRepository {
             },
           },
         },
+      });
+
+      // we need to create the default activities for this newly created order
+      // first get all the default activities for this vacation
+      // and then create them for this order
+      const defaultActivityIds =
+        await this.client.defaultVacationActivity.findMany({
+          where: {
+            vacationDescriptionId: vacation_id,
+          },
+          select: {
+            activityDescriptionId: true,
+          },
+        });
+
+      await this.client.orderActivity.createMany({
+        data: defaultActivityIds.map((a) => ({
+          activityDescriptionId: a.activityDescriptionId,
+          order_id: newCreatedOrder.id,
+        })),
       });
     } else {
       await this.vacationRepo.save(order.props.vacation);
