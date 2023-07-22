@@ -14,6 +14,7 @@ export type GetOptionsFunction = (query: string) => Promise<
 
 export type ModelConfig<T extends Dict = { id: number }> = {
   title: string;
+  description?: string;
   loader: (args: LoaderFunctionArgs) => Promise<T[]>;
   onDelete?: (args: ActionFunctionArgs) => Promise<unknown>;
   onBulkDelete?: (args: ActionFunctionArgs) => Promise<unknown>;

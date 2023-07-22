@@ -4,11 +4,7 @@ import { prisma } from "~/db.server";
 
 import { RocketLaunchIcon } from "@heroicons/react/20/solid";
 import type { ModelConfig } from "~/utils/lib/types";
-import {
-  PARENT_BASE_KEY,
-  VACATION_BOOKING_APP_key,
-  getWeekDayString,
-} from "../utils/helpers";
+import { VACATION_BOOKING_APP_key, getWeekDayString } from "../utils/helpers";
 import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
 
 export type ActivityInterface = AcitivityDescription & {

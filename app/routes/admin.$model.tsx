@@ -89,7 +89,7 @@ const TableView = (props: ReturnType<typeof useAdminPage>) => {
       onDetailView={props.handleClickDetailView}
       dataList={props.optimisicData}
       title={props.pageTitle || ""}
-      subtitle="Manage locations for your events"
+      subtitle={props.pageSubtitle || ""}
     />
   );
 };

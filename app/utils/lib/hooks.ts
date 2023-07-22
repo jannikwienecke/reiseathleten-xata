@@ -44,6 +44,7 @@ export const useModel = (options?: { model?: string }) => {
   };
 
   const pageTitle = modelConfig?.title;
+  const pageSubtitle = modelConfig?.description;
   const supportsBulkDelete = modelConfig?.onBulkDelete !== undefined;
   const supportsDetailView = modelConfig?.view.detail !== undefined;
   const supportsAdd = modelConfig?.onAdd !== undefined;
@@ -53,6 +54,7 @@ export const useModel = (options?: { model?: string }) => {
   return {
     getColumns,
     pageTitle,
+    pageSubtitle,
     addForm: modelConfig?.view.AddForm,
     supportsBulkDelete,
     supportsDetailView,

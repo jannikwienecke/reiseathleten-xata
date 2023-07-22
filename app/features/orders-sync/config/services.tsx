@@ -12,6 +12,8 @@ export type ServiceInterface = Service & {};
 
 export const ServiceConfig: ModelConfig<ServiceInterface> = {
   title: "Vacation Services",
+  description:
+    "Services that are included in the vacation package (e.g. food, transport etc.)",
   parent: PARENT_BASE_KEY,
   loader: async () => {
     const services = await prisma.service.findMany({});
@@ -21,16 +23,16 @@ export const ServiceConfig: ModelConfig<ServiceInterface> = {
     }));
   },
 
-  onDelete: async ({ formData }: ActionFunctionArgs) => {
-    const id = +(getFormDataValue(formData, "id") || "");
+  // onDelete: async ({ formData }: ActionFunctionArgs) => {
+  //   const id = +(getFormDataValue(formData, "id") || "");
 
-    const orders = await prisma.order.findMany({});
-    // const ordersx = orders[0]?.
-  },
+  //   const orders = await prisma.order.findMany({});
+  //   // const ordersx = orders[0]?.
+  // },
 
-  onAdd: async ({ formData }: ActionFunctionArgs) => {
-    //
-  },
+  // onAdd: async ({ formData }: ActionFunctionArgs) => {
+  //   //
+  // },
 
   onEdit: async ({ formData, request }: ActionFunctionArgs) => {
     const url = new URL(request.url);
