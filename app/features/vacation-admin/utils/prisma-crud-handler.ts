@@ -26,7 +26,7 @@ export class PrismaCrudHandler {
     const id = +(getFormDataValue(formData, "id") || "");
     invariant(id, "id is required");
 
-    await this.prisma[this.model]?.delete?.({
+    await (this.prisma[this.model as any] as any)?.delete?.({
       where: {
         id,
       },
@@ -44,7 +44,7 @@ export class PrismaCrudHandler {
   ) {
     const data = this._getFieldValues(props);
 
-    await this.prisma[this.model]?.create({
+    await (this.prisma[this.model as any] as any)?.create({
       data,
     });
   }
@@ -61,7 +61,7 @@ export class PrismaCrudHandler {
     const url = new URL(props.request.url);
     const id = +(url.searchParams.get("id") || "");
 
-    await this.prisma[this.model]?.update({
+    await (this.prisma[this.model as any] as any)?.update({
       where: {
         id,
       },
@@ -74,7 +74,7 @@ export class PrismaCrudHandler {
       getFormDataValue(formData, "ids") || "[]"
     ) as string[];
 
-    await this.prisma[this.model]?.deleteMany({
+    await (this.prisma[this.model as any] as any)?.deleteMany({
       where: {
         id: {
           in: idsToDelete.map((id) => +id),
