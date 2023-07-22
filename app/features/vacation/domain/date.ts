@@ -17,4 +17,15 @@ export class DateValueObject extends ValueObject<DateValueObjectProps> {
   static create(props: DateValueObjectProps) {
     return new DateValueObject(props);
   }
+
+  get daysAgo() {
+    const now = new Date();
+    const date = this.value;
+
+    const diffTime = Math.abs(
+      now.getTime() - (date?.getTime?.() ?? now.getTime())
+    );
+
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  }
 }

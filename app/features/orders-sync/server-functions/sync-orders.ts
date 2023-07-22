@@ -11,6 +11,7 @@ import { VacationBooking } from "../domain/vacation";
 import { OrderMapper } from "../mapper/orderMap";
 import { string } from "zod";
 import { Repository, UseCases } from "~/utils/stuff.server";
+import { ActivityEventList } from "../domain/activity-event-list";
 
 const KEYS_META = {
   birthDate: "geburtsdatum",
@@ -259,15 +260,26 @@ export const syncOrdersUsecase = async ({
 
     const vacation = await _getVacationInfo(order);
 
+    const dateCreated = DateValueObject.create({ value: order.date_created });
+
+    const activityEvents = ActivityEventList.createCreatedEvent({
+      user: {
+        name: user.props.email,
+        imageUri: "",
+      },
+      date: dateCreated,
+    });
+
     const newOrder = OrderEntity.create(
       {
+        activityEvents,
         vacation,
         additionalServices: ServiceList.create(additionalServices),
         user,
         dateImported: DateValueObject.create({
           value: new Date().toISOString(),
         }),
-        dateCreated: DateValueObject.create({ value: order.date_created }),
+        dateCreated,
         dateModified: DateValueObject.create({ value: order.date_modified }),
         orderMeta,
         id: lineItems[0].id,
@@ -295,7 +307,7 @@ export const syncOrdersUsecase = async ({
 
     if (exists) {
       console.log("order already exists");
-      // return;
+      return;
     }
 
     const user = await _handleUserAndCustomerCreation(order);

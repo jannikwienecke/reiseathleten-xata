@@ -52,11 +52,12 @@ model Tag {
 }
 
 model User {
-  id       Int        @id @default(autoincrement())
-  email    String     @unique
-  password String
-  Customer Customer[]
-  Order    Order[]
+  id                  Int                   @id @default(autoincrement())
+  email               String                @unique
+  password            String
+  Customer            Customer[]
+  Order               Order[]
+  OrderActivityEvents OrderActivityEvents[]
 }
 
 model VacationDescription {
@@ -101,30 +102,31 @@ model Customer {
 }
 
 model Order {
-  id                   Int                 @id
+  id                   Int                   @id
   order_key            String
-  date_created         DateTime            @default(now()) @db.Date
-  date_modified        DateTime            @default(now()) @db.Date
-  date_imported        DateTime            @default(now()) @db.Date
-  price                Decimal             @db.Decimal
+  date_created         DateTime              @default(now()) @db.Date
+  date_modified        DateTime              @default(now()) @db.Date
+  date_imported        DateTime              @default(now()) @db.Date
+  price                Decimal               @db.Decimal
   vacation_id          Int
-  start_date           DateTime            @db.Date
-  end_date             DateTime            @db.Date
+  start_date           DateTime              @db.Date
+  end_date             DateTime              @db.Date
   duration             Int
   persons              Int
   room_description     String
   payment_method       String
   payment_method_title String
-  add_to_community     String              @default("")
+  add_to_community     String                @default("")
   knowledge_from       String
   crossfit_box         String?
-  status               String              @default("pending")
-  additional_services  String              @default("")
+  status               String                @default("pending")
+  additional_services  String                @default("")
   order_id             Int
   user_id              Int
-  User                 User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  Vacation             VacationDescription @relation(fields: [vacation_id], references: [id], onDelete: NoAction)
+  User                 User                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  Vacation             VacationDescription   @relation(fields: [vacation_id], references: [id], onDelete: NoAction)
   OrderActivity        OrderActivity[]
+  OrderActivityEvents  OrderActivityEvents[]
 }
 
 model Service {
@@ -149,4 +151,16 @@ model OrderActivity {
   activityDescriptionId Int
   AcitivityDescription  AcitivityDescription @relation(fields: [activityDescriptionId], references: [id], onDelete: Cascade)
   Order                 Order                @relation(fields: [order_id], references: [id], onDelete: Cascade)
+}
+
+model OrderActivityEvents {
+  id       Int      @id @default(autoincrement())
+  content  String   @default("")
+  mood     String   @default("")
+  date     DateTime @default(now()) @db.Date
+  type     String   @default("")
+  order_id Int
+  user_id  Int
+  Order    Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  User     User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

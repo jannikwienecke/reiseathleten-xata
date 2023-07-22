@@ -60,7 +60,7 @@ export const OrderVacationConfig: ModelConfig<OrdersViewInterface> = {
 
   onBulkDelete: async (props) => prismaCrudHandler.bulkDelete(props),
 
-  redirect: "/admin/Tag",
+  redirect: "/admin/Order",
   view: {
     navigation: {
       icon: BookOpenIcon,

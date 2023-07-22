@@ -7,6 +7,8 @@ import { OrderStatusValueObject } from "../domain/order-status";
 import { ServiceValueObject } from "../domain/service";
 import { ServiceList } from "../domain/service-list";
 import { VacationBooking } from "../domain/vacation";
+import { ActivityEvent } from "../domain/activity-event";
+import { ActivityEventList } from "../domain/activity-event-list";
 
 export class OrderMapper {
   static toPersistence(order: OrderEntity): Order {
@@ -108,6 +110,15 @@ export class OrderMapper {
 
       // orderKey
       orderKey: order.props.orderKeyId,
+
+      // activityEvents
+      activityEvents: order.props.activityEvents.list.map((event) => ({
+        type: event.props.type,
+        user: event.props.user,
+        date: event.props.date.value?.toISOString() ?? "",
+        content: event.props.content ?? "",
+        mood: event.props.mood ?? null,
+      })),
     } as const;
   }
 
@@ -140,6 +151,18 @@ export class OrderMapper {
       password: "",
     });
 
+    const activityEvents = order.activityEvents.map((event) =>
+      ActivityEvent.create({
+        type: event.type,
+        user: event.user,
+        date: DateValueObject.create({
+          value: event.date,
+        }),
+        content: event.content,
+        mood: event.mood,
+      })
+    );
+
     return OrderEntity.create({
       ...order,
       id: order.id,
@@ -161,6 +184,74 @@ export class OrderMapper {
       orderMeta,
       user,
       orderId: order.id,
+      activityEvents: ActivityEventList.create(activityEvents),
+    });
+  }
+
+  static toDomain(order: Order): OrderEntity {
+    const additionalServices = JSON.parse(order.additional_services).map(
+      (service: ServiceValueObject["props"]) => {
+        return ServiceValueObject.create(service);
+      }
+    );
+
+    const status = OrderStatusValueObject.create({
+      value: order.status as OrderStatusValueObject["props"]["value"],
+    });
+
+    const orderMeta = OrderMetaValueObject.create({
+      crossfitBox: order.crossfit_box ?? "",
+      knowledgeFrom: order.knowledge_from,
+      addToCommunity: order.add_to_community,
+    });
+
+    const vacation = VacationBooking.create({
+      id: order.vacation_id,
+      startDate: DateValueObject.create({
+        value: order.start_date.toISOString(),
+      }),
+      endDate: DateValueObject.create({
+        value: order.end_date.toISOString(),
+      }),
+      duration: order.duration,
+      roomDescription: order.room_description,
+      price: order.price.toNumber(),
+      numberPersons: order.persons,
+      imageUrl: "",
+      name: "",
+      description: "",
+      // fix me
+      services: ServiceList.create([]),
+    });
+
+    const user = UserEntity.create({
+      id: order.user_id,
+      email: "",
+      password: "",
+    });
+
+    return OrderEntity.create({
+      ...order,
+      id: order.id,
+      orderKeyId: order.order_key,
+      paymentMethod: order.payment_method,
+      paymentMethod_title: order.payment_method_title,
+      dateCreated: DateValueObject.create({
+        value: order.date_created.toISOString(),
+      }),
+      dateModified: DateValueObject.create({
+        value: order.date_modified.toISOString(),
+      }),
+      dateImported: DateValueObject.create({
+        value: order.date_imported.toISOString(),
+      }),
+      vacation,
+      additionalServices: ServiceList.create(additionalServices),
+      status,
+      orderMeta,
+      user,
+      orderId: order.id,
+      activityEvents: ActivityEventList.create([]),
     });
   }
 }

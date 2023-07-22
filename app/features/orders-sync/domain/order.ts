@@ -5,7 +5,9 @@ import { type OrderMetaValueObject } from "./order-meta";
 import { type OrderStatusValueObject } from "./order-status";
 import { type ServiceList } from "./service-list";
 import { type VacationBooking } from "./vacation";
-import { ServiceValueObject } from "./service";
+import type { ServiceValueObject } from "./service";
+import type { ActivityEventList } from "./activity-event-list";
+import { ActivityEvent } from "./activity-event";
 
 export interface OrderProps {
   id: number;
@@ -21,6 +23,7 @@ export interface OrderProps {
   vacation: VacationBooking;
   status: OrderStatusValueObject;
   orderId: number;
+  activityEvents: ActivityEventList;
 }
 
 export class OrderEntity extends Entity<OrderProps> {
@@ -42,5 +45,9 @@ export class OrderEntity extends Entity<OrderProps> {
 
   get additionalServices(): ServiceValueObject[] {
     return this.props.additionalServices.list;
+  }
+
+  addActivityEvent(event: ActivityEvent) {
+    this.props.activityEvents.addEvent(event);
   }
 }

@@ -3,11 +3,13 @@ import { type OrderEntity } from "../../domain/order";
 import { OrderMapper } from "../../mapper/orderMap";
 import { type OrderRepository } from "../orderRepo";
 import { type VacationBookingRepo } from "../vacationRepo";
+import { type OrderActivityEventRepo } from "../orderActivityEventRepo";
 
 export class OrderRepoPrisma implements OrderRepository {
   constructor(
     private client: PrismaClient,
-    private vacationRepo: VacationBookingRepo // private serviceRepo: ServiceRepoPrisma
+    private vacationRepo: VacationBookingRepo, // private serviceRepo: ServiceRepoPrisma,
+    private orderActivityEventRepo: OrderActivityEventRepo
   ) {}
   async getLatest(): Promise<Order | null> {
     // get the latest order from the database
@@ -45,6 +47,12 @@ export class OrderRepoPrisma implements OrderRepository {
         },
       });
 
+      await this.orderActivityEventRepo.save({
+        activityEventList: order.props.activityEvents,
+        orderId: newCreatedOrder.id,
+        userId: user_id,
+      });
+
       // we need to create the default activities for this newly created order
       // first get all the default activities for this vacation
       // and then create them for this order
@@ -66,7 +74,13 @@ export class OrderRepoPrisma implements OrderRepository {
       });
     } else {
       await this.vacationRepo.save(order.props.vacation);
-      this.client.order.update({
+      await this.orderActivityEventRepo.save({
+        activityEventList: order.props.activityEvents,
+        orderId: order.props.id,
+        userId: user_id,
+      });
+
+      await this.client.order.update({
         where: {
           id: order.props.id,
         },
@@ -76,11 +90,7 @@ export class OrderRepoPrisma implements OrderRepository {
   }
 
   async exists(orderId: number): Promise<boolean> {
-    const order = await this.client.order.findFirst({
-      where: {
-        id: orderId,
-      },
-    });
+    const order = await this.getById(orderId);
 
     return !!order;
   }
@@ -93,5 +103,17 @@ export class OrderRepoPrisma implements OrderRepository {
     });
 
     return !!order;
+  }
+
+  async getById(orderId: number): Promise<OrderEntity | null> {
+    const order = await this.client.order.findFirst({
+      where: {
+        id: orderId,
+      },
+    });
+
+    if (!order) return null;
+
+    return OrderMapper.toDomain(order);
   }
 }

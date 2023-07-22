@@ -13,11 +13,7 @@ import { OrdersRepoWooCommerce } from "~/features/orders-sync/repos/implementati
 import { createWooCommerceClient } from "~/features/orders-sync/api/helper";
 import { OrdersRepoMockServer } from "~/features/orders-sync/repos/implementations/ordersRepoMockServer";
 import type { OrdersRepository } from "~/features/orders-sync/repos/ordersRepo";
-import type {
-  ActionFunctionArgs,
-  DataFunctionArgs,
-  PageHandler,
-} from "./lib/types";
+import type { DataFunctionArgs } from "./lib/types";
 import { SyncOrdersUseCase } from "~/features/orders-sync/use-cases/sync-orders";
 import type { RawOrder } from "~/features/orders-sync/api/types";
 import { CustomerRepoPrisma } from "~/features/orders-sync/repos/implementations/customerRepoPrisma";
@@ -32,6 +28,8 @@ import type { VacationServicesRepo } from "~/features/orders-sync/repos/vacation
 import { VacationBookingRepoMockServer } from "~/features/orders-sync/repos/implementations/vacationBookingRepoMockServer";
 import { VacationServicesRepoMockServer } from "~/features/orders-sync/repos/implementations/vacationServicesRepoMockServer";
 import { OrderRepoMockServer } from "~/features/orders-sync/repos/implementations/orderRepoMockServer";
+import { OrderActivityEventRepoPrisma } from "~/features/orders-sync/repos/implementations/orderActivityEventRepoPrisma";
+import { type OrderActivityEventRepo } from "~/features/orders-sync/repos/orderActivityEventRepo";
 
 export interface Repository {
   vacation: VacationRepo;
@@ -42,6 +40,7 @@ export interface Repository {
   order: OrderRepository;
   vacationBooking: VacationBookingRepo;
   vacationServices: VacationServicesRepo;
+  orderActivityEventRepo: OrderActivityEventRepo;
 }
 
 interface UseCase<T> {
@@ -96,13 +95,17 @@ const vacationBookingRepo = IS_PRODUCTION
   ? new VacationBookingRepoPrisma(prisma)
   : new VacationBookingRepoMockServer();
 
-const orderRepo = IS_PRODUCTION
-  ? new OrderRepoPrisma(prisma, vacationBookingRepo)
-  : new OrderRepoMockServer();
-
 const vacationServicesRepo = IS_PRODUCTION
   ? new VacationServicesRepoPrisma(prisma)
   : new VacationServicesRepoMockServer();
+
+const orderActivityEventRepo = IS_PRODUCTION
+  ? new OrderActivityEventRepoPrisma(prisma)
+  : new OrderActivityEventRepoPrisma(prisma);
+
+const orderRepo = IS_PRODUCTION
+  ? new OrderRepoPrisma(prisma, vacationBookingRepo, orderActivityEventRepo)
+  : new OrderRepoMockServer();
 
 export const { createLoader, createAction } = initDataFunctions({
   repository: {
@@ -111,9 +114,11 @@ export const { createLoader, createAction } = initDataFunctions({
     user: userRepo,
     orders: ordersRepo,
     customer: customerRepo,
+    // FIXME
     order: orderRepo,
     vacationBooking: vacationBookingRepo,
     vacationServices: vacationServicesRepo,
+    orderActivityEventRepo,
   },
   useCases: {
     syncOrders: new SyncOrdersUseCase(ordersRepo, orderRepo),

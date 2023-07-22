@@ -14,6 +14,7 @@ DROP TABLE "public"."Customer" CASCADE;
 DROP TABLE "public"."Service" CASCADE;
 DROP TABLE "public"."VacationServices" CASCADE;
 DROP TABLE "public"."Order" CASCADE;
+DROP TABLE "public"."OrderActivityEvents" CASCADE;
 
 CREATE TABLE "public"."Color" (
     "id" SERIAL,
@@ -196,6 +197,19 @@ CREATE TABLE "public"."Order" (
     PRIMARY KEY ("id"),
     FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY ("vacation_id") REFERENCES "public"."VacationDescription"("id") ON UPDATE CASCADE
+);
+
+CREATE TABLE "public"."OrderActivityEvents" (
+    "id" SERIAL,
+    "content" text  NOT NULL DEFAULT '',
+    "mood" text  NOT NULL DEFAULT '',
+    "date" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "type" text  NOT NULL DEFAULT '',
+    "order_id" integer  NOT NULL ,
+    "user_id" integer  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("order_id") REFERENCES "public"."Order"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
