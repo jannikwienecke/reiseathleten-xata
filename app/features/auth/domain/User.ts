@@ -1,5 +1,6 @@
 import { Entity } from "~/shared/domain/entity";
 import bcrypt from "bcryptjs";
+import invariant from "tiny-invariant";
 
 interface UserProps {
   email: string;
@@ -26,6 +27,8 @@ export class UserEntity extends Entity<UserProps> {
   }
 
   static async generateDefaultPassword() {
-    return UserEntity.generatePasswordHash("!reiseathleten#fitness");
+    const password = process.env.DEFAULT_USER_PASSWORD;
+    invariant(password, "DEFAULT_USER_PASSWORD is not set");
+    return UserEntity.generatePasswordHash(password);
   }
 }
