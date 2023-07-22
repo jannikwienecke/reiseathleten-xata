@@ -41,7 +41,7 @@ export const OrderActivityBookingConfig: ModelConfig<OrderActivityBookingInterfa
       return activityBookings.map((a) => ({
         ...a,
         vacationName: a?.Order.Vacation?.name || "",
-        activityName: a.Order.Vacation?.name || "",
+        activityName: a.AcitivityDescription?.name || "",
         email: a?.Order?.User?.email || "",
         activity: "",
       }));

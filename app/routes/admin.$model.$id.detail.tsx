@@ -2,7 +2,7 @@ import { type DataFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
 import React from "react";
 import invariant from "tiny-invariant";
-import { Form, Layout, Table } from "~/components";
+import { Form, Table } from "~/components";
 import { prisma } from "~/db.server";
 import { getDateString } from "~/utils/helper";
 import { getFormDataValue } from "~/utils/lib/core";
@@ -21,18 +21,19 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
 
   invariant(id, "id is required");
 
-  const v = await prisma.vacation.findUnique({
+  const v = await prisma.order.findUnique({
     where: {
       id: +id,
     },
     include: {
       User: true,
-      VacationDescription: {
+      Vacation: {
         include: {
           Location: true,
         },
       },
-      VacationActivity: {
+
+      OrderActivity: {
         include: {
           AcitivityDescription: true,
         },
@@ -43,11 +44,11 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   return {
     ...v,
     email: v?.User?.email || "",
-    location: v?.VacationDescription.Location?.name || "",
-    name: v?.VacationDescription.name || "",
-    description: v?.VacationDescription.description || "",
+    location: v?.Vacation?.Location?.name || "",
+    name: v?.Vacation.name || "",
+    description: v?.Vacation.description || "",
     activities:
-      v?.VacationActivity.map((ab) => ({
+      v?.OrderActivity.map((ab) => ({
         ...ab,
         description: ab.AcitivityDescription?.description || "",
         name: ab.AcitivityDescription?.name || "",
@@ -64,14 +65,14 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
   const formData = await request.formData();
   const datetime = getFormDataValue(formData, "datetime");
   const action = getFormDataValue(formData, "action");
-  const activity = getFormDataValue(formData, "activityDescription");
+  const activity = getFormDataValue(formData, "activity");
 
   const handleUpdate = async () => {
     invariant(datetime, "datetime is required");
     invariant(id, "id is required");
     invariant(activityId, "activityId is required");
 
-    await prisma.vacationActivity.update({
+    await prisma.orderActivity.update({
       where: {
         id: +activityId,
       },
@@ -85,7 +86,7 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
     const activityId = formData.get("activityId");
     invariant(activityId, "activityId is required");
 
-    await prisma.vacationActivity.delete({
+    await prisma.orderActivity.delete({
       where: {
         id: +activityId,
       },
@@ -96,15 +97,15 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
     invariant(id, "id is required");
     invariant(activity, "activity is required");
 
-    await prisma.vacationActivity.create({
+    await prisma.orderActivity.create({
       data: {
-        datetime: datetime || undefined,
+        datetime: datetime ? new Date(datetime) : undefined,
         AcitivityDescription: {
           connect: {
             id: +activity,
           },
         },
-        Vacation: {
+        Order: {
           connect: {
             id: +id,
           },
@@ -176,39 +177,31 @@ export default function AdminModelPage() {
           <h3 className="text-lg text-center leading-9 text-gray-700 font-extrabold tracking-tight sm:text-2xl sm:leading-10">
             {data.description.slice(0, 100)}
           </h3>
-
-          {/* <div className="flex flex-row justify-center space-x-4">
-              <button className="bg-black hover:bg-indigo-300 text-white font-bold py-2 px-4 rounded">
-                Edit
-              </button>
-
-              <button className="bg-red-400 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                Delete
-              </button>
-            </div> */}
         </div>
 
         <div className="flex flex-row space-x-4">
           <div className="border-[1px] border-gray-200 rounded-xl shadow-sm p-4 space-y-2">
             <h3 className="text-gray-500 text-lg">Start</h3>
             <h2 className="text-2xl leading-9 text-black font-extrabold tracking-tight sm:text-4xl sm:leading-10">
-              {data.startDate?.slice(0, 10)}
+              {data.start_date?.slice(0, 10)}
             </h2>
           </div>
 
           <div className="border-[1px] border-gray-200 rounded-xl shadow-sm p-4 space-y-2">
             <h3 className="text-gray-500 text-lg">End</h3>
             <h2 className="text-2xl leading-9 text-black font-extrabold tracking-tight sm:text-4xl sm:leading-10">
-              {data.endDate?.slice(0, 10)}
+              {data.end_date?.slice(0, 10)}
             </h2>
           </div>
 
-          <div className="border-[1px] border-gray-200 rounded-xl shadow-sm p-4 space-y-2">
-            <h3 className="text-gray-500 text-lg">Location Info</h3>
-            <h2 className="text-2xl leading-9 text-black font-extrabold tracking-tight sm:text-4xl sm:leading-10">
-              {data.location}
-            </h2>
-          </div>
+          {data.location ? (
+            <div className="border-[1px] border-gray-200 rounded-xl shadow-sm p-4 space-y-2">
+              <h3 className="text-gray-500 text-lg">Location Info</h3>
+              <h2 className="text-2xl leading-9 text-black font-extrabold tracking-tight sm:text-4xl sm:leading-10">
+                {data.location}
+              </h2>
+            </div>
+          ) : null}
 
           {/*  User */}
           <div className="border-[1px] border-gray-200 rounded-xl shadow-sm p-4 space-y-2">
@@ -275,7 +268,7 @@ export default function AdminModelPage() {
           />
 
           <Form.Select
-            name="activityDescription"
+            name="activity"
             onSelect={() => null}
             selectId={currentActivity?.activityDescriptionId}
             value={currentActivity?.name}

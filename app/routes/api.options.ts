@@ -1,5 +1,6 @@
 import { type DataFunctionArgs, json } from "@remix-run/node";
 import invariant from "tiny-invariant";
+import { CONFIG_ORDERS_PAGE } from "~/features/orders-sync/config";
 import { CONFIG } from "~/features/vacation-admin/config";
 import { isLoggedIn } from "~/utils/helper";
 
@@ -15,9 +16,10 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   invariant(typeof query === "string", "query is required");
   invariant(typeof name === "string", "name is required");
 
-  const field = CONFIG.models[model].view.AddForm.fields.find(
-    (field) => field.name === name?.toString()
-  );
+  const field = {
+    ...CONFIG.models,
+    ...CONFIG_ORDERS_PAGE.models,
+  }[model].view.AddForm.fields.find((field) => field.name === name?.toString());
 
   if (!field) {
     throw new Error(`Field ${name} not found`);

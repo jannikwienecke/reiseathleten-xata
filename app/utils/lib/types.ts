@@ -32,7 +32,7 @@ export type ModelConfig<T extends Dict = { id: number }> = {
       }[];
     };
     detail?: {
-      getUrl: (id: string | number) => string;
+      getUrl?: (id: string | number) => string;
     };
     navigation: {
       icon: React.ComponentType<any>;

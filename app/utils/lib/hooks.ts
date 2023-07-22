@@ -130,7 +130,7 @@ export const useAdminPage = (options?: { model?: string }) => {
   };
 
   const handleClickDetailView = (dataItem: any) => {
-    const url = model.view?.detail?.getUrl(dataItem.id);
+    const url = model.view?.detail?.getUrl?.(dataItem.id);
 
     navigate(url || `${dataItem.id}/detail`);
   };

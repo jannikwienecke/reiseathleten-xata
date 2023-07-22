@@ -265,4 +265,3 @@ INSERT INTO "public"."Service" ("name", "description") VALUES ('Sightseeing', 'S
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 1);
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 2);
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 3);
-
