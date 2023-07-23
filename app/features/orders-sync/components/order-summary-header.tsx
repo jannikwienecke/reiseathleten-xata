@@ -1,5 +1,8 @@
 import { Menu, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
+import {
+  CalendarDaysIcon,
+  EllipsisVerticalIcon,
+} from "@heroicons/react/20/solid";
 import { useNavigation } from "@remix-run/react";
 import { Fragment } from "react";
 import { useOrderStore } from "~/features/orders-sync/store/vacation-store";
@@ -56,8 +59,21 @@ export const OrderSummaryHeader = () => {
                 <div className="mt-1 text-base font-semibold leading-6 text-gray-900">
                   {order.props.vacation.props.name}
                 </div>
+
+                <div className="flex items-center gap-x-4 pt-2">
+                  <div className="flex items-center gap-x-1">
+                    <CalendarDaysIcon
+                      className="h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm leading-6 text-gray-500">
+                      {order.dispayStartDate} - {order.displayEndDate}
+                    </span>
+                  </div>
+                </div>
               </h1>
             </div>
+
             <div className="flex items-center gap-x-4 sm:gap-x-6">
               <button
                 onClick={handleClickCopyUrl}

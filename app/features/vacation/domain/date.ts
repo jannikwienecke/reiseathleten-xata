@@ -1,3 +1,7 @@
+import {
+  formatDateString,
+  formatDateTimeString,
+} from "~/features/vacation-admin/utils/helpers";
 import { ValueObject } from "~/shared/domain";
 
 interface DateValueObjectProps {
@@ -27,5 +31,15 @@ export class DateValueObject extends ValueObject<DateValueObjectProps> {
     );
 
     return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  get displayDate() {
+    if (!this.value) return "";
+    return formatDateString(this.value);
+  }
+
+  get displayDateTime() {
+    if (!this.value) return "";
+    return formatDateTimeString(this.value);
   }
 }

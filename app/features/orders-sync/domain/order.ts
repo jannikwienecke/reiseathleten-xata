@@ -7,7 +7,7 @@ import { type ServiceList } from "./service-list";
 import { type VacationBooking } from "./vacation";
 import type { ServiceValueObject } from "./service";
 import type { ActivityEventList } from "./activity-event-list";
-import { ActivityEvent } from "./activity-event";
+import { type ActivityEvent } from "./activity-event";
 
 export interface OrderProps {
   id: number;
@@ -45,6 +45,39 @@ export class OrderEntity extends Entity<OrderProps> {
 
   get additionalServices(): ServiceValueObject[] {
     return this.props.additionalServices.list;
+  }
+
+  get price(): number {
+    return this.props.vacation.props.price;
+  }
+
+  get username(): string {
+    return this.props.user.props.email;
+  }
+
+  get statusText(): string {
+    return this.props.status.value;
+  }
+
+  get dispayStartDate(): string {
+    return this.props.vacation.props.startDate.displayDate;
+  }
+
+  get displayEndDate(): string {
+    return this.props.vacation.props.endDate.displayDate;
+  }
+
+  get displayDateCreated(): string {
+    return this.props.dateCreated.displayDate;
+  }
+
+  get displayDatePaid(): string {
+    const paidEvent = this.props.activityEvents.list.find(
+      (e) => e.type === "paid"
+    );
+    if (!paidEvent) return "";
+
+    return paidEvent.dateString;
   }
 
   addActivityEvent(event: ActivityEvent) {

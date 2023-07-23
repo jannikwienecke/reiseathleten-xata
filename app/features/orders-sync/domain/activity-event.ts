@@ -48,7 +48,7 @@ export class ActivityEvent extends ValueObject<ActivityEventProps> {
   }
 
   get dateString() {
-    return this.props.date.value?.toLocaleDateString();
+    return this.props.date.displayDate;
   }
 
   get daysAgo() {
