@@ -399,9 +399,7 @@ export function OrderSummary() {
 
             {/* Invoice */}
             <div className="lg:col-span-2 lg:row-span-2 lg:row-end-2">
-              <div className="pb-2">
-                <Tabs />
-              </div>
+              <div className="pb-2">{/* <Tabs /> */}</div>
               {isPdfInvoiceView ? (
                 <>
                   <PdfViewInvoiceView />
@@ -1069,7 +1067,7 @@ export function PdfViewInvoiceView() {
   );
 }
 
-const Pdf = () => {
+export const Pdf = () => {
   return (
     <>
       {" "}

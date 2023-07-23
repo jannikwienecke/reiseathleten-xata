@@ -19,7 +19,7 @@ export class OrderActivityEventRepoPrisma implements OrderActivityEventRepo {
         data: {
           content: event.content,
           type: event.type,
-          date: event.props.date.value?.toISOString(),
+          date: event.props.date.value,
           mood: event.mood?.mood || "",
           User: {
             connect: {

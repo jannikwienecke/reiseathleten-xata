@@ -1,16 +1,16 @@
 import { Listbox, Transition } from "@headlessui/react";
 import {
-  FireIcon,
-  HeartIcon,
-  FaceSmileIcon,
   FaceFrownIcon,
+  FaceSmileIcon,
+  FireIcon,
   HandThumbUpIcon,
-  //   PaperClipIcon,
+  HeartIcon,
   XMarkIcon as XMarkIconMini,
 } from "@heroicons/react/20/solid";
-import { Form } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 import clsx from "clsx";
 import React, { Fragment } from "react";
+import { RocketIcon } from "~/components/icons";
 import { classNames } from "~/utils/helper";
 
 export const MOODS = [
@@ -63,6 +63,13 @@ export const CommentForm = () => {
 
   const [text, setText] = React.useState("");
 
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    setText("");
+  };
+
   return (
     <>
       {/* New comment form */}
@@ -72,7 +79,11 @@ export const CommentForm = () => {
           alt=""
           className="h-6 w-6 flex-none rounded-full bg-gray-50"
         />
-        <Form method="POST" className="relative flex-auto">
+        <Form
+          onSubmit={handleSubmit}
+          method="POST"
+          className="relative flex-auto"
+        >
           <div className="overflow-hidden rounded-lg pb-12 shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-indigo-600">
             <label htmlFor="comment" className="sr-only">
               Add your comment
@@ -89,6 +100,7 @@ export const CommentForm = () => {
               className="block w-full resize-none border-0 bg-transparent py-1.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
               placeholder="Add your comment..."
               defaultValue={""}
+              value={text}
               minLength={2}
               onChange={(e) => setText(e.target.value)}
             />
@@ -105,7 +117,7 @@ export const CommentForm = () => {
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
-              Comment
+              {isSubmitting ? <RocketIcon animate={true} /> : <>Comment</>}
             </button>
           </div>
         </Form>

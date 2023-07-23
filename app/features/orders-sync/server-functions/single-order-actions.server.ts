@@ -5,23 +5,43 @@ import {
   type Repository,
   type UseCases,
   createAction,
+  createLoader,
 } from "~/utils/stuff.server";
 import { ActivityEvent } from "../domain/activity-event";
 import { Mood } from "../domain/mood";
 import { DateValueObject } from "~/features/vacation/domain/date";
 import { isLoggedIn } from "~/utils/helper";
+import { OrderMapper } from "../mapper/orderMap";
+
+type Props = {
+  repository: Repository;
+  useCases: UseCases;
+} & DataFunctionArgs;
+
+export const singleOrderLoaderHandler = async ({
+  repository,
+  params,
+}: Props) => {
+  const id = params.id as string;
+  invariant(id, "id is required");
+
+  const order = await repository.order.getById(+id);
+
+  if (!order) {
+    return {
+      order: null,
+    };
+  }
+
+  return { order: OrderMapper.toDto(order) };
+};
 
 export const singleOrderActionHandler = async ({
   useCases,
   repository,
   request,
   params,
-}: {
-  repository: Repository;
-  useCases: UseCases;
-} & DataFunctionArgs) => {
-  //
-
+}: Props) => {
   const formData = await request.formData();
   const action = getFormDataValue(formData, "action");
   const comment = getFormDataValue(formData, "comment");
@@ -33,8 +53,6 @@ export const singleOrderActionHandler = async ({
   invariant(user, "user is required");
   invariant(action, "action is required");
   invariant(orderId, "orderId is required");
-
-  console.log({ orderId });
 
   const order = await repository.order.getById(+orderId);
 
@@ -71,4 +89,5 @@ export const singleOrderActionHandler = async ({
   return {};
 };
 
+export const singleOrderLoader = createLoader(singleOrderLoaderHandler);
 export const singleOrderAction = createAction(singleOrderActionHandler);

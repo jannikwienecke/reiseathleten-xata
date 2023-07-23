@@ -306,7 +306,6 @@ export const syncOrdersUsecase = async ({
     const exists = await repository.order.existsByParentOrderId(order.id);
 
     if (exists) {
-      console.log("order already exists");
       return;
     }
 

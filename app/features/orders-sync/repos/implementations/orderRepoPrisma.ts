@@ -110,10 +110,36 @@ export class OrderRepoPrisma implements OrderRepository {
       where: {
         id: orderId,
       },
+      include: {
+        Vacation: {
+          include: {
+            Location: true,
+            VacationServices: {
+              include: {
+                Service: true,
+              },
+            },
+          },
+        },
+        User: true,
+        OrderActivityEvents: true,
+        OrderActivity: {
+          include: {
+            AcitivityDescription: true,
+          },
+        },
+      },
     });
 
     if (!order) return null;
 
-    return OrderMapper.toDomain(order);
+    return OrderMapper.toDomain({
+      ...order,
+      Vacation: {
+        ...order.Vacation,
+        VacationServices: order.Vacation.VacationServices.map((s) => s.Service),
+      },
+      OrderActivityEvents: order.OrderActivityEvents,
+    });
   }
 }

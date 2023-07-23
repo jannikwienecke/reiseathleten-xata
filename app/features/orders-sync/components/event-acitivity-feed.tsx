@@ -50,10 +50,8 @@ const CommentActivityEventItem = ({
   activityItem: ActivityEvent;
 }) => {
   const mood = activityItem.mood;
-  console.log(activityItem);
 
-  const selected = mood ? MOODS.find((m) => m.value === mood) : MOODS[5];
-  console.log(selected);
+  const selected = mood ? MOODS.find((m) => m.value === mood.mood) : MOODS[5];
 
   return (
     <>

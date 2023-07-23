@@ -111,8 +111,6 @@ export function Table<TData extends ARecord>({
     });
   }, [dataList, query]);
 
-  console.log({ onEdit });
-
   return (
     <div className="">
       <div className="flex flex-row w-full justify-between">

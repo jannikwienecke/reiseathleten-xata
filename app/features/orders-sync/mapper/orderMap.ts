@@ -1,14 +1,24 @@
-import { Prisma, type Order } from "@prisma/client";
+import type {
+  Location,
+  OrderActivityEvents,
+  Service,
+  User,
+  VacationDescription,
+  Order,
+} from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { UserEntity } from "~/features/auth/domain/User";
 import { DateValueObject } from "~/features/vacation/domain/date";
+import { ActivityEvent } from "../domain/activity-event";
+import { ActivityEventList } from "../domain/activity-event-list";
+import { LocationEntity } from "../domain/location";
+import { Mood } from "../domain/mood";
 import { OrderEntity } from "../domain/order";
 import { OrderMetaValueObject } from "../domain/order-meta";
 import { OrderStatusValueObject } from "../domain/order-status";
 import { ServiceValueObject } from "../domain/service";
 import { ServiceList } from "../domain/service-list";
 import { VacationBooking } from "../domain/vacation";
-import { ActivityEvent } from "../domain/activity-event";
-import { ActivityEventList } from "../domain/activity-event-list";
 
 export class OrderMapper {
   static toPersistence(order: OrderEntity): Order {
@@ -22,8 +32,6 @@ export class OrderMapper {
       throw new Error("startDate is required");
     if (!order.props.vacation.props.endDate.value)
       throw new Error("endDate is required");
-
-    // if (!order.props.user.id) throw new Error("duration is required");
 
     const _order: Order = {
       id: order.props.id,
@@ -117,7 +125,7 @@ export class OrderMapper {
         user: event.props.user,
         date: event.props.date.value?.toISOString() ?? "",
         content: event.props.content ?? "",
-        mood: event.props.mood ?? null,
+        mood: event.props.mood?.props.value ?? null,
       })),
     } as const;
   }
@@ -159,7 +167,7 @@ export class OrderMapper {
           value: event.date,
         }),
         content: event.content,
-        mood: event.mood,
+        mood: Mood.create({ value: event.mood }),
       })
     );
 
@@ -188,7 +196,17 @@ export class OrderMapper {
     });
   }
 
-  static toDomain(order: Order): OrderEntity {
+  static toDomain(
+    order: Order & {
+      OrderActivityEvents: OrderActivityEvents[];
+      Vacation: VacationDescription & {
+        VacationServices: Service[];
+        Location: Location | null;
+      };
+    } & {
+      User: User;
+    }
+  ): OrderEntity {
     const additionalServices = JSON.parse(order.additional_services).map(
       (service: ServiceValueObject["props"]) => {
         return ServiceValueObject.create(service);
@@ -205,7 +223,12 @@ export class OrderMapper {
       addToCommunity: order.add_to_community,
     });
 
+    const services = order.Vacation.VacationServices.map((service) =>
+      ServiceValueObject.create(service)
+    );
+
     const vacation = VacationBooking.create({
+      ...order.Vacation,
       id: order.vacation_id,
       startDate: DateValueObject.create({
         value: order.start_date.toISOString(),
@@ -218,17 +241,40 @@ export class OrderMapper {
       price: order.price.toNumber(),
       numberPersons: order.persons,
       imageUrl: "",
-      name: "",
-      description: "",
-      // fix me
-      services: ServiceList.create([]),
+      name: order.Vacation.name,
+      description: order.Vacation.description ?? "",
+      location: order.Vacation.Location
+        ? LocationEntity.create({
+            ...order.Vacation.Location,
+            description: order.Vacation.Location.description ?? "",
+          })
+        : undefined,
+      services: ServiceList.create(services),
     });
 
     const user = UserEntity.create({
       id: order.user_id,
-      email: "",
+      email: order.User.email,
       password: "",
     });
+
+    // const events = ActivityEvent
+    const events = order.OrderActivityEvents.map((event) =>
+      ActivityEvent.create({
+        ...event,
+        mood: Mood.create({ value: event.mood as Mood["props"]["value"] }),
+        user: {
+          imageUri: "",
+          name: order.User.email,
+        },
+        type: event.type as ActivityEvent["props"]["type"],
+        date: DateValueObject.create({
+          value: event.date.toISOString(),
+        }),
+      })
+    );
+
+    console.log(events.map((e) => e.props.date.value));
 
     return OrderEntity.create({
       ...order,
@@ -251,7 +297,7 @@ export class OrderMapper {
       orderMeta,
       user,
       orderId: order.id,
-      activityEvents: ActivityEventList.create([]),
+      activityEvents: ActivityEventList.create(events),
     });
   }
 }

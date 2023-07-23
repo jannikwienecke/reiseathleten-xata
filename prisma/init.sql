@@ -158,9 +158,9 @@ CREATE TABLE "public"."Order" (
     -- ORDER OVERVIEW
     "id" integer NOT NULL UNIQUE,
     "order_key" text  NOT NULL,
-    "date_created" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "date_modified" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "date_imported" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "date_created" timestamp(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "date_modified" timestamp(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "date_imported" timestamp(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- use the price from the line item  
     "price" DECIMAL  NOT NULL,
 
@@ -203,7 +203,7 @@ CREATE TABLE "public"."OrderActivityEvents" (
     "id" SERIAL,
     "content" text  NOT NULL DEFAULT '',
     "mood" text  NOT NULL DEFAULT '',
-    "date" DATE  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "date" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "type" text  NOT NULL DEFAULT '',
     "order_id" integer  NOT NULL ,
     "user_id" integer  NOT NULL ,
