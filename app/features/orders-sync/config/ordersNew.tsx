@@ -10,6 +10,7 @@ import { createLoader } from "~/utils/stuff.server";
 
 export type OrderInterface = Omit<Order, "price"> & {
   price: number;
+  username: string;
 };
 
 export const NewOrdersConfig: ModelConfig<OrderInterface> = {
@@ -23,6 +24,16 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
             name: true,
           },
         },
+        User: {
+          include: {
+            Customer: {
+              select: {
+                first_name: true,
+                last_name: true,
+              },
+            },
+          },
+        },
       },
       where: {
         status: "pending",
@@ -32,6 +43,8 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
     return orders.map((t) => ({
       ...t,
       price: t.price.toNumber(),
+      username:
+        t.User.Customer[0].first_name + " " + t.User.Customer[0].last_name,
     }));
   },
 
@@ -52,6 +65,11 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
         {
           accessorKey: "date_created",
           header: "Created",
+          formatValue: formatDateString,
+        },
+        {
+          accessorKey: "username",
+          header: "User",
           formatValue: formatDateString,
         },
         {
