@@ -70,7 +70,6 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
         {
           accessorKey: "username",
           header: "User",
-          formatValue: formatDateString,
         },
         {
           accessorKey: "start_date",
