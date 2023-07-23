@@ -24,7 +24,7 @@ import { VacationBookingRepoPrisma } from "~/features/orders-sync/repos/implemen
 import { type OrderRepository } from "~/features/orders-sync/repos/orderRepo";
 import { type VacationBookingRepo } from "~/features/orders-sync/repos/vacationRepo";
 import { VacationServicesRepoPrisma } from "~/features/orders-sync/repos/implementations/vacationServicesRepoPrisma";
-import type { VacationServicesRepo } from "~/features/orders-sync/repos/vacationServicesRepo";
+import type { ServicesRepo } from "~/features/orders-sync/repos/vacationServicesRepo";
 import { VacationBookingRepoMockServer } from "~/features/orders-sync/repos/implementations/vacationBookingRepoMockServer";
 import { VacationServicesRepoMockServer } from "~/features/orders-sync/repos/implementations/vacationServicesRepoMockServer";
 import { OrderRepoMockServer } from "~/features/orders-sync/repos/implementations/orderRepoMockServer";
@@ -39,7 +39,7 @@ export interface Repository {
   customer: CustomerRepository;
   order: OrderRepository;
   vacationBooking: VacationBookingRepo;
-  vacationServices: VacationServicesRepo;
+  vacationServices: ServicesRepo;
   orderActivityEventRepo: OrderActivityEventRepo;
 }
 

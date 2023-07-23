@@ -2,9 +2,9 @@ import type { Service } from "@prisma/client";
 import { MOCK_SERVER_URL } from "~/shared/constants/base";
 import { ServiceValueObject } from "../../domain/service";
 import { ServiceList } from "../../domain/service-list";
-import { type VacationServicesRepo } from "../vacationServicesRepo";
+import { type ServicesRepo } from "../vacationServicesRepo";
 
-export class VacationServicesRepoMockServer implements VacationServicesRepo {
+export class VacationServicesRepoMockServer implements ServicesRepo {
   async getServicesForVacation(vacationId: number) {
     const response = await fetch(`${MOCK_SERVER_URL}/vacation/:id/services`);
 
@@ -22,5 +22,9 @@ export class VacationServicesRepoMockServer implements VacationServicesRepo {
         })
       ) ?? []
     );
+  }
+
+  async getById(id: number): Promise<ServiceValueObject | null> {
+    throw new Error("Method not implemented.");
   }
 }

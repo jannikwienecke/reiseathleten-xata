@@ -2,8 +2,13 @@ import { ValueObject } from "~/shared";
 import { ServiceValueObject } from "./service";
 
 export class ServiceList extends ValueObject<ServiceValueObject[]> {
+  services: ServiceValueObject[];
+  newServicecs: ServiceValueObject[];
+
   private constructor(props: ServiceValueObject[]) {
     super(props);
+    this.services = props;
+    this.newServicecs = [];
   }
 
   static create(props: ServiceValueObject[]) {
@@ -20,6 +25,21 @@ export class ServiceList extends ValueObject<ServiceValueObject[]> {
   }
 
   get list() {
-    return Object.values(this.props);
+    return [...this.services].map((service) => service);
+  }
+
+  addService(event: ServiceValueObject) {
+    this.services.push(event);
+    this.newServicecs.push(event);
+  }
+
+  removeService(serviceId: number) {
+    this.services = this.services.filter((_, index) => index !== serviceId);
+
+    if (serviceId < this.newServicecs.length) {
+      this.newServicecs = this.newServicecs.filter(
+        (_, index) => index !== serviceId
+      );
+    }
   }
 }

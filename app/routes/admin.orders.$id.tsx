@@ -1,6 +1,6 @@
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";
-import { LibForm } from "~/components";
+import { Form, LibForm } from "~/components";
 import { EventsActivityFeed } from "~/features/orders-sync/components/event-acitivity-feed";
 import { CommentForm } from "~/features/orders-sync/components/event-activity-form";
 import { InvoiceSummary } from "~/features/orders-sync/components/order-invoice-summary";
@@ -30,10 +30,9 @@ export default function SyncOrdersPage() {
 
   const orderStore = useOrderStore((store) => store.order);
 
-  const { getFormFieldProps, getFormProps, getOverlayProps, addForm } =
-    useAdminPage({
-      model: "Service",
-    });
+  const { getFormProps, getOverlayProps } = useAdminPage({
+    model: "VacationServices",
+  });
 
   React.useEffect(() => {
     if (!data.order) return;
@@ -49,12 +48,15 @@ export default function SyncOrdersPage() {
   return (
     <>
       <LibSliderOver {...getOverlayProps()}>
-        <LibForm {...getFormProps()}>
-          {addForm?.fields.map((field) => {
-            return (
-              <field.Component {...getFormFieldProps(field)} key={field.name} />
-            );
-          })}
+        <LibForm {...getFormProps()} title="Add Service to this order">
+          <input type="hidden" name="action" value={"addAdditionalService"} />
+
+          <Form.Select
+            name="serviceName"
+            onSelect={() => null}
+            model="VacationServices"
+            value={undefined}
+          />
         </LibForm>
       </LibSliderOver>
       <OrderSummaryContent />

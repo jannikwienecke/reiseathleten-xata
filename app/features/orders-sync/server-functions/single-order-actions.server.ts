@@ -46,6 +46,11 @@ export const singleOrderActionHandler = async ({
   const action = getFormDataValue(formData, "action");
   const comment = getFormDataValue(formData, "comment");
   const mood = getFormDataValue(formData, "mood") as Mood["mood"] | undefined;
+
+  const serviceId = getFormDataValue(formData, "serviceName");
+
+  const serviceIdToDelete = getFormDataValue(formData, "id");
+
   const orderId = params.id;
 
   const user = await isLoggedIn(request);
@@ -77,9 +82,37 @@ export const singleOrderActionHandler = async ({
     await repository.order.save(order);
   };
 
+  const handleAddAdditionalService = async () => {
+    invariant(serviceId, "serviceName is required");
+
+    const service = await repository.vacationServices.getById(+serviceId);
+
+    if (!service) throw new Error(`Service ${serviceId} not found`);
+
+    order.addNewService(service);
+
+    await repository.order.save(order);
+  };
+
+  const handleDeleteAdditionalService = async () => {
+    invariant(serviceIdToDelete, "id is required");
+
+    order.deleteAdditionalService(+serviceIdToDelete);
+
+    await repository.order.save(order);
+  };
+
   switch (action) {
     case "comment":
       await handleComment();
+      break;
+
+    case "addAdditionalService":
+      await handleAddAdditionalService();
+      break;
+
+    case "deleteAdditionalService":
+      await handleDeleteAdditionalService();
       break;
 
     default:

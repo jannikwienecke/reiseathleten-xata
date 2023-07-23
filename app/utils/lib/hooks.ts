@@ -187,9 +187,6 @@ export const useAdminPage = (options?: { model?: string }) => {
       fieldDefaultValue = singleItem[field.name || ""];
     }
 
-    // model.
-    // get Formatted value?
-
     // for select fields
     // to get the id of the connected model
     const selectId =
@@ -200,8 +197,8 @@ export const useAdminPage = (options?: { model?: string }) => {
     return {
       ...field,
       selectId,
+      model: model.model,
       key: field.name,
-      // defaultOptions: selectedOptions,
       value: isCreating && isSubmitting ? "" : field?.value || _defaultValue,
       error:
         actionData?.field === field.name

@@ -47,6 +47,14 @@ export class OrderEntity extends Entity<OrderProps> {
     return this.props.additionalServices.list;
   }
 
+  addNewService(service: ServiceValueObject) {
+    this.props.additionalServices.addService(service);
+  }
+
+  deleteAdditionalService(serviceId: number) {
+    this.props.additionalServices.removeService(serviceId);
+  }
+
   get price(): number {
     return this.props.vacation.props.price;
   }

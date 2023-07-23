@@ -237,18 +237,22 @@ const Select = ({
   value,
   selectId,
   label,
+  model: modelArgs,
 }: {
   name: string;
   value: any;
   selectId?: string | number;
   label?: string;
+  model?: string;
 
   onSelect: (item: ISelectOption) => void;
 }) => {
   const fetcher = useFetcher();
-  const { model } = useParams();
+  const { model: paramsModel } = useParams();
 
-  invariant(model, "model is required");
+  invariant(modelArgs || paramsModel, "model is required");
+
+  const model = modelArgs || paramsModel;
 
   const [selected, setSelected] = React.useState<ISelectOption | null>(
     value && selectId
