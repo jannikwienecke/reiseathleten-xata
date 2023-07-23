@@ -1,9 +1,14 @@
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  type ShouldRevalidateFunction,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import React from "react";
 import { Form, LibForm } from "~/components";
 import { EventsActivityFeed } from "~/features/orders-sync/components/event-acitivity-feed";
 import { CommentForm } from "~/features/orders-sync/components/event-activity-form";
 import { InvoiceSummary } from "~/features/orders-sync/components/order-invoice-summary";
+import { OrderMainViewTabs } from "~/features/orders-sync/components/order-main-view-tabs";
 import { ServiceTableAdditional } from "~/features/orders-sync/components/order-services-additional";
 import { ServiceTable } from "~/features/orders-sync/components/order-services-included";
 import { OrderSummaryHeader } from "~/features/orders-sync/components/order-summary-header";
@@ -19,11 +24,38 @@ import {
 import { useAdminPage } from "~/utils/lib/hooks";
 import { LibSliderOver } from "~/utils/lib/react";
 import { Pdf, PdfViewInvoiceView } from "./admin.woo";
-import { OrderMainViewTabs } from "~/features/orders-sync/components/order-main-view-tabs";
 
 export const loader = singleOrderLoader;
 
 export const action = singleOrderAction;
+
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  actionResult,
+  currentParams,
+  currentUrl,
+  defaultShouldRevalidate,
+  formAction,
+  formData,
+  formEncType,
+  formMethod,
+  nextParams,
+  nextUrl,
+}) => {
+  const currentSearchView = new URL(currentUrl).searchParams.get("view");
+  const nextSearchView = new URL(nextUrl).searchParams.get("view");
+  const currentSearchAction = new URL(currentUrl).searchParams.get("action");
+  const nextSearchAction = new URL(nextUrl).searchParams.get("action");
+
+  if (currentSearchView !== nextSearchView) {
+    return false;
+  }
+
+  if (currentSearchAction !== nextSearchAction) {
+    return false;
+  }
+
+  return true;
+};
 
 export default function SyncOrdersPage() {
   const data = useLoaderData<typeof loader>();
