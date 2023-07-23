@@ -1,17 +1,18 @@
 import { TagIcon } from "@heroicons/react/20/solid";
 import { type Service } from "@prisma/client";
-import invariant from "tiny-invariant";
 import { Form } from "~/components";
 import { prisma } from "~/db.server";
 import { PARENT_BASE_KEY } from "~/features/vacation-admin/utils/helpers";
-import { getFormDataValue } from "~/utils/lib/core";
+import { PrismaCrudHandler } from "~/features/vacation-admin/utils/prisma-crud-handler";
 
-import type { ActionFunctionArgs, ModelConfig } from "~/utils/lib/types";
+import type { ModelConfig } from "~/utils/lib/types";
 
 export type ServiceInterface = Service & {};
 
+const prismaCrudHandler = new PrismaCrudHandler(prisma, "service");
+
 export const ServiceConfig: ModelConfig<ServiceInterface> = {
-  title: "Vacation Services",
+  title: "Services",
   description:
     "Services that are included in the vacation package (e.g. food, transport etc.)",
   parent: PARENT_BASE_KEY,
@@ -22,57 +23,21 @@ export const ServiceConfig: ModelConfig<ServiceInterface> = {
       ...t,
     }));
   },
+  onDelete: (props) => prismaCrudHandler.delete(props),
 
-  // onDelete: async ({ formData }: ActionFunctionArgs) => {
-  //   const id = +(getFormDataValue(formData, "id") || "");
+  onAdd: (props) =>
+    prismaCrudHandler.add({
+      ...props,
+      fields: ["name", "description"],
+    }),
 
-  //   const orders = await prisma.order.findMany({});
-  //   // const ordersx = orders[0]?.
-  // },
+  onEdit: (props) =>
+    prismaCrudHandler.update({
+      ...props,
+      fields: ["name", "description"],
+    }),
 
-  // onAdd: async ({ formData }: ActionFunctionArgs) => {
-  //   //
-  // },
-
-  onEdit: async ({ formData, request }: ActionFunctionArgs) => {
-    const url = new URL(request.url);
-    const id = +(url.searchParams.get("id") || "");
-
-    const label = getFormDataValue(formData, "label");
-    const color = getFormDataValue(formData, "color");
-
-    invariant(id, "id is required");
-    invariant(label, "label is required");
-    invariant(color, "color is required");
-
-    await prisma.tag.update({
-      where: {
-        id,
-      },
-      data: {
-        label,
-        Color: {
-          connect: {
-            id: +color,
-          },
-        },
-      },
-    });
-  },
-
-  // onBulkDelete: async ({ formData }: ActionFunctionArgs) => {
-  //   const idsToDelete = JSON.parse(
-  //     getFormDataValue(formData, "ids") || "[]"
-  //   ) as string[];
-
-  //   await prisma.tag.deleteMany({
-  //     where: {
-  //       id: {
-  //         in: idsToDelete.map((id) => +id),
-  //       },
-  //     },
-  //   });
-  // },
+  onBulkDelete: (props) => prismaCrudHandler.bulkDelete(props),
 
   redirect: "/admin/Service",
   view: {

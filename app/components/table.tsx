@@ -187,7 +187,8 @@ export function Table<TData extends ARecord>({
                       );
                     })}
 
-                    {onAdd || (onEdit && selected.length > 0) ? (
+                    {(onAdd && selected.length === 0) ||
+                    (onEdit && selected.length > 0) ? (
                       <>
                         <div className="">
                           <button
