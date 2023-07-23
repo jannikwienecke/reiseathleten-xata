@@ -47,4 +47,20 @@ export class OrderStatusValueObject extends ValueObject<OrderStatusProps> {
   get buttonText() {
     return this.statusBtnTextDict[this.props.value];
   }
+
+  update() {
+    this.props.value = this.getNextStatus(this.props.value);
+  }
+
+  getNextStatus(status: StatusType): StatusType {
+    const statusOrder: StatusType[] = [
+      "pending",
+      "validated",
+      "invoiced",
+      "paid",
+      "completed",
+    ];
+    const index = statusOrder.indexOf(status);
+    return statusOrder[index + 1];
+  }
 }

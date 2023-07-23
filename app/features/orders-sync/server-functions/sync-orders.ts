@@ -9,7 +9,6 @@ import type { ServiceValueObject } from "../domain/service";
 import { ServiceList } from "../domain/service-list";
 import { VacationBooking } from "../domain/vacation";
 import { OrderMapper } from "../mapper/orderMap";
-import { string } from "zod";
 import { Repository, UseCases } from "~/utils/stuff.server";
 import { ActivityEventList } from "../domain/activity-event-list";
 
@@ -44,7 +43,6 @@ export const syncOrdersUsecase = async ({
 
     const hashedDefaultPassword = await UserEntity.generateDefaultPassword();
     if (!userExists) {
-      // create user -> signup
       user = await userRepo.signup({
         email: order.billing.email,
         password: hashedDefaultPassword,
@@ -145,6 +143,15 @@ export const syncOrdersUsecase = async ({
       numberPersons: persons,
       services: servicesForVacation,
       imageUrl,
+      permalink: "",
+      slug: "",
+      status: "",
+      type: "",
+      dateCreated: "",
+      dateCreatedGmt: "",
+      dateModified: "",
+      dateModifiedGmt: "",
+      date_imported: new Date().toISOString(),
     });
   }
 

@@ -17,9 +17,12 @@ export const vacationLoader = createLoader(
     invariant(id, "id is required");
     invariant(user, "user is required");
 
+    const isAdmin = user.props.email === "admin@admin.de";
+
     const vacation = await repository.vacation.getVacationById(
       Number(id),
-      Number(user?.props.id)
+      Number(user?.props.id),
+      isAdmin
     );
     return { vacation };
   }

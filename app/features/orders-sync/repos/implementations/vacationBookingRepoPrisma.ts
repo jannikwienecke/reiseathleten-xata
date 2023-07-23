@@ -13,9 +13,16 @@ export class VacationBookingRepoPrisma implements VacationBookingRepo {
       VacationDescriptionMap.toPersistence(vacationBooking);
 
     if (isNewVacationBooking) {
-      await this.client.vacationDescription.create({
-        data: rawVacationBooking,
-      });
+      try {
+        await this.client.vacationDescription.create({
+          data: rawVacationBooking,
+        });
+      } catch (error) {
+        console.log("-----ERROR-----");
+        console.log("RAW VACATION BOOKING: ", rawVacationBooking);
+        console.log(rawVacationBooking.name);
+        throw error;
+      }
     } else {
       await this.client.vacationDescription.update({
         where: {

@@ -48,6 +48,7 @@ export const singleOrderActionHandler = async ({
   const mood = getFormDataValue(formData, "mood") as Mood["mood"] | undefined;
 
   const serviceId = getFormDataValue(formData, "serviceName");
+  const newStatus = getFormDataValue(formData, "newStatus");
 
   const serviceIdToDelete = getFormDataValue(formData, "id");
 
@@ -102,6 +103,12 @@ export const singleOrderActionHandler = async ({
     await repository.order.save(order);
   };
 
+  const handleStatusUpdate = async () => {
+    invariant(newStatus, "newStatus is required");
+
+    repository.order.updateStatus(+orderId, newStatus);
+  };
+
   switch (action) {
     case "comment":
       await handleComment();
@@ -113,6 +120,10 @@ export const singleOrderActionHandler = async ({
 
     case "deleteAdditionalService":
       await handleDeleteAdditionalService();
+      break;
+
+    case "updateStatus":
+      await handleStatusUpdate();
       break;
 
     default:

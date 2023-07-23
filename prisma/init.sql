@@ -88,40 +88,30 @@ CREATE TABLE "public"."AcitivityTag" (
     FOREIGN KEY ("activityDescriptionId") REFERENCES "public"."AcitivityDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- table VacationDescription 
+-- product === vacationDescription
 CREATE TABLE "public"."VacationDescription" (
     "id" SERIAL,
-    "name" text  NOT NULL UNIQUE,
+    "name" text  NOT NULL,
     "description" text,
     "image_url" text,
+    "slug" text,
+    "permalink" text,
+    "date_created" text,
+    "date_created_gmt" text,
+    "date_modified" text,
+    "date_modified_gmt" text,
+    "type" text,
+    "status" text,
+    "price" text,
+
     PRIMARY KEY ("id"),
     "locationId" integer  NULL,
     FOREIGN KEY ("locationId") REFERENCES "public"."Location"("id") ON UPDATE CASCADE
-    
 );
 
--- CREATE TABLE "public"."Vacation" (
---     "id" SERIAL,
---     "userId" integer  NOT NULL ,
---     "startDate" timestamp(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP,
---     "endDate" timestamp(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP,
---     "vacationDescriptionId" integer  NOT NULL ,
---     PRIMARY KEY ("id"),
---     FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
---     FOREIGN KEY ("vacationDescriptionId") REFERENCES "public"."VacationDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE
--- );
-
--- CREATE TABLE "public"."VacationActivity" (
---     "id" SERIAL,
---     "vacationId" integer  NOT NULL ,
---     -- "activityBookingId" integer  NOT NULL ,
---     "datetime" timestamp(3)  NULL ,
---     "activityDescriptionId" integer NOT NULL,
---     PRIMARY KEY ("id"),
---     -- FOREIGN KEY ("vacationId") REFERENCES "public"."Vacation"("id") ON DELETE CASCADE ON UPDATE CASCADE,
---     FOREIGN KEY ("activityDescriptionId") REFERENCES "public"."AcitivityDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE
--- );
-
+-- alter table -> add date_imported
+ALTER TABLE "public"."VacationDescription" ADD COLUMN "date_imported" text NOT NULL DEFAULT '';
+ALTER TABLE "public"."VacationDescription" DROP CONSTRAINT "VacationDescription_name_key";
 
 CREATE UNIQUE INDEX "Tag.label_colorId" ON "public"."Tag"("label","colorId");
 
@@ -254,8 +244,8 @@ INSERT INTO "public"."AcitivityDescription" ("name", "description") VALUES ('Vis
 
 INSERT INTO "public"."VacationDescription" ("name", "description", "locationId") VALUES ('TenerifeOld', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
 INSERT INTO "public"."VacationDescription" ("id", "name", "description", "locationId") VALUES (24875,'CrossFit 27 Basispaket an der Costa Adeje - Fitnessurlaub auf Teneriffa (Spanien)', 'Tenerife is the largest and most populated island of the eight Canary Islands. It is also the most populated island of Spain, with a land area of 2,034.38 square kilometres (785 sq mi) and 917,841 inhabitants at the start of 2019, 43 percent of the total population of the Canary Islands.', 5);
+INSERT INTO "public"."VacationDescription" ("id", "name", "description", "image_url", "slug", "permalink", "date_created", "date_created_gmt", "date_modified", "date_modified_gmt", "type", "status", "price", "locationId") VALUES (70050, 'CrossFit, Hyrox & Mehr auf Mallorca - Top CrossFit Box & Wellness-Hotel am Traumstrand von Santa Ponsa', '<p><strong><span style="color: #339966;">✓ alle Reiseathleten Vorteile (u.a. flexible Umbuchung, deutschsprachige Betreuung)</span></strong></p>\n<p>&nbsp;</p>\n<hr />\n<p style="text-align: justify;"><span style="font-weight: 400; font-size: 14pt;"><strong>Inbegriffen sind u. a. folgende Leistungen:</strong></span></p>\n<p style="text-align: left;"><span style="color: #1e73be;"><span style="font-weight: 400;"><span style="color: #008000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000;"><strong>• Unterkunft</strong>: * * * * Reverence Life Hotel in Santa Ponsa, Mallorca<br />\n</span></span></span></span></span><span style="color: #1e73be;"><span style="font-weight: 400;"><span style="color: #008000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000;"><strong>• Verpflegung</strong>: Gesundes Frühstücksbuffet (Halbpension optional)<br />\n</span></span></span></span></span><span style="color: #1e73be;"><span style="font-weight: 400;"><span style="color: #008000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000;"><strong>• Training</strong>: 5x CrossFit, 1x Hyrox, 1x Yoga<br />\n</span></span></span></span></span><span style="color: #1e73be;"><span style="font-weight: 400;"><span style="color: #008000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000;"><strong>• Betreuung</strong>: durch deutschsprachige Reiseathleten Guides<br />\n</span></span></span></span></span><span style="color: #1e73be;"><span style="font-weight: 400;"><span style="color: #008000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000;"><strong>• Transfer</strong>: Flughafentransfer<br />\n</span></span></span></span></span><span style="color: #1e73be;"><span style="font-weight: 400;"><span style="color: #008000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000;"><strong>• Reiseathleten Vorteile</strong>: u.a. flexible Umbuchung, deutschsprachige Betreuung<br />\n</span></span></span></span></span><span style="color: #1e73be;"><span style="font-weight: 400;"><span style="color: #008000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000; font-family: Georgia, Palatino; font-size: 12pt;"><span style="color: #000000;"><strong>• Reiseathleten Community</strong>: Zugang zur Reise', 'https://www.reiseathleten.de/wp-content/uploads/2021/03/Reiseathleten-CrossFit-27-Mallorca-1.jpg', 'crossfit-27-basispaket-an-der-costa-adeje-fitnessurlaub-auf-teneriffa-spanien', 'https://www.reiseathleten.de/fitnessurlaub/crossfit-27-basispaket-an-der-costa-adeje-fitnessurlaub-auf-teneriffa-spanien/', '2021-03-01T14:00:00', '2021-03-01T13:00:00', '2021-03-01T14:00:00', '2021-03-01T13:00:00', 'simple', 'publish', '0', 5);
 
--- INSERT INTO "public"."Vacation" ("userId", "startDate", "endDate", "vacationDescriptionId") VALUES (1, '2023-07-09T08:53:23.808Z', '2023-07-16T08:53:23.809Z', 1);
 
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (1, 1);
 INSERT INTO "public"."AcitivityTag" ("tagId", "activityDescriptionId") VALUES (2, 2);
@@ -279,3 +269,7 @@ INSERT INTO "public"."Service" ("name", "description") VALUES ('Sightseeing', 'S
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 1);
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 2);
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 3);
+
+
+-- count orders
+-- SELECT COUNT(*) FROM "public"."Order";

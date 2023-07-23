@@ -9,7 +9,8 @@ export class OrdersRepoWooCommerce implements OrdersRepository {
 
   async getLatest({ after }: { after?: string }): Promise<RawOrder[]> {
     const result = await this.client.get("orders", {
-      per_page: 3,
+      per_page: 50,
+      offset: 0,
       after: after || "2023-07-17T00:00:00",
     });
 

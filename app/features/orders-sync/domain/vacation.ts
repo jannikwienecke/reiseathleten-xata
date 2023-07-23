@@ -15,7 +15,16 @@ interface VacationBookingProps {
   imageUrl: string;
   name: string;
   description?: string;
+  slug: string;
+  permalink: string;
+  dateCreated: string;
+  dateCreatedGmt: string;
+  dateModified: string;
+  dateModifiedGmt: string;
+  type: string;
+  status: string;
   location?: LocationEntity;
+  date_imported: string;
 }
 
 export class VacationBooking extends Entity<VacationBookingProps> {

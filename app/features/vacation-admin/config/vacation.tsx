@@ -5,9 +5,11 @@ import { prisma } from "~/db.server";
 import { GlobeAmericasIcon } from "@heroicons/react/20/solid";
 import invariant from "tiny-invariant";
 import { getFormDataValue } from "~/utils/lib/core";
-import type { ModelConfig } from "~/utils/lib/types";
+import type { DataFunctionArgs, ModelConfig } from "~/utils/lib/types";
 import { PARENT_BASE_KEY } from "../utils/helpers";
 import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
+import { createLoader } from "~/utils/stuff.server";
+import { syncProductsUsecase } from "~/features/orders-sync/server-functions/sync-products";
 
 export type VacationInterface = VacationDescription & {
   location: string;
@@ -27,9 +29,8 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
 
     return vacations.map((v) => ({
       ...v,
-      location: v.Location?.name || "",
       name: v.name || "",
-      description: v.description || "",
+      location: "",
     }));
   },
 
@@ -78,7 +79,7 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
 
   onBulkDelete: async (props) => prismaCrudHandler.bulkDelete(props),
 
-  redirect: "/admin/Tag",
+  redirect: "/admin/Vacation",
   view: {
     navigation: {
       icon: GlobeAmericasIcon,
@@ -88,17 +89,6 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
         {
           accessorKey: "name",
           header: "Name",
-        },
-        {
-          accessorKey: "description",
-          header: "Description",
-          formatValue(value) {
-            return value.length > 40 ? value.slice(0, 40) + "..." : value;
-          },
-        },
-        {
-          accessorKey: "location",
-          header: "Location",
         },
       ],
     },
@@ -147,4 +137,13 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
       ],
     },
   },
+  actions: [
+    {
+      name: "syncProductsWooCommerce",
+      label: "Sync Products",
+      handler: async (args: DataFunctionArgs) => {
+        await createLoader(syncProductsUsecase)(args);
+      },
+    },
+  ],
 };

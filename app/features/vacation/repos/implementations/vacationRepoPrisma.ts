@@ -38,10 +38,10 @@ export class VacationRepoPrisma implements VacationRepo {
     return vacations;
   }
 
-  async getVacationById(id: number, userId: number) {
+  async getVacationById(id: number, userId: number, isAdmin: boolean) {
     const rawVacation = await this.client.order.findFirst({
       where: {
-        user_id: userId,
+        user_id: isAdmin ? undefined : userId,
         id,
       },
       include: {
@@ -108,5 +108,29 @@ export class VacationRepoPrisma implements VacationRepo {
     };
 
     return vacationDto;
+  }
+
+  async getAllVacations(): Promise<VacationsDtoProps> {
+    const rawVacations = await this.client.order.findMany({
+      include: {
+        Vacation: {
+          include: {
+            Location: true,
+          },
+        },
+      },
+    });
+
+    const vacations: VacationsDtoProps = rawVacations.map((rawVacation) => {
+      return {
+        ...rawVacation,
+        startDate: rawVacation.start_date.toISOString(),
+        endDate: rawVacation.end_date.toISOString(),
+        description: rawVacation.Vacation.description || undefined,
+        name: rawVacation.Vacation.name,
+      };
+    });
+
+    return vacations;
   }
 }

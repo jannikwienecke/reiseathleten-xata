@@ -82,10 +82,40 @@ export const orderResultSchema = z.object({
   data: z.array(orderSchema),
 });
 
-// TODO STEPS
-// create new order table with all the fields we need (also the fields from the meta_data)
-// a order === 1 specific vacation
-// if vacation exists, update it
-// if vacation does not exist, create it
-// each vacation has a set of services included that are fixed
-// in the order we have also the services that are added by the user in the checkout
+export const productSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+  permalink: z.string(),
+  date_created: z.string(),
+  date_created_gmt: z.string(),
+  date_modified: z.string(),
+  date_modified_gmt: z.string(),
+  type: z.string(),
+  status: z.string(),
+  description: z.string(),
+  price: z.string(),
+  categories: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      slug: z.string(),
+    })
+  ),
+  images: z.array(
+    z.object({
+      id: z.number(),
+      date_created: z.string(),
+      date_created_gmt: z.string(),
+      date_modified: z.string(),
+      date_modified_gmt: z.string(),
+      src: z.string(),
+      name: z.string(),
+      alt: z.string(),
+    })
+  ),
+});
+
+export const productResponseSchema = z.object({
+  data: z.array(productSchema),
+});

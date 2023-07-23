@@ -15,9 +15,14 @@ export const vacationsLoader = createLoader(
 
     invariant(user, "user is required");
 
-    const vacations = await repository.vacation.getVacationsByUserId(
-      Number(user.props.id)
-    );
-    return { vacations };
+    if (user.props.email === "admin@admin.de") {
+      const vacations = await repository.vacation.getAllVacations();
+      return { vacations };
+    } else {
+      const vacations = await repository.vacation.getVacationsByUserId(
+        Number(user.props.id)
+      );
+      return { vacations };
+    }
   }
 );

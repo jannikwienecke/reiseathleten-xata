@@ -17,6 +17,13 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
   parent: "Orders",
   loader: async () => {
     const orders = await prisma.order.findMany({
+      include: {
+        Vacation: {
+          select: {
+            name: true,
+          },
+        },
+      },
       where: {
         status: "pending",
       },

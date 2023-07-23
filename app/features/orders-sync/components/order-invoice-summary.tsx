@@ -53,8 +53,7 @@ export const InvoiceSummary = () => {
               <time dateTime={order.displayDatePaid}>
                 {order.displayDatePaid}
               </time>
-              {"  "}
-              (Not paid yet)
+              {"  "}({!order.displayDatePaid ? "Not paid yet" : ""})
             </span>
           </DateItem>
 

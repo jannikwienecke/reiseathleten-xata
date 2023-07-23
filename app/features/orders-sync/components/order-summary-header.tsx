@@ -3,23 +3,31 @@ import {
   CalendarDaysIcon,
   EllipsisVerticalIcon,
 } from "@heroicons/react/20/solid";
-import { useNavigation } from "@remix-run/react";
+import { useSubmit } from "@remix-run/react";
 import { Fragment } from "react";
 import { useOrderStore } from "~/features/orders-sync/store/vacation-store";
 import { classNames } from "~/utils/helper";
 
 export const OrderSummaryHeader = () => {
-  const { location } = useNavigation();
   const order = useOrderStore((store) => store.order);
+  const submit = useSubmit();
 
   const handleClickCopyUrl = () => {
-    const url = location?.pathname;
-
-    navigator.clipboard.writeText(url || "");
+    navigator.clipboard.writeText(location.href);
   };
 
   const handleClickStatusButton = () => {
-    alert(order.statusButtonText);
+    order.updateStatus();
+
+    submit(
+      {
+        action: "updateStatus",
+        newStatus: order.status.toString(),
+      },
+      {
+        method: "POST",
+      }
+    );
   };
 
   return (

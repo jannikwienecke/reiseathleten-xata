@@ -7,4 +7,5 @@ export interface OrderRepository {
   exists(orderId: number): Promise<boolean>;
   existsByParentOrderId(orderId: number): Promise<boolean>;
   getById(orderId: number): Promise<OrderEntity | null>;
+  updateStatus(orderId: number, status: string): Promise<void>;
 }

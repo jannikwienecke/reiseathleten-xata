@@ -55,6 +55,14 @@ export class OrderEntity extends Entity<OrderProps> {
     this.props.additionalServices.removeService(serviceId);
   }
 
+  updateStatus() {
+    this.props.status.update();
+  }
+
+  get status(): OrderStatusValueObject {
+    return this.props.status;
+  }
+
   get price(): number {
     return this.props.vacation.props.price;
   }

@@ -30,12 +30,15 @@ import { VacationServicesRepoMockServer } from "~/features/orders-sync/repos/imp
 import { OrderRepoMockServer } from "~/features/orders-sync/repos/implementations/orderRepoMockServer";
 import { OrderActivityEventRepoPrisma } from "~/features/orders-sync/repos/implementations/orderActivityEventRepoPrisma";
 import { type OrderActivityEventRepo } from "~/features/orders-sync/repos/orderActivityEventRepo";
+import { ProductsRepoWooCommerce } from "~/features/orders-sync/repos/implementations/productsRepoWooCommerce";
+import { type ProductsRepository } from "~/features/orders-sync/repos/productsRepo";
 
 export interface Repository {
   vacation: VacationRepo;
   activity: ActivityRepo;
   user: UserRepo;
   orders: OrdersRepository;
+  products: ProductsRepository;
   customer: CustomerRepository;
   order: OrderRepository;
   vacationBooking: VacationBookingRepo;
@@ -83,9 +86,15 @@ const userRepo = IS_PRODUCTION
   ? new UserRepoPrisma(prisma)
   : new UserRepoMock();
 
+const woocommerceClient = createWooCommerceClient();
+
 const ordersRepo = IS_PRODUCTION
-  ? new OrdersRepoWooCommerce(createWooCommerceClient())
+  ? new OrdersRepoWooCommerce(woocommerceClient)
   : new OrdersRepoMockServer();
+
+const productsRepo = IS_PRODUCTION
+  ? new ProductsRepoWooCommerce(woocommerceClient)
+  : new ProductsRepoWooCommerce(woocommerceClient);
 
 const customerRepo = IS_PRODUCTION
   ? new CustomerRepoPrisma(prisma)
@@ -113,6 +122,7 @@ export const { createLoader, createAction } = initDataFunctions({
     activity: activityRepo,
     user: userRepo,
     orders: ordersRepo,
+    products: productsRepo,
     customer: customerRepo,
     // FIXME
     order: orderRepo,

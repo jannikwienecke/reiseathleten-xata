@@ -25,6 +25,10 @@ export class OrderRepoPrisma implements OrderRepository {
   async save(order: OrderEntity): Promise<void> {
     const exists = await this.exists(order.props.id);
     const isNewOrder = !exists;
+
+    // only vacations as orders will be saved
+    if (!order.props.vacation.props.startDate.value) return;
+
     const { vacation_id, user_id, ...rawOrder } =
       OrderMapper.toPersistence(order);
 
@@ -140,6 +144,17 @@ export class OrderRepoPrisma implements OrderRepository {
         VacationServices: order.Vacation.VacationServices.map((s) => s.Service),
       },
       OrderActivityEvents: order.OrderActivityEvents,
+    });
+  }
+
+  async updateStatus(orderId: number, status: string): Promise<void> {
+    await this.client.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
+        status,
+      },
     });
   }
 }
