@@ -15,6 +15,9 @@ DROP TABLE "public"."Service" CASCADE;
 DROP TABLE "public"."VacationServices" CASCADE;
 DROP TABLE "public"."Order" CASCADE;
 DROP TABLE "public"."OrderActivityEvents" CASCADE;
+DROP TABLE "public"."Hotel" CASCADE;
+DROP TABLE "public"."Room" CASCADE;
+DROP TABLE "public"."Contact" CASCADE;
 
 CREATE TABLE "public"."Color" (
     "id" SERIAL,
@@ -71,6 +74,29 @@ CREATE TABLE "public"."Customer" (
     FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE "public"."Contact" (
+    "id" SERIAL,
+    "first_name" text  NOT NULL ,
+    "last_name" text  NOT NULL ,
+    "company" text  NOT NULL ,
+    "address_1" text   NULL ,
+    "address_2" text   NULL ,
+    "email" text  NOT NULL UNIQUE,
+    "city" text   NULL ,
+    "state" text   NULL ,
+    "postcode" text   NULL ,
+    "phone" text  NOT NULL ,
+    PRIMARY KEY ("id")
+);
+-- make company, address_1, address_2, city, state, postcode nullable
+ALTER TABLE "public"."Contact" ALTER COLUMN "company" DROP NOT NULL;
+ALTER TABLE "public"."Contact" ALTER COLUMN "address_1" DROP NOT NULL;
+ALTER TABLE "public"."Contact" ALTER COLUMN "address_2" DROP NOT NULL;
+ALTER TABLE "public"."Contact" ALTER COLUMN "city" DROP NOT NULL;
+ALTER TABLE "public"."Contact" ALTER COLUMN "state" DROP NOT NULL;
+ALTER TABLE "public"."Contact" ALTER COLUMN "postcode" DROP NOT NULL;
+
+
 
 CREATE TABLE "public"."Location" (
     "id" SERIAL,
@@ -78,6 +104,26 @@ CREATE TABLE "public"."Location" (
     "description" text,
     PRIMARY KEY ("id")
 );
+
+CREATE TABLE "public"."Room" (
+    "id" SERIAL,
+    "name" text  NOT NULL  ,
+    PRIMARY KEY ("id")
+
+);
+
+CREATE TABLE "public"."Hotel" (
+    "id" SERIAL,
+    "name" text  NOT NULL,
+    "locationId" integer  NULL,
+    "contactId" integer NULL,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("locationId") REFERENCES "public"."Location"("id") ON UPDATE CASCADE,
+    FOREIGN KEY ("contactId") REFERENCES "public"."Contact"("id") ON UPDATE CASCADE
+);
+
+
+
 
 CREATE TABLE "public"."AcitivityTag" (
     "id" SERIAL,
@@ -103,6 +149,7 @@ CREATE TABLE "public"."VacationDescription" (
     "type" text,
     "status" text,
     "price" text,
+    "is_parent" boolean NOT NULL DEFAULT false,
 
     PRIMARY KEY ("id"),
     "locationId" integer  NULL,
@@ -112,6 +159,7 @@ CREATE TABLE "public"."VacationDescription" (
 -- alter table -> add date_imported
 ALTER TABLE "public"."VacationDescription" ADD COLUMN "date_imported" text NOT NULL DEFAULT '';
 ALTER TABLE "public"."VacationDescription" DROP CONSTRAINT "VacationDescription_name_key";
+ALTER TABLE "public"."VacationDescription" ADD COLUMN "is_parent" boolean NOT NULL DEFAULT false;
 
 CREATE UNIQUE INDEX "Tag.label_colorId" ON "public"."Tag"("label","colorId");
 
