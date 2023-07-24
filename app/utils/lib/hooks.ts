@@ -50,6 +50,7 @@ export const useModel = (options?: { model?: string }) => {
   const supportsAdd = modelConfig?.onAdd !== undefined;
   const supportsEdit = modelConfig?.onEdit !== undefined;
   const supportsDelete = modelConfig?.onDelete !== undefined;
+  const supportsSearch = modelConfig?.useAdvancedSearch === true;
 
   return {
     getColumns,
@@ -61,6 +62,7 @@ export const useModel = (options?: { model?: string }) => {
     supportsAdd,
     supportsEdit,
     supportsDelete,
+    supportsSearch,
     model,
     ...config,
     ...modelConfig,
@@ -101,6 +103,33 @@ export const useAdminPage = (options?: { model?: string }) => {
   const handelClickAdd = () => {
     searchParams.set("action", "create");
     setSearchParams(searchParams);
+  };
+
+  const updateSearchParamsWithQuery = (query: string) => {
+    searchParams.set("query", query);
+    setSearchParams(searchParams);
+  };
+
+  const handleSearchChange = (query: string) => {
+    if (query === "") {
+      searchParams.delete("query");
+      setSearchParams(searchParams);
+      return;
+    } else {
+      debounce(() => updateSearchParamsWithQuery(query), 300)();
+    }
+  };
+
+  const debounce = (func: any, wait: number) => {
+    let timeout: any;
+    return function executedFunction(...args: any) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
   };
 
   const handelClickDelete = (dataItem: any) => {
@@ -279,7 +308,6 @@ export const useAdminPage = (options?: { model?: string }) => {
 
   const actions = model.actions || [];
 
-  // const view: View
   return {
     columns: model.getColumns(),
     optimisicData: dataListToRender,
@@ -293,6 +321,7 @@ export const useAdminPage = (options?: { model?: string }) => {
     handleClickDetailView: model.supportsDetailView
       ? handleClickDetailView
       : undefined,
+    handleSearchChange: model.supportsSearch ? handleSearchChange : undefined,
     currentData: singleItem,
     getOverlayProps,
     getFormProps,

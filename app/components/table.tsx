@@ -8,7 +8,7 @@ import clsx from "clsx";
 import React from "react";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { classNames } from "~/utils/helper";
-import { TableActionType } from "~/utils/lib/types";
+import { type TableActionType } from "~/utils/lib/types";
 
 type ARecord = Record<string, any>;
 
@@ -34,6 +34,7 @@ export function Table<TData extends ARecord>({
   actions,
   onClickAction,
   isRunningCutomAction,
+  onSearch,
 }: {
   dataList: TData[];
   columns: Column<TData>[];
@@ -49,6 +50,7 @@ export function Table<TData extends ARecord>({
   actions?: TableActionType<TData>[];
   onClickAction?: (action: TableActionType<TData>, dataItems: TData[]) => void;
   isRunningCutomAction?: boolean;
+  onSearch?: (query: string) => void;
 }) {
   const checkbox = useRef<any>();
   const [checked, setChecked] = useState(false);
@@ -66,6 +68,8 @@ export function Table<TData extends ARecord>({
     },
     [searchParams]
   );
+
+  const defaultQuery = searchParams.get("query") || "";
 
   useEffect(() => {
     const isIndeterminate =
@@ -94,12 +98,15 @@ export function Table<TData extends ARecord>({
     }
   }
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(defaultQuery);
   const handleSearch = (query: string) => {
     setQuery(query);
+    onSearch?.(query);
   };
 
   const dataListFiltered = React.useMemo(() => {
+    if (onSearch) return dataList;
+
     return dataList.filter((dataItem) => {
       const values = Object.values(dataItem);
       const stringValues = values.map((v) => v && v.toString().toLowerCase());
@@ -109,10 +116,10 @@ export function Table<TData extends ARecord>({
       );
       return isMatch;
     });
-  }, [dataList, query]);
+  }, [dataList, onSearch, query]);
 
   return (
-    <div className="">
+    <div className="h-full flex flex-col">
       <div className="flex flex-row w-full justify-between">
         <div className="sm:flex sm:items-center flex flex-col flex-1">
           <div className="sm:flex-auto w-full">
@@ -242,7 +249,12 @@ export function Table<TData extends ARecord>({
       ) : null}
 
       {dataList.length ? (
-        <div className={clsx(`flow-root`, compact ? "mt-0" : "mt-4")}>
+        <div
+          className={clsx(
+            `flow-root flex-1 overflow-scroll`,
+            compact ? "mt-0" : "mt-4"
+          )}
+        >
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
               <div className="relative">
@@ -449,6 +461,8 @@ function Search({
   title: string;
   onSearch: (query: string) => void;
 }) {
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("query") || "";
   return (
     <div>
       <div className="mt-2 flex w-[40%] border-0 overflow-hidden ">
@@ -465,6 +479,7 @@ function Search({
             id="query"
             className="block w-full rounded-full border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             placeholder={`Search ${title}...`}
+            defaultValue={query}
           />
         </div>
       </div>

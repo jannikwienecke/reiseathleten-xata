@@ -87,6 +87,7 @@ const TableView = (props: ReturnType<typeof useAdminPage>) => {
       onDelete={props.handelClickDelete}
       onBulkDelete={props.handleClickBulkDelete}
       onDetailView={props.handleClickDetailView}
+      onSearch={props.handleSearchChange}
       dataList={props.optimisicData}
       title={props.pageTitle || ""}
       subtitle={props.pageSubtitle || ""}

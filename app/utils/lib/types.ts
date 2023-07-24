@@ -20,6 +20,7 @@ export type ModelConfig<T extends Dict = { id: number }> = {
   onBulkDelete?: (args: ActionFunctionArgs) => Promise<unknown>;
   onAdd?: (args: ActionFunctionArgs) => Promise<unknown>;
   onEdit?: (args: ActionFunctionArgs) => Promise<unknown>;
+  useAdvancedSearch?: boolean;
   redirect: string;
   parent?: string;
   view: {

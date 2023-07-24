@@ -11,13 +11,47 @@ import { createLoader } from "~/utils/stuff.server";
 export type OrderInterface = Omit<Order, "price"> & {
   price: number;
   username: string;
+  email: string;
 };
 
 export const NewOrdersConfig: ModelConfig<OrderInterface> = {
   title: "New Orders",
   parent: "Orders",
-  loader: async () => {
+  loader: async (props) => {
+    const query = new URL(props.request.url).searchParams.get("query") || "";
+
+    let userIds: { user_id: number }[] = [];
+    if (query) {
+      userIds = await prisma.customer.findMany({
+        select: {
+          user_id: true,
+        },
+        where: {
+          OR: [
+            {
+              first_name: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              last_name: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      });
+    }
+
     const orders = await prisma.order.findMany({
+      // sorted by the date_created -> newest first
+      orderBy: {
+        date_created: "desc",
+      },
+
+      take: 30,
       include: {
         Vacation: {
           select: {
@@ -35,8 +69,36 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
           },
         },
       },
+
       where: {
         status: "pending",
+        // query -> check start_date and end_date if the string is included
+        OR: [
+          {
+            User: {
+              email: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          },
+          {
+            User: {
+              id: {
+                in: userIds.map((t) => t.user_id),
+              },
+            },
+          },
+
+          {
+            Vacation: {
+              name: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          },
+        ],
       },
     });
 
@@ -45,9 +107,11 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
       price: t.price.toNumber(),
       username:
         t.User.Customer[0].first_name + " " + t.User.Customer[0].last_name,
+      email: t.User.email,
     }));
   },
 
+  useAdvancedSearch: true,
   redirect: "/admin/Order",
   view: {
     navigation: {
@@ -70,6 +134,10 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
         {
           accessorKey: "username",
           header: "User",
+        },
+        {
+          accessorKey: "email",
+          header: "Email",
         },
         {
           accessorKey: "start_date",
