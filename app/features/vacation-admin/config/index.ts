@@ -10,6 +10,9 @@ import { CustomerConfig } from "./customer";
 import { DefaultVacationActivityConfig } from "./vacation-default-activity";
 import { OrderVacationConfig } from "./orders";
 import { VacationServicesConfig } from "./vacation-services";
+import { RoomConfig } from "./room";
+import { HotelConfig } from "./hotel";
+import { ContactConfig } from "./contact";
 
 export const CONFIG: ConfigType = {
   models: {
@@ -24,5 +27,8 @@ export const CONFIG: ConfigType = {
     Customer: CustomerConfig,
     DefaultActivityVacation: DefaultVacationActivityConfig,
     VacationServices: VacationServicesConfig,
+    room: RoomConfig,
+    hotel: HotelConfig,
+    contact: ContactConfig,
   },
 };

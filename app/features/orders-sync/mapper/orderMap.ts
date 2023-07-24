@@ -274,8 +274,6 @@ export class OrderMapper {
       })
     );
 
-    console.log(events.map((e) => e.props.date.value));
-
     return OrderEntity.create({
       ...order,
       id: order.id,

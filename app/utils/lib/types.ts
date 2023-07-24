@@ -69,11 +69,14 @@ export type DataFunctionArgs = {
 };
 
 export type ActionFunctionArgs = DataFunctionArgs & {
+  query?: string;
   formData: FormData | undefined;
   config: ModelConfig;
 };
 
-export type LoaderFunctionArgs = DataFunctionArgs;
+export type LoaderFunctionArgs = {
+  query?: string;
+} & DataFunctionArgs;
 
 export interface PageHandler {
   makeRequest: (props: ActionFunctionArgs) => Promise<any>;

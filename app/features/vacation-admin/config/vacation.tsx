@@ -20,8 +20,33 @@ const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacationDescription");
 export const VacationConfig: ModelConfig<VacationInterface> = {
   title: "Vacation",
   parent: PARENT_BASE_KEY,
-  loader: async () => {
+  loader: async ({ query }) => {
     const vacations = await prisma.vacationDescription.findMany({
+      take: 30,
+      where: {
+        OR: [
+          {
+            name: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+          {
+            Location: {
+              name: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          },
+          {
+            status: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
       include: {
         Location: true,
       },
@@ -79,6 +104,8 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
 
   onBulkDelete: async (props) => prismaCrudHandler.bulkDelete(props),
 
+  useAdvancedSearch: true,
+
   redirect: "/admin/Vacation",
   view: {
     navigation: {
@@ -92,7 +119,9 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
         },
       ],
     },
-    // detail: {},
+    detail: {
+      getUrl: (id) => `/admin/vacations/${id}`,
+    },
     AddForm: {
       title: "Create New Vacation",
       fields: [

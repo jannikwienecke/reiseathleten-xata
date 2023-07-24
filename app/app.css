@@ -1188,14 +1188,6 @@ select {
   height: 100vh;
 }
 
-.h-\[50\%\] {
-  height: 50%;
-}
-
-.h-\[95\%\] {
-  height: 95%;
-}
-
 .max-h-60 {
   max-height: 15rem;
 }

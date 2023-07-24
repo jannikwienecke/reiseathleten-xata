@@ -216,7 +216,6 @@ export const useAdminPage = (options?: { model?: string }) => {
       fieldDefaultValue = singleItem[field.name || ""];
     }
 
-    // for select fields
     // to get the id of the connected model
     const selectId =
       singleItem?.[(fieldModel?.selectField?.fieldId as string) || "id"];

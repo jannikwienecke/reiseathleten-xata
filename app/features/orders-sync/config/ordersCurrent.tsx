@@ -1,26 +1,18 @@
-import { BoltIcon, InboxIcon } from "@heroicons/react/20/solid";
-import { type Order } from "@prisma/client";
-import { Form } from "~/components";
-import { prisma } from "~/db.server";
+import { BoltIcon } from "@heroicons/react/20/solid";
 
 import type { ModelConfig } from "~/utils/lib/types";
-import { NewOrdersConfig, type OrderInterface } from "./ordersNew";
+import { NewOrdersConfig, getOrders, type OrderInterface } from "./ordersNew";
 
 export const CurrentOrdersConfig: ModelConfig<OrderInterface> = {
   ...NewOrdersConfig,
   title: "Current Orders",
 
-  loader: async () => {
-    const orders = await prisma.order.findMany({
-      where: {
-        status: "validated",
-      },
+  loader: async (props) => {
+    return getOrders({
+      ...props,
+      allowedStatusList: ["validated", "invoiced", "paid"],
+      orderBy: "startDate",
     });
-
-    return orders.map((t) => ({
-      ...t,
-      price: t.price.toNumber(),
-    }));
   },
 
   view: {

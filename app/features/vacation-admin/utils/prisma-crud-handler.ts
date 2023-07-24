@@ -14,7 +14,10 @@ type Model =
   | "customer"
   | "service"
   | "defaultVacationActivity"
-  | "vacationServices";
+  | "vacationServices"
+  | "room"
+  | "hotel"
+  | "contact";
 
 export class PrismaCrudHandler {
   private prisma: PrismaClient;

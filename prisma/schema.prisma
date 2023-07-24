@@ -38,6 +38,7 @@ model Location {
   id                  Int                   @id @default(autoincrement())
   name                String                @unique
   description         String?
+  Hotel               Hotel[]
   VacationDescription VacationDescription[]
 }
 
@@ -76,6 +77,7 @@ model VacationDescription {
   price                   String?
   locationId              Int?
   date_imported           String                    @default("")
+  is_parent               Boolean                   @default(false)
   DefaultVacationActivity DefaultVacationActivity[]
   Order                   Order[]
   Location                Location?                 @relation(fields: [locationId], references: [id], onDelete: NoAction)
@@ -173,4 +175,35 @@ model OrderActivityEvents {
   user_id  Int
   Order    Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
   User     User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Contact {
+  id         Int     @id @default(autoincrement())
+  first_name String
+  last_name  String
+  company    String?
+  address_1  String?
+  address_2  String?
+  email      String  @unique
+  city       String?
+  state      String?
+  postcode   String?
+  phone      String
+  Hotel      Hotel[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Hotel {
+  id         Int       @id @default(autoincrement())
+  name       String
+  locationId Int?
+  contactId  Int?
+  Contact    Contact?  @relation(fields: [contactId], references: [id], onDelete: NoAction)
+  Location   Location? @relation(fields: [locationId], references: [id], onDelete: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Room {
+  id   Int    @id @default(autoincrement())
+  name String
 }

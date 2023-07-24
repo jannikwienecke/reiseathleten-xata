@@ -27,6 +27,8 @@ export const createPageFunction = ({
     const modelConfig: ModelConfig =
       config["models"][props.params.model as keyof typeof config["models"]];
 
+    const query = new URL(props.request.url).searchParams.get("query") || "";
+
     if (!modelConfig) {
       throw new Response(null, {
         status: 404,
@@ -35,7 +37,10 @@ export const createPageFunction = ({
     }
 
     return {
-      data: await modelConfig.loader(props),
+      data: await modelConfig.loader({
+        ...props,
+        query: query.toLowerCase(),
+      }),
     };
   };
 
@@ -45,6 +50,7 @@ export const createPageFunction = ({
     const formAction = getFormDataValue(formData, "action");
     const customActionName = getFormDataValue(formData, "actionName");
     const model = getFormDataValue(formData, "model");
+    const query = new URL(props.request.url).searchParams.get("query") || "";
 
     const modelConfig: ModelConfig =
       config["models"][model as keyof typeof config["models"]];
@@ -81,6 +87,7 @@ export const createPageFunction = ({
           ...props,
           formData,
           config: modelConfig,
+          query: query.toLowerCase(),
         })) || {}
       );
     } catch (error) {

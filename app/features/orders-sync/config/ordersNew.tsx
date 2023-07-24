@@ -7,6 +7,7 @@ import { formatDateString } from "~/features/vacation-admin/utils/helpers";
 import type { DataFunctionArgs, ModelConfig } from "~/utils/lib/types";
 import { syncOrdersUsecase } from "../server-functions/sync-orders";
 import { createLoader } from "~/utils/stuff.server";
+import { type OrderStatusValueObject } from "../domain/order-status";
 
 export type OrderInterface = Omit<Order, "price"> & {
   price: number;
@@ -14,101 +15,120 @@ export type OrderInterface = Omit<Order, "price"> & {
   email: string;
 };
 
-export const NewOrdersConfig: ModelConfig<OrderInterface> = {
-  title: "New Orders",
-  parent: "Orders",
-  loader: async (props) => {
-    const query = new URL(props.request.url).searchParams.get("query") || "";
+const ORDER_BY_OPTIONS = {
+  created: { date_created: "desc" },
+  startDate: { start_date: "desc" },
+  endDate: { end_date: "desc" },
+} as const;
 
-    let userIds: { user_id: number }[] = [];
-    if (query) {
-      userIds = await prisma.customer.findMany({
-        select: {
-          user_id: true,
-        },
-        where: {
-          OR: [
-            {
-              first_name: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
-            {
-              last_name: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
-          ],
-        },
-      });
-    }
-
-    const orders = await prisma.order.findMany({
-      // sorted by the date_created -> newest first
-      orderBy: {
-        date_created: "desc",
+export const getOrders = async ({
+  query,
+  allowedStatusList,
+  orderBy,
+}: {
+  query?: string;
+  allowedStatusList: OrderStatusValueObject["value"][];
+  orderBy: keyof typeof ORDER_BY_OPTIONS;
+}) => {
+  let userIds: { user_id: number }[] = [];
+  if (query) {
+    userIds = await prisma.customer.findMany({
+      select: {
+        user_id: true,
       },
-
-      take: 30,
-      include: {
-        Vacation: {
-          select: {
-            name: true,
-          },
-        },
-        User: {
-          include: {
-            Customer: {
-              select: {
-                first_name: true,
-                last_name: true,
-              },
-            },
-          },
-        },
-      },
-
       where: {
-        status: "pending",
-        // query -> check start_date and end_date if the string is included
         OR: [
           {
-            User: {
-              email: {
-                contains: query,
-                mode: "insensitive",
-              },
+            first_name: {
+              contains: query,
+              mode: "insensitive",
             },
           },
           {
-            User: {
-              id: {
-                in: userIds.map((t) => t.user_id),
-              },
-            },
-          },
-
-          {
-            Vacation: {
-              name: {
-                contains: query,
-                mode: "insensitive",
-              },
+            last_name: {
+              contains: query,
+              mode: "insensitive",
             },
           },
         ],
       },
     });
+  }
 
-    return orders.map((t) => ({
-      ...t,
-      price: t.price.toNumber(),
-      username:
-        t.User.Customer[0].first_name + " " + t.User.Customer[0].last_name,
-      email: t.User.email,
-    }));
+  const orders = await prisma.order.findMany({
+    orderBy: ORDER_BY_OPTIONS[orderBy],
+
+    take: 30,
+    include: {
+      Vacation: {
+        select: {
+          name: true,
+        },
+      },
+      User: {
+        include: {
+          Customer: {
+            select: {
+              first_name: true,
+              last_name: true,
+            },
+          },
+        },
+      },
+    },
+
+    where: {
+      status: {
+        in: allowedStatusList,
+      },
+      // query -> check start_date and end_date if the string is included
+      OR: [
+        {
+          User: {
+            email: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+        },
+        {
+          User: {
+            id: {
+              in: userIds.map((t) => t.user_id),
+            },
+          },
+        },
+
+        {
+          Vacation: {
+            name: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+        },
+      ],
+    },
+  });
+
+  return orders.map((t) => ({
+    ...t,
+    price: t.price.toNumber(),
+    username:
+      t.User.Customer[0].first_name + " " + t.User.Customer[0].last_name,
+    email: t.User.email,
+  }));
+};
+
+export const NewOrdersConfig: ModelConfig<OrderInterface> = {
+  title: "New Orders",
+  parent: "Orders",
+  loader: async (props) => {
+    return getOrders({
+      ...props,
+      allowedStatusList: ["pending"],
+      orderBy: "created",
+    });
   },
 
   useAdvancedSearch: true,

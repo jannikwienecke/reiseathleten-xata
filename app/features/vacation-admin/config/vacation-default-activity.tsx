@@ -74,12 +74,6 @@ export const DefaultVacationActivityConfig: ModelConfig<DefaultVacationAcitvity>
       invariant(name, "name is required");
       invariant(acitivityName, "acitivityName is required");
 
-      console.log({
-        id,
-        name,
-        acitivityName,
-      });
-
       await prisma.defaultVacationActivity.update({
         where: {
           id: id,
