@@ -25,6 +25,7 @@ interface VacationBookingProps {
   status: string;
   location?: LocationEntity;
   date_imported: string;
+  isParent: boolean;
 }
 
 export class VacationBooking extends Entity<VacationBookingProps> {

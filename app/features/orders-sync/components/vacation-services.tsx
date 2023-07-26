@@ -1,11 +1,11 @@
+import { useNavigation, useSubmit } from "@remix-run/react";
 import { Table } from "~/components";
 import { useAdminPage } from "~/utils/lib/hooks";
-import { useOrderStore } from "../store/single-order-store";
-import { useNavigation, useSubmit } from "@remix-run/react";
+import { useVacationState } from "../store/single-vacation-store";
 
-export const ServiceTableAdditional = () => {
+export const VacationServicesTable = () => {
   const submit = useSubmit();
-  const order = useOrderStore((store) => store.order);
+  const vacation = useVacationState((store) => store.vacation);
   const { columns, handelClickAdd } = useAdminPage({
     model: "Service",
   });
@@ -15,7 +15,7 @@ export const ServiceTableAdditional = () => {
   const isDeleting = formData?.get("action") === "deleteAdditionalService";
   const idToDelete = formData?.get("id");
 
-  const services = order.additionalServices;
+  const services = vacation.services;
 
   const handleClickDelete = (item: { id: number }) => {
     submit(
@@ -51,7 +51,7 @@ export const ServiceTableAdditional = () => {
             };
           })}
         columns={columns}
-        title={"Additional Service's"}
+        title={""}
       />
     </>
   );

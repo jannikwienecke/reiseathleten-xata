@@ -1,6 +1,6 @@
 import { Table } from "~/components";
 import { useAdminPage } from "~/utils/lib/hooks";
-import { useOrderStore } from "../store/vacation-store";
+import { useOrderStore } from "../store/single-order-store";
 
 export const ServiceTable = () => {
   const order = useOrderStore((store) => store.order);

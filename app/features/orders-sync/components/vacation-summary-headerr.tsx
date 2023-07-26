@@ -1,34 +1,27 @@
 import { Menu, Transition } from "@headlessui/react";
-import {
-  CalendarDaysIcon,
-  EllipsisVerticalIcon,
-} from "@heroicons/react/20/solid";
+import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { useSubmit } from "@remix-run/react";
 import { Fragment } from "react";
-import { useOrderStore } from "~/features/orders-sync/store/single-order-store";
+import { useVacationState } from "~/features/orders-sync/store/single-vacation-store";
 import { classNames } from "~/utils/helper";
 
-export const OrderSummaryHeader = () => {
-  const order = useOrderStore((store) => store.order);
+export const VacationSummaryHeader = () => {
+  const vacation = useVacationState((store) => store.vacation);
   const submit = useSubmit();
-
-  const handleClickCopyUrl = () => {
-    navigator.clipboard.writeText(location.href);
-  };
-
-  const handleClickStatusButton = () => {
-    order.updateStatus();
-
+  const handleClickStatusButton = () => {};
+  const handleClickSetAsParentVacation = () => {
     submit(
       {
-        action: "updateStatus",
-        newStatus: order.status.toString(),
+        action: "markAsParentVacation",
       },
       {
         method: "POST",
       }
     );
   };
+
+  // HIER WEITER MACHEN
+  console.log(vacation.props.isParent);
 
   return (
     <>
@@ -59,42 +52,28 @@ export const OrderSummaryHeader = () => {
               />
               <h1>
                 <div className="text-sm leading-6 text-gray-500">
-                  Order{" "}
-                  <span className="text-gray-700">
-                    {order.props.orderKeyId}
-                  </span>
+                  Vacation{" "}
+                  <span className="text-gray-700">{vacation.props.id}</span>
                 </div>
                 <div className="mt-1 text-base font-semibold leading-6 text-gray-900">
-                  {order.props.vacation.props.name}
-                </div>
-
-                <div className="flex items-center gap-x-4 pt-2">
-                  <div className="flex items-center gap-x-1">
-                    <CalendarDaysIcon
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm leading-6 text-gray-500">
-                      {order.dispayStartDate} - {order.displayEndDate}
-                    </span>
-                  </div>
+                  {vacation.props.name}
                 </div>
               </h1>
             </div>
 
             <div className="flex items-center gap-x-4 sm:gap-x-6">
               <button
-                onClick={handleClickCopyUrl}
+                onClick={handleClickSetAsParentVacation}
                 className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
               >
-                Copy URL
+                Set As Parent
               </button>
 
               <button
                 onClick={handleClickStatusButton}
                 className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white hover:border-black hover:outline-2 hover:outline hover:outline-black hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                {order.statusButtonText}
+                Create
               </button>
 
               <Menu as="div" className="relative sm:hidden">
@@ -119,7 +98,7 @@ export const OrderSummaryHeader = () => {
                     <Menu.Item>
                       {({ active }) => (
                         <button
-                          onClick={handleClickCopyUrl}
+                          // onClick={handleClickCopyUrl}
                           type="button"
                           className={classNames(
                             active ? "bg-gray-50" : "",

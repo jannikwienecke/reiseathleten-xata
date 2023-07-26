@@ -3,7 +3,7 @@ import {
   CreditCardIcon,
   UserCircleIcon,
 } from "@heroicons/react/20/solid";
-import { useOrderStore } from "../store/vacation-store";
+import { useOrderStore } from "../store/single-order-store";
 import { type OrderStatusValueObject } from "../domain/order-status";
 import clsx from "clsx";
 

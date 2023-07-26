@@ -1,14 +1,16 @@
 import { useSearchParams } from "@remix-run/react";
 import clsx from "clsx";
 
-const views = [
-  { name: "order_services", label: "Services" },
-  { name: "pdf_invoice", label: "Invoice" },
-] as const;
-
 type ViewType = typeof views[number];
 
-export function OrderMainViewTabs() {
+export function DetailsTabs({
+  views,
+}: {
+  views: {
+    name: string;
+    label: string;
+  }[];
+}) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleChangeTab = (tab: ViewType) => {
@@ -29,7 +31,7 @@ export function OrderMainViewTabs() {
           id="tabs"
           name="tabs"
           className="block w-full rounded-md border-gray-300 focus:border-black focus:ring-black"
-          defaultValue={views.find((tab) => tab?.current)?.name}
+          // defaultValue={views.find((tab) => tab?.current)?.name}
         >
           {views.map((tab) => (
             <option key={tab.name}>{tab.name}</option>

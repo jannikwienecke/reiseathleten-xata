@@ -8,7 +8,7 @@ import { Form, LibForm } from "~/components";
 import { EventsActivityFeed } from "~/features/orders-sync/components/event-acitivity-feed";
 import { CommentForm } from "~/features/orders-sync/components/event-activity-form";
 import { InvoiceSummary } from "~/features/orders-sync/components/order-invoice-summary";
-import { OrderMainViewTabs } from "~/features/orders-sync/components/order-main-view-tabs";
+import { DetailsTabs } from "~/features/orders-sync/components/order-main-view-tabs";
 import { ServiceTableAdditional } from "~/features/orders-sync/components/order-services-additional";
 import { ServiceTable } from "~/features/orders-sync/components/order-services-included";
 import { OrderSummaryHeader } from "~/features/orders-sync/components/order-summary-header";
@@ -20,7 +20,7 @@ import {
 import {
   initOrder,
   useOrderStore,
-} from "~/features/orders-sync/store/vacation-store";
+} from "~/features/orders-sync/store/single-order-store";
 import { useAdminPage } from "~/utils/lib/hooks";
 import { LibSliderOver } from "~/utils/lib/react";
 import { Pdf, PdfViewInvoiceView } from "./admin.woo";
@@ -96,6 +96,11 @@ export default function SyncOrdersPage() {
   );
 }
 
+const views = [
+  { name: "order_services", label: "Services" },
+  { name: "pdf_invoice", label: "Invoice" },
+];
+
 export function OrderSummaryContent() {
   const [searchParams] = useSearchParams();
   const currentView = searchParams.get("view");
@@ -120,7 +125,7 @@ export function OrderSummaryContent() {
 
             <div className="lg:col-span-2 lg:row-span-2 lg:row-start-1 pr-8">
               <div className="pb-2">
-                <OrderMainViewTabs />
+                <DetailsTabs views={views} />
               </div>
               {isPdfInvoiceView ? (
                 <>

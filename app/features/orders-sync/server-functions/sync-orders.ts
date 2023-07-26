@@ -152,6 +152,7 @@ export const syncOrdersUsecase = async ({
       dateModified: "",
       dateModifiedGmt: "",
       date_imported: new Date().toISOString(),
+      isParent: false,
     });
   }
 
