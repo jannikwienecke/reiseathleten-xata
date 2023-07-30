@@ -29,6 +29,14 @@ export const createPageFunction = ({
 
     const query = new URL(props.request.url).searchParams.get("query") || "";
 
+    const sortByField = new URL(props.request.url).searchParams.get(
+      "sortField"
+    );
+
+    const sortByDirection = new URL(props.request.url).searchParams.get(
+      "sortDirection"
+    );
+
     if (!modelConfig) {
       throw new Response(null, {
         status: 404,
@@ -40,6 +48,13 @@ export const createPageFunction = ({
       data: await modelConfig.loader({
         ...props,
         query: query.toLowerCase(),
+        sortBy:
+          sortByField && sortByDirection
+            ? {
+                field: sortByField,
+                direction: sortByDirection as "asc" | "desc",
+              }
+            : undefined,
       }),
     };
   };

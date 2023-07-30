@@ -30,6 +30,7 @@ export type ModelConfig<T extends Dict = { id: number }> = {
         header: string;
         isColor?: boolean;
         formatValue?: (value: any) => any;
+        disableSortBy?: boolean;
       }[];
     };
     detail?: {
@@ -76,6 +77,10 @@ export type ActionFunctionArgs = DataFunctionArgs & {
 
 export type LoaderFunctionArgs = {
   query?: string;
+  sortBy?: {
+    field: string;
+    direction: "asc" | "desc";
+  };
 } & DataFunctionArgs;
 
 export interface PageHandler {

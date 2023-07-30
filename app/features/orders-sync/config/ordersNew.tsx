@@ -12,6 +12,8 @@ import { type OrderStatusValueObject } from "../domain/order-status";
 export type OrderInterface = Omit<Order, "price"> & {
   price: number;
   username: string;
+  first_name: string;
+  last_name: string;
   email: string;
 };
 
@@ -23,10 +25,15 @@ const ORDER_BY_OPTIONS = {
 
 export const getOrders = async ({
   query,
+  sortBy,
   allowedStatusList,
   orderBy,
 }: {
   query?: string;
+  sortBy?: {
+    field: string;
+    direction: "asc" | "desc";
+  };
   allowedStatusList: OrderStatusValueObject["value"][];
   orderBy: keyof typeof ORDER_BY_OPTIONS;
 }) => {
@@ -55,8 +62,26 @@ export const getOrders = async ({
     });
   }
 
+  const orderByEmail = sortBy?.field === "email";
+
+  let _orderBy: any = {};
+
+  if (orderByEmail) {
+    _orderBy = {
+      User: {
+        email: sortBy?.direction,
+      },
+    };
+  } else {
+    _orderBy = sortBy?.field
+      ? {
+          [sortBy.field]: sortBy.direction,
+        }
+      : ORDER_BY_OPTIONS[orderBy];
+  }
+
   const orders = await prisma.order.findMany({
-    orderBy: ORDER_BY_OPTIONS[orderBy],
+    orderBy: _orderBy,
 
     take: 30,
     include: {
@@ -114,6 +139,8 @@ export const getOrders = async ({
   return orders.map((t) => ({
     ...t,
     price: t.price.toNumber(),
+    last_name: t.User.Customer[0].last_name,
+    first_name: t.User.Customer[0].first_name,
     username:
       t.User.Customer[0].first_name + " " + t.User.Customer[0].last_name,
     email: t.User.email,
@@ -128,6 +155,7 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
       ...props,
       allowedStatusList: ["pending"],
       orderBy: "created",
+      sortBy: props.sortBy,
     });
   },
 
@@ -152,8 +180,14 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
           formatValue: formatDateString,
         },
         {
-          accessorKey: "username",
-          header: "User",
+          accessorKey: "first_name",
+          header: "First Name",
+          disableSortBy: true,
+        },
+        {
+          accessorKey: "last_name",
+          header: "Last Name",
+          disableSortBy: true,
         },
         {
           accessorKey: "email",

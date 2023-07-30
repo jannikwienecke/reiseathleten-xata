@@ -1,6 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import {
   ChevronDownIcon,
+  ChevronUpIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { useSearchParams } from "@remix-run/react";
@@ -9,7 +10,7 @@ import React from "react";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { classNames } from "~/utils/helper";
 import { type TableActionType } from "~/utils/lib/types";
-
+import { Notification } from "./notification";
 type ARecord = Record<string, any>;
 
 export type Column<T extends ARecord> = {
@@ -17,6 +18,7 @@ export type Column<T extends ARecord> = {
   header: string;
   isColor?: boolean;
   formatValue?: (value: any) => string;
+  disableSortBy?: boolean;
 };
 
 export function Table<TData extends ARecord>({
@@ -35,6 +37,7 @@ export function Table<TData extends ARecord>({
   onClickAction,
   isRunningCutomAction,
   onSearch,
+  onSortBy,
 }: {
   dataList: TData[];
   columns: Column<TData>[];
@@ -51,6 +54,7 @@ export function Table<TData extends ARecord>({
   onClickAction?: (action: TableActionType<TData>, dataItems: TData[]) => void;
   isRunningCutomAction?: boolean;
   onSearch?: (query: string) => void;
+  onSortBy?: (column: Column<TData>) => void;
 }) {
   const checkbox = useRef<any>();
   const [checked, setChecked] = useState(false);
@@ -98,28 +102,110 @@ export function Table<TData extends ARecord>({
     }
   }
 
+  const [sortBy, setSortBy] = useState<{
+    column: Column<TData> | null;
+    direction: "asc" | "desc";
+  }>();
+
+  const [error, setError] = React.useState({
+    message: "",
+  });
+
+  const timeoutRef = React.useRef<number>();
+  function handleClickSortBy(column: Column<TData>) {
+    if (column.disableSortBy) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      console.log("set ERROR");
+
+      setError({
+        message: `Cannot be sorted by "${column.header}"`,
+      });
+
+      timeoutRef.current = window.setTimeout(() => {
+        setError({
+          message: "",
+        });
+      }, 3000);
+
+      return;
+    }
+
+    onSortBy?.(column);
+
+    setSortBy((prev) => {
+      if (prev?.column === column) {
+        return {
+          column,
+          direction: prev.direction === "asc" ? "desc" : "asc",
+        };
+      }
+      return {
+        column,
+        direction: "asc",
+      };
+    });
+  }
+
   const [query, setQuery] = useState(defaultQuery);
+
   const handleSearch = (query: string) => {
     setQuery(query);
     onSearch?.(query);
   };
 
+  const _sortBy = React.useCallback(
+    (a: TData, b: TData) => {
+      if (!sortBy?.column) return 0;
+
+      const valueA = a[sortBy.column.accessorKey];
+      const valueB = b[sortBy.column.accessorKey];
+
+      if (sortBy.direction === "asc") {
+        if (valueA < valueB) return -1;
+        if (valueA > valueB) return 1;
+      } else {
+        if (valueA > valueB) return -1;
+        if (valueA < valueB) return 1;
+      }
+
+      return 0;
+    },
+    [sortBy?.column, sortBy?.direction]
+  );
+
   const dataListFiltered = React.useMemo(() => {
     if (onSearch) return dataList;
 
-    return dataList.filter((dataItem) => {
-      const values = Object.values(dataItem);
-      const stringValues = values.map((v) => v && v.toString().toLowerCase());
+    return dataList
+      .filter((dataItem) => {
+        const values = Object.values(dataItem);
+        const stringValues = values.map((v) => v && v.toString().toLowerCase());
 
-      const isMatch = stringValues.some(
-        (v) => v && v.includes(query ? query?.toLowerCase?.() : "")
-      );
-      return isMatch;
-    });
-  }, [dataList, onSearch, query]);
+        const isMatch = stringValues.some(
+          (v) => v && v.includes(query ? query?.toLowerCase?.() : "")
+        );
+        return isMatch;
+      })
+      .sort(_sortBy);
+  }, [_sortBy, dataList, onSearch, query]);
+
+  const IconSortBy =
+    sortBy?.direction === "asc" ? ChevronDownIcon : ChevronUpIcon;
 
   return (
     <div className="h-full flex flex-col">
+      <div className="z-50 absolute top-0 -right-0">
+        <Notification
+          isOpen={error.message !== ""}
+          isError={true}
+          message={error.message}
+          key={error.message}
+        />
+      </div>
+
       <div className="flex flex-row w-full justify-between">
         <div className="sm:flex sm:items-center flex flex-col flex-1">
           <div className="sm:flex-auto w-full">
@@ -288,7 +374,22 @@ export function Table<TData extends ARecord>({
                             scope="col"
                             className="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-black bg-white"
                           >
-                            {column.header}
+                            <div className="flex flex-row items-center space-x-1">
+                              <button onClick={() => handleClickSortBy(column)}>
+                                {column.header}
+                              </button>
+                              <button
+                                onClick={() => handleClickSortBy(column)}
+                                type="button"
+                                className="text-gray-400 hover:text-gray-700"
+                              >
+                                {sortBy &&
+                                sortBy.column?.accessorKey ===
+                                  column.accessorKey ? (
+                                  <IconSortBy className="h-4 w-4 text-gray-400" />
+                                ) : null}
+                              </button>
+                            </div>
                           </th>
                         );
                       })}

@@ -8,10 +8,9 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import React, { useContext } from "react";
-import invariant from "tiny-invariant";
+import { type Column } from "./components/table";
 import { LibContext } from "./react";
 import type {
-  Dict,
   LibActionData,
   LibLoaderData,
   ModelConfig,
@@ -118,6 +117,21 @@ export const useAdminPage = (options?: { model?: string }) => {
     } else {
       debounce(() => updateSearchParamsWithQuery(query), 300)();
     }
+  };
+
+  const handleSortChange = (column: Column<any>) => {
+    const sortByField = searchParams.get("sortField");
+    const sortByDirection = searchParams.get("sortDirection");
+
+    searchParams.set("sortField", column.accessorKey as string);
+    searchParams.set(
+      "sortDirection",
+      sortByField === column.accessorKey && sortByDirection === "asc"
+        ? "desc"
+        : "asc"
+    );
+
+    setSearchParams(searchParams);
   };
 
   const debounce = (func: any, wait: number) => {
@@ -321,6 +335,7 @@ export const useAdminPage = (options?: { model?: string }) => {
       ? handleClickDetailView
       : undefined,
     handleSearchChange: model.supportsSearch ? handleSearchChange : undefined,
+    handleSortChange: model.supportsSearch ? handleSortChange : undefined,
     currentData: singleItem,
     getOverlayProps,
     getFormProps,

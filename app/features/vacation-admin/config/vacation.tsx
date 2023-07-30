@@ -21,9 +21,16 @@ const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacationDescription");
 export const VacationConfig: ModelConfig<VacationInterface> = {
   title: "Vacation",
   parent: PARENT_BASE_KEY,
-  loader: async ({ query }) => {
+  loader: async ({ query, sortBy }) => {
     const vacations = await prisma.vacationDescription.findMany({
       take: 30,
+      orderBy: sortBy
+        ? {
+            [sortBy.field]: sortBy.direction,
+          }
+        : {
+            name: "asc",
+          },
       where: {
         OR: [
           {
