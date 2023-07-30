@@ -43,6 +43,7 @@ export const singleVacationActionHandler = async ({
   const vacationId = getFormDataValue(formData, "vacation");
   const formId = getFormDataValue(formData, "id");
   const childrenIds = getFormDataValue(formData, "childrenIds");
+  const activityId = getFormDataValue(formData, "acitivityName");
 
   const orderId = params.id;
 
@@ -147,14 +148,42 @@ export const singleVacationActionHandler = async ({
       },
     });
 
-    console.log({ service });
-
     service?.id &&
       (await prisma.vacationServices.delete({
         where: {
           id: service.id,
         },
       }));
+  };
+
+  const handleAddActivity = async () => {
+    invariant(activityId, `Action ${action}: activityId is required`);
+
+    await prisma.defaultVacationActivity.create({
+      data: {
+        VacationDescription: {
+          connect: {
+            id: +id,
+          },
+        },
+        AcitivityDescription: {
+          connect: {
+            id: +activityId,
+          },
+        },
+      },
+    });
+  };
+
+  // deleteVacationActivity
+  const handleDeleteVacationActivity = async () => {
+    invariant(formId, `Action ${action}: formId is required`);
+
+    await prisma.defaultVacationActivity.delete({
+      where: {
+        id: +formId,
+      },
+    });
   };
 
   switch (action) {
@@ -180,6 +209,14 @@ export const singleVacationActionHandler = async ({
 
     case "deleteVacationService":
       await handleDeleteVacationService();
+      break;
+
+    case "addActivity":
+      await handleAddActivity();
+      break;
+
+    case "deleteVacationActivity":
+      await handleDeleteVacationActivity();
       break;
 
     default:

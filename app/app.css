@@ -2087,6 +2087,11 @@ select {
   background-color: rgb(239 68 68 / var(--tw-bg-opacity));
 }
 
+.bg-red-600 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(220 38 38 / var(--tw-bg-opacity));
+}
+
 .bg-transparent {
   background-color: transparent;
 }
@@ -2114,11 +2119,6 @@ select {
 .bg-yellow-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(254 252 232 / var(--tw-bg-opacity));
-}
-
-.bg-red-600 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(220 38 38 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-25 {
@@ -2642,6 +2642,11 @@ select {
   color: rgb(22 101 52 / var(--tw-text-opacity));
 }
 
+.text-indigo-400 {
+  --tw-text-opacity: 1;
+  color: rgb(129 140 248 / var(--tw-text-opacity));
+}
+
 .text-indigo-500 {
   --tw-text-opacity: 1;
   color: rgb(99 102 241 / var(--tw-text-opacity));
@@ -3014,14 +3019,14 @@ select {
   background-color: rgb(99 102 241 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-white:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
 .hover\:bg-red-500:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(239 68 68 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-white:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .hover\:text-black:hover {
@@ -3300,6 +3305,14 @@ select {
     margin-left: 4rem;
   }
 
+  .sm\:ml-3 {
+    margin-left: 0.75rem;
+  }
+
+  .sm\:ml-4 {
+    margin-left: 1rem;
+  }
+
   .sm\:ml-6 {
     margin-left: 1.5rem;
   }
@@ -3312,24 +3325,16 @@ select {
     margin-top: 0px;
   }
 
+  .sm\:mt-4 {
+    margin-top: 1rem;
+  }
+
   .sm\:mt-5 {
     margin-top: 1.25rem;
   }
 
   .sm\:mt-6 {
     margin-top: 1.5rem;
-  }
-
-  .sm\:ml-3 {
-    margin-left: 0.75rem;
-  }
-
-  .sm\:ml-4 {
-    margin-left: 1rem;
-  }
-
-  .sm\:mt-4 {
-    margin-top: 1rem;
   }
 
   .sm\:block {
@@ -3356,6 +3361,10 @@ select {
     height: 2.5rem;
   }
 
+  .sm\:w-10 {
+    width: 2.5rem;
+  }
+
   .sm\:w-12 {
     width: 3rem;
   }
@@ -3364,24 +3373,20 @@ select {
     width: 16rem;
   }
 
-  .sm\:w-full {
-    width: 100%;
-  }
-
-  .sm\:w-10 {
-    width: 2.5rem;
-  }
-
   .sm\:w-auto {
     width: auto;
   }
 
-  .sm\:max-w-sm {
-    max-width: 24rem;
+  .sm\:w-full {
+    width: 100%;
   }
 
   .sm\:max-w-lg {
     max-width: 32rem;
+  }
+
+  .sm\:max-w-sm {
+    max-width: 24rem;
   }
 
   .sm\:flex-auto {

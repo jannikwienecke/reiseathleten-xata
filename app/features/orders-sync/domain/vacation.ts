@@ -1,8 +1,11 @@
-import { Entity } from "~/shared/domain/entity";
-import { type ServiceList } from "./service-list";
 import { type DateValueObject } from "~/features/vacation/domain/date";
+import { Entity } from "~/shared/domain/entity";
+import type {
+  ActivityType,
+  VacationChildren,
+} from "../mapper/vacationDescriptionMap";
 import { type LocationEntity } from "./location";
-import { type VacationChildren } from "../mapper/vacationDescriptionMap";
+import { type ServiceList } from "./service-list";
 
 interface VacationBookingProps {
   id: number;
@@ -29,6 +32,7 @@ interface VacationBookingProps {
   isParent: boolean;
   parentId: number | null;
   children: VacationChildren[];
+  activities: ActivityType[];
 }
 
 export class VacationBooking extends Entity<VacationBookingProps> {
@@ -49,10 +53,14 @@ export class VacationBooking extends Entity<VacationBookingProps> {
   }
 
   get parentToggleButtonText() {
-    return this.props.isParent ? "Unset Parent" : "Make parent";
+    return this.props.isParent ? "Unset Parent" : "Mark as parent";
   }
 
   get childrenIds() {
     return this.props.children.map((child) => child.id);
+  }
+
+  get activities() {
+    return this.props.activities;
   }
 }

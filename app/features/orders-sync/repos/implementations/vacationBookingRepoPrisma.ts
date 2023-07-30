@@ -57,6 +57,11 @@ export class VacationBookingRepoPrisma implements VacationBookingRepo {
       },
       include: {
         Location: true,
+        DefaultVacationActivity: {
+          include: {
+            AcitivityDescription: true,
+          },
+        },
         VacationServices: {
           include: {
             Service: true,
@@ -112,6 +117,14 @@ export class VacationBookingRepoPrisma implements VacationBookingRepo {
         date_imported: vacationBooking?.date_imported || "",
         is_parent: vacationBooking?.is_parent || false,
         locationId: vacationBooking?.locationId || 0,
+        activities:
+          vacationBooking?.DefaultVacationActivity.map((activity) => {
+            return {
+              id: activity.id,
+              name: activity.AcitivityDescription.name || "",
+              description: activity.AcitivityDescription.description || "",
+            };
+          }) || [],
         children,
         location: vacationBooking?.Location
           ? {

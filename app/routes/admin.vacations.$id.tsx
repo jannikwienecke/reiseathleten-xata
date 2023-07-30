@@ -1,9 +1,9 @@
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";
-import invariant from "tiny-invariant";
 import { Form, LibForm } from "~/components";
 import { VacationChildrenTable } from "~/features/orders-sync/components/children-vacation-table";
 import { DetailsTabs } from "~/features/orders-sync/components/order-main-view-tabs";
+import { VacationActivitiesTable } from "~/features/orders-sync/components/vacation-activities";
 import { VacationDescription } from "~/features/orders-sync/components/vacation-description";
 import { VacationServicesTable } from "~/features/orders-sync/components/vacation-services";
 import { VacationSummary } from "~/features/orders-sync/components/vacation-summary";
@@ -51,11 +51,13 @@ export default function SyncOrdersPage() {
   const dictViewAddAction = {
     vacation_services: "addService",
     vacation_children: "addChildVacation",
+    vacation_activities: "addActivity",
   };
 
   const dictViewForm = {
     vacation_services: <FormSelectServices />,
     vacation_children: <FormSelectVacations />,
+    vacation_activities: <FormActivities />,
   };
 
   const actionName =
@@ -98,6 +100,17 @@ const FormSelectVacations = () => {
   );
 };
 
+const FormActivities = () => {
+  return (
+    <Form.Select
+      name="acitivityName"
+      onSelect={() => null}
+      model="DefaultActivityVacation"
+      value={undefined}
+    />
+  );
+};
+
 export function VacationContent() {
   const vacation = useVacationState((store) => store.vacation);
   const [searchParams] = useSearchParams();
@@ -112,10 +125,15 @@ export function VacationContent() {
     views.push({ name: "vacation_children", label: "Vacations" });
   }
 
+  if (vacation.activities.length > 0) {
+    views.push({ name: "vacation_activities", label: "Activities" });
+  }
+
   const dict = {
     vacation_services: <VacationServicesTable />,
     vacation_description: <VacationDescription />,
     vacation_children: <VacationChildrenTable />,
+    vacation_activities: <VacationActivitiesTable />,
   };
 
   return (

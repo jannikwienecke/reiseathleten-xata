@@ -12,11 +12,18 @@ export type VacationChildren = {
   description: string;
 };
 
+export type ActivityType = {
+  id: number;
+  name: string;
+  description: string;
+};
+
 export type VacationDescriptionDto = {
   vacationDescription: VacationDescription & {
     location?: LocationInterface;
     services: ServiceValueObject["props"][];
     children: VacationChildren[];
+    activities: ActivityType[];
   };
 };
 
@@ -82,6 +89,7 @@ export class VacationDescriptionMap {
       roomDescription: "",
       children: vacationDescription.children,
       parentId: vacationDescription.parent_id,
+      activities: vacationDescription.activities,
     });
   }
 }
