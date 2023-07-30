@@ -79,6 +79,12 @@ export const OrderSummaryHeader = () => {
                     </span>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-x-4 pt-2">
+                  <span className="text-sm leading-6 text-gray-500">
+                    {order.props.vacation.props.roomDescription}
+                  </span>
+                </div>
               </h1>
             </div>
 
