@@ -1,8 +1,10 @@
 import { type PrismaClient, type VacationDescription } from "@prisma/client";
+import { prisma } from "~/db.server";
 import { type VacationBooking } from "../../domain/vacation";
 import {
-  type VacationDescriptionDto,
+  type VacationChildren,
   VacationDescriptionMap,
+  type VacationDescriptionDto,
 } from "../../mapper/vacationDescriptionMap";
 import { type VacationBookingRepo } from "../vacationRepo";
 
@@ -63,9 +65,37 @@ export class VacationBookingRepoPrisma implements VacationBookingRepo {
       },
     });
 
+    let children: VacationChildren[] = [];
+    if (vacationBooking?.is_parent) {
+      const _children = await prisma.vacationDescription.findMany({
+        where: {
+          parent_id: {
+            equals: vacationBookingId,
+          },
+        },
+        include: {
+          Location: true,
+          VacationServices: {
+            include: {
+              Service: true,
+            },
+          },
+        },
+      });
+
+      children = _children.map((child) => {
+        return {
+          id: child.id,
+          name: child.name,
+          description: child.description || "",
+        };
+      });
+    }
+
     return {
       vacationDescription: {
         ...vacationBooking,
+        parent_id: vacationBooking?.parent_id || null,
         id: vacationBooking?.id || 0,
         name: vacationBooking?.name || "",
         price: vacationBooking?.price || "",
@@ -82,6 +112,7 @@ export class VacationBookingRepoPrisma implements VacationBookingRepo {
         date_imported: vacationBooking?.date_imported || "",
         is_parent: vacationBooking?.is_parent || false,
         locationId: vacationBooking?.locationId || 0,
+        children,
         location: vacationBooking?.Location
           ? {
               ...vacationBooking?.Location,
@@ -93,6 +124,7 @@ export class VacationBookingRepoPrisma implements VacationBookingRepo {
           vacationBooking?.VacationServices.map((service) => {
             return {
               ...service,
+              id: service.Service.id,
               name: service.Service.name || "",
               description: service.Service.description || "",
             };

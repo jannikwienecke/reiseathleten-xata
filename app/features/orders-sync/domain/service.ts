@@ -3,6 +3,7 @@ import { ValueObject } from "~/shared";
 interface ServiceProps {
   name: string;
   description: string;
+  id?: number;
 }
 
 export class ServiceValueObject extends ValueObject<ServiceProps> {
@@ -24,5 +25,9 @@ export class ServiceValueObject extends ValueObject<ServiceProps> {
 
   get description() {
     return this.props.description;
+  }
+
+  get id() {
+    return this.props.id;
   }
 }

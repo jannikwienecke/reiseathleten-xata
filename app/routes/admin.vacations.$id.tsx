@@ -1,6 +1,8 @@
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";
+import invariant from "tiny-invariant";
 import { Form, LibForm } from "~/components";
+import { VacationChildrenTable } from "~/features/orders-sync/components/children-vacation-table";
 import { DetailsTabs } from "~/features/orders-sync/components/order-main-view-tabs";
 import { VacationDescription } from "~/features/orders-sync/components/vacation-description";
 import { VacationServicesTable } from "~/features/orders-sync/components/vacation-services";
@@ -26,6 +28,9 @@ export default function SyncOrdersPage() {
 
   const vacationStore = useVacationState((store) => store.vacation);
 
+  const [searchParams] = useSearchParams();
+  const currentView = searchParams.get("view");
+
   const { getFormProps, getOverlayProps } = useAdminPage({
     model: "VacationServices",
   });
@@ -43,18 +48,27 @@ export default function SyncOrdersPage() {
   if (!data.vacationDescription) return <div>Not Found</div>;
   if (!vacationStore.props) return <div>loading...</div>;
 
+  const dictViewAddAction = {
+    vacation_services: "addService",
+    vacation_children: "addChildVacation",
+  };
+
+  const dictViewForm = {
+    vacation_services: <FormSelectServices />,
+    vacation_children: <FormSelectVacations />,
+  };
+
+  const actionName =
+    dictViewAddAction[currentView as keyof typeof dictViewAddAction];
+
+  const FormSelect = dictViewForm[currentView as keyof typeof dictViewForm];
+
   return (
     <>
       <LibSliderOver {...getOverlayProps()}>
         <LibForm {...getFormProps()} title="Add Service to this Vacation">
-          <input type="hidden" name="action" value={"addService"} />
-
-          <Form.Select
-            name="serviceName"
-            onSelect={() => null}
-            model="VacationServices"
-            value={undefined}
-          />
+          <input type="hidden" name="action" value={actionName} />
+          {FormSelect ? FormSelect : null}
         </LibForm>
       </LibSliderOver>
       <VacationContent />
@@ -62,18 +76,47 @@ export default function SyncOrdersPage() {
   );
 }
 
-const views = [
-  { name: "vacation_services", label: "Services" },
-  // description
-  { name: "vacation_description", label: "Description" },
-  { name: "pdf_invoice", label: "Invoice" },
-];
+const FormSelectServices = () => {
+  return (
+    <Form.Select
+      name="serviceName"
+      onSelect={() => null}
+      model="VacationServices"
+      value={undefined}
+    />
+  );
+};
+
+const FormSelectVacations = () => {
+  return (
+    <Form.Select
+      name="vacation"
+      onSelect={() => null}
+      model="Vacation"
+      value={undefined}
+    />
+  );
+};
 
 export function VacationContent() {
+  const vacation = useVacationState((store) => store.vacation);
   const [searchParams] = useSearchParams();
   const currentView = searchParams.get("view");
-  const showServicesView = !currentView || currentView === "vacation_services";
-  const showDescriptionView = currentView === "vacation_description";
+
+  const views = [
+    { name: "vacation_description", label: "Description" },
+    { name: "vacation_services", label: "Services" },
+  ];
+
+  if (vacation.props.isParent) {
+    views.push({ name: "vacation_children", label: "Vacations" });
+  }
+
+  const dict = {
+    vacation_services: <VacationServicesTable />,
+    vacation_description: <VacationDescription />,
+    vacation_children: <VacationChildrenTable />,
+  };
 
   return (
     <>
@@ -91,13 +134,11 @@ export function VacationContent() {
                 <DetailsTabs views={views} />
               </div>
 
-              <div className="pt-12">
-                {showServicesView ? (
-                  <VacationServicesTable />
-                ) : (
-                  <VacationDescription />
-                )}
-              </div>
+              {currentView ? (
+                <div className="pt-12">
+                  {dict[currentView as keyof typeof dict]}
+                </div>
+              ) : null}
             </div>
 
             <div className="pt-4 lg:col-start-3 lg:row-start-2">

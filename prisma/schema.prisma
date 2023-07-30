@@ -62,26 +62,29 @@ model User {
 }
 
 model VacationDescription {
-  id                      Int                       @id @default(autoincrement())
-  name                    String
-  description             String?
-  image_url               String?
-  slug                    String?
-  permalink               String?
-  date_created            String?
-  date_created_gmt        String?
-  date_modified           String?
-  date_modified_gmt       String?
-  type                    String?
-  status                  String?
-  price                   String?
-  locationId              Int?
-  date_imported           String                    @default("")
-  is_parent               Boolean                   @default(false)
-  DefaultVacationActivity DefaultVacationActivity[]
-  Order                   Order[]
-  Location                Location?                 @relation(fields: [locationId], references: [id], onDelete: NoAction)
-  VacationServices        VacationServices[]
+  id                        Int                       @id @default(autoincrement())
+  name                      String
+  description               String?
+  image_url                 String?
+  slug                      String?
+  permalink                 String?
+  date_created              String?
+  date_created_gmt          String?
+  date_modified             String?
+  date_modified_gmt         String?
+  type                      String?
+  status                    String?
+  price                     String?
+  locationId                Int?
+  date_imported             String                    @default("")
+  is_parent                 Boolean                   @default(false)
+  parent_id                 Int?
+  DefaultVacationActivity   DefaultVacationActivity[]
+  Order                     Order[]
+  Location                  Location?                 @relation(fields: [locationId], references: [id], onDelete: NoAction)
+  VacationDescription       VacationDescription?      @relation("VacationDescriptionToVacationDescription", fields: [parent_id], references: [id], onDelete: NoAction)
+  other_VacationDescription VacationDescription[]     @relation("VacationDescriptionToVacationDescription")
+  VacationServices          VacationServices[]
 }
 
 model DefaultVacationActivity {

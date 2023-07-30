@@ -13,6 +13,7 @@ import { syncProductsUsecase } from "~/features/orders-sync/server-functions/syn
 
 export type VacationInterface = VacationDescription & {
   location: string;
+  vacation: string;
 };
 
 const prismaCrudHandler = new PrismaCrudHandler(prisma, "vacationDescription");
@@ -56,6 +57,7 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
       ...v,
       name: v.name || "",
       location: "",
+      vacation: "",
     }));
   },
 
@@ -147,6 +149,31 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
           Component: Form.Select,
           onGetOptions: async (query) => {
             const results = await prisma.location.findMany({
+              where: {
+                OR: {
+                  name: {
+                    contains: query,
+                    mode: "insensitive",
+                  },
+                },
+              },
+            });
+
+            return results.map((r) => ({
+              id: r.id,
+              name: r.name,
+            }));
+          },
+        },
+
+        {
+          name: "vacation",
+          label: "Vacation",
+          required: true,
+          Component: Form.Select,
+          onGetOptions: async (query) => {
+            const results = await prisma.vacationDescription.findMany({
+              take: 12,
               where: {
                 OR: {
                   name: {

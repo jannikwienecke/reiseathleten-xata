@@ -3,31 +3,25 @@ import { Table } from "~/components";
 import { useAdminPage } from "~/utils/lib/hooks";
 import { useVacationState } from "../store/single-vacation-store";
 
-export const VacationServicesTable = () => {
+export const VacationChildrenTable = () => {
   const submit = useSubmit();
   const vacation = useVacationState((store) => store.vacation);
-  const { columns, handelClickAdd } = useAdminPage({
+  const { handelClickAdd } = useAdminPage({
     model: "Service",
   });
 
   const { state, formData } = useNavigation();
   const isSubmitting = state !== "idle";
-  const isDeleting = formData?.get("action") === "deleteVacationService";
-  const indexToDelete = formData?.get("indexToDelete");
+  const isDeleting = formData?.get("action") === "deleteAdditionalService";
+  const idToDelete = formData?.get("id");
 
-  const services = vacation.services;
+  const children = vacation.props.children;
 
-  const handleClickDelete = (item: {
-    id: number | undefined;
-    index: number;
-  }) => {
-    if (!item.id) return;
-
+  const handleClickDelete = (item: { id: number }) => {
     submit(
       {
         id: item.id.toString(),
-        action: "deleteVacationService",
-        indexToDelete: item.index.toString(),
+        action: "deleteChildVacation",
       },
       {
         method: "POST",
@@ -42,26 +36,28 @@ export const VacationServicesTable = () => {
         onDelete={handleClickDelete}
         disableSearch={true}
         compact={true}
-        dataList={services
+        dataList={children
           .filter((_, index) => {
-            if (
-              isSubmitting &&
-              isDeleting &&
-              indexToDelete === index.toString()
-            ) {
+            if (isSubmitting && isDeleting && idToDelete === index.toString()) {
               return false;
             }
             return true;
           })
-          .map((service, index) => {
+          .map((child, index) => {
             return {
-              id: service.id,
-              name: service.props.name,
-              description: service.props.description,
-              index: index,
+              id: child.id,
+              name:
+                child.name.length > 100
+                  ? child.name.slice(0, 100) + "..."
+                  : child.name,
             };
           })}
-        columns={columns}
+        columns={[
+          {
+            accessorKey: "name",
+            header: "Name",
+          },
+        ]}
         title={""}
       />
     </>

@@ -11,10 +11,12 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   const query = url.searchParams.get("query");
   const name = url.searchParams.get("name");
   const model = url.searchParams.get("model");
+  const modelId = url.searchParams.get("modelId");
 
   invariant(typeof model === "string", "model is required");
   invariant(typeof query === "string", "query is required");
   invariant(typeof name === "string", "name is required");
+  invariant(typeof modelId === "string", "modelId is required");
 
   const field = {
     ...CONFIG.models,
@@ -32,6 +34,7 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   const options = await field?.onGetOptions?.(query);
 
   return json({
-    items: options || [],
+    // we dont want to show the same model item that we are currently in
+    items: options.filter((option) => option.id !== +modelId),
   });
 };

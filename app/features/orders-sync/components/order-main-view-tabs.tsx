@@ -1,7 +1,10 @@
 import { useSearchParams } from "@remix-run/react";
 import clsx from "clsx";
 
-type ViewType = typeof views[number];
+type ViewType = {
+  name: string;
+  label: string;
+};
 
 export function DetailsTabs({
   views,

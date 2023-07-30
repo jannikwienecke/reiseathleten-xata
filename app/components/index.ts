@@ -4,3 +4,4 @@ export * from "./notification";
 export * from "./layout";
 export * from "./table";
 export * from "./slide-over";
+export * from "./alert-modal";

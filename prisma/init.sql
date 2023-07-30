@@ -150,16 +150,20 @@ CREATE TABLE "public"."VacationDescription" (
     "status" text,
     "price" text,
     "is_parent" boolean NOT NULL DEFAULT false,
+    -- "parent_id" integer NULL,
 
     PRIMARY KEY ("id"),
     "locationId" integer  NULL,
     FOREIGN KEY ("locationId") REFERENCES "public"."Location"("id") ON UPDATE CASCADE
+    -- FOREIGN KEY ("parent_id") REFERENCES "public"."VacationDescription"("id") ON UPDATE CASCADE 
 );
 
 -- alter table -> add date_imported
 ALTER TABLE "public"."VacationDescription" ADD COLUMN "date_imported" text NOT NULL DEFAULT '';
 ALTER TABLE "public"."VacationDescription" DROP CONSTRAINT "VacationDescription_name_key";
 ALTER TABLE "public"."VacationDescription" ADD COLUMN "is_parent" boolean NOT NULL DEFAULT false;
+ALTER TABLE "public"."VacationDescription" ADD COLUMN "parent_id" integer NULL;
+ALTER TABLE "public"."VacationDescription" ADD FOREIGN KEY ("parent_id") REFERENCES "public"."VacationDescription"("id") ON UPDATE CASCADE;
 
 CREATE UNIQUE INDEX "Tag.label_colorId" ON "public"."Tag"("label","colorId");
 

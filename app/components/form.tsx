@@ -248,7 +248,9 @@ const Select = ({
   onSelect: (item: ISelectOption) => void;
 }) => {
   const fetcher = useFetcher();
-  const { model: paramsModel } = useParams();
+  const { model: paramsModel, id } = useParams();
+
+  console.log({ id });
 
   invariant(modelArgs || paramsModel, "model is required");
 
@@ -270,7 +272,7 @@ const Select = ({
 
   const fetchPeople = (query: string) => {
     fetcher.submit(
-      { query, name, model },
+      { query, name, model: model || "", modelId: id || "" },
       { method: "get", action: "/api/options" }
     );
   };

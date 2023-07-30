@@ -1,30 +1,46 @@
-import { Menu, Transition } from "@headlessui/react";
+import { Dialog, Menu, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
-import { useSubmit } from "@remix-run/react";
-import { Fragment } from "react";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import {
+  useFetcher,
+  useNavigation,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
+import React, { Fragment } from "react";
+import { useAlertModal, AlertModal } from "~/components";
+import { RocketIcon } from "~/components/icons";
 import { useVacationState } from "~/features/orders-sync/store/single-vacation-store";
 import { classNames } from "~/utils/helper";
 
 export const VacationSummaryHeader = () => {
   const vacation = useVacationState((store) => store.vacation);
-  const submit = useSubmit();
+  const alertModalProps = useAlertModal();
+
+  const fetcher = useFetcher();
+
   const handleClickStatusButton = () => {};
   const handleClickSetAsParentVacation = () => {
-    submit(
-      {
-        action: "markAsParentVacation",
-      },
-      {
-        method: "POST",
-      }
-    );
+    if (vacation.isParent) {
+      alertModalProps.open();
+    } else {
+      fetcher.submit(
+        {
+          action: "markAsParentVacation",
+        },
+        {
+          method: "POST",
+        }
+      );
+    }
   };
-
-  // HIER WEITER MACHEN
-  console.log(vacation.props.isParent);
 
   return (
     <>
+      <AlertModal {...alertModalProps}>
+        <UnMarkParentVacationModalContent {...alertModalProps} />
+      </AlertModal>
+
       <header className="relative isolate">
         <div
           className="absolute inset-0 -z-10 overflow-hidden"
@@ -66,7 +82,7 @@ export const VacationSummaryHeader = () => {
                 onClick={handleClickSetAsParentVacation}
                 className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
               >
-                Set As Parent
+                {vacation.parentToggleButtonText}
               </button>
 
               <button
@@ -116,6 +132,97 @@ export const VacationSummaryHeader = () => {
           </div>
         </div>
       </header>
+    </>
+  );
+};
+
+const UnMarkParentVacationModalContent = ({
+  close,
+  cancelButtonRef,
+}: // onConfirm,
+ReturnType<typeof useAlertModal> & {
+  // onConfirm: () => void;
+}) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const vacation = useVacationState((store) => store.vacation);
+
+  const navigation = useNavigation();
+  const submit = useSubmit();
+
+  const isSubmittingRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (navigation.state !== "submitting" && isSubmittingRef.current) {
+      close();
+
+      searchParams.delete("view");
+      setSearchParams(searchParams);
+
+      isSubmittingRef.current = false;
+    }
+  }, [close, navigation.state, searchParams, setSearchParams]);
+
+  const handleConfirmUnmarkParentVacation = () => {
+    isSubmittingRef.current = true;
+    submit(
+      {
+        action: "unMarkAsParentVacation",
+        childrenIds: JSON.stringify(vacation.childrenIds),
+      },
+      {
+        method: "POST",
+      }
+    );
+  };
+
+  return (
+    <>
+      <div className="sm:flex sm:items-start">
+        <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+          <ExclamationTriangleIcon
+            className="h-6 w-6 text-red-600"
+            aria-hidden="true"
+          />
+        </div>
+        <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+          <Dialog.Title
+            as="h3"
+            className="text-base font-semibold leading-6 text-gray-900"
+          >
+            Unmark as parent vacation
+          </Dialog.Title>
+          <div className="mt-2">
+            <p className="text-sm text-gray-500">
+              Are you sure you want to unmark this vacation as parent vacation?
+              All the children vacations will be unlinked from this vacation.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+        <button
+          type="button"
+          className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+          onClick={handleConfirmUnmarkParentVacation}
+        >
+          {/* Unmark */}
+          {navigation.state !== "idle" ? (
+            <>
+              <RocketIcon animate={true} />
+            </>
+          ) : (
+            <>Unmark</>
+          )}
+        </button>
+        <button
+          type="button"
+          className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+          onClick={close}
+          ref={cancelButtonRef}
+        >
+          Cancel
+        </button>
+      </div>
     </>
   );
 };
