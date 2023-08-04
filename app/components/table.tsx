@@ -1,23 +1,32 @@
-import { Menu, Transition } from "@headlessui/react";
+import { Dialog, Menu, Transition } from "@headlessui/react";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
+  DocumentPlusIcon,
+  FolderIcon,
+  FolderPlusIcon,
+  HashtagIcon,
   MagnifyingGlassIcon,
   PencilIcon,
   PhoneArrowDownLeftIcon,
+  PlusIcon,
+  TagIcon,
+  XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { useSearchParams } from "@remix-run/react";
 import clsx from "clsx";
 import React from "react";
 import { useEffect, useRef, Fragment } from "react";
 import { classNames } from "~/utils/helper";
-import { type TableActionType } from "~/utils/lib/types";
+import { Tag, type TableActionType } from "~/utils/lib/types";
 import { Notification } from "./notification";
 import { useState } from "react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Combobox } from "@headlessui/react";
 import Select from "react-select";
 import { MultiValue, ActionMeta, InputActionMeta } from "react-select";
+import { Popover } from "@headlessui/react";
+import { SketchPicker } from "react-color";
 
 type ARecord = Record<string, any>;
 
@@ -48,6 +57,7 @@ export function Table<TData extends ARecord>({
   onSortBy,
   onSelectColumns,
   selectedColumns,
+  onUpdateTags,
 }: {
   dataList: TData[];
   columns: Column<TData>[];
@@ -67,6 +77,11 @@ export function Table<TData extends ARecord>({
   onSearch?: (query: string) => void;
   onSortBy?: (column: Column<TData>) => void;
   onSelectColumns?: (selected: Column<TData>[]) => void;
+  onUpdateTags?: (options: {
+    newTags: Tag[];
+    deletedTags: Tag[];
+    id: string | number;
+  }) => void;
 }) {
   const checkbox = useRef<any>();
   const [checked, setChecked] = useState(false);
@@ -220,351 +235,505 @@ export function Table<TData extends ARecord>({
     return selectedColumns;
   }, [columns, selectedColumns]);
 
+  const [commandBar, setCommandBar] = useState<{
+    all: Tag[];
+    selected: Tag[];
+    dataItem?: TData;
+  }>();
+
+  const handleClickOnTag = ({
+    col,
+    tags,
+    dataItem,
+  }: {
+    col: Column<TData>;
+    tags: Tag[];
+    dataItem: TData;
+  }) => {
+    const allTags = dataList
+      .map((dataItem) => {
+        return dataItem[col.accessorKey];
+      })
+      .flat();
+    const labels = Array.from(new Set(allTags.map((t) => t.label)));
+
+    setCommandBar({
+      all: labels.map((label) => allTags.find((t) => t.label === label) as Tag),
+      selected: tags,
+      dataItem,
+    });
+  };
+
+  const handleCloseCommandBar = (selected: Tag[]) => {
+    const newTags =
+      selected.filter((tag) => {
+        return !commandBar?.selected.find((t) => t.label === tag.label);
+      }) || [];
+
+    const deletedTags =
+      commandBar?.selected.filter((tag) => {
+        return !selected.find((t) => t.label === tag.label);
+      }) || [];
+
+    const id = commandBar?.dataItem?.id as string | number;
+
+    onUpdateTags?.({
+      newTags,
+      deletedTags,
+      id,
+    });
+
+    setCommandBar(undefined);
+  };
+
   return (
-    <div className="h-full flex flex-col">
-      <div className="z-50 absolute top-0 -right-0">
-        <Notification
-          isOpen={error.message !== ""}
-          isError={true}
-          message={error.message}
-          key={error.message}
-        />
-      </div>
-
-      <div className="flex flex-row w-full justify-between">
-        <div className="sm:flex sm:items-center flex flex-col flex-1">
-          <div className="sm:flex-auto w-full">
-            <h1
-              className={clsx(
-                "font-semibold leading-9 -tracking-tight  text-black",
-                compact ? "text-base" : "text-2xl"
-              )}
-            >
-              {title}
-            </h1>
-
-            {subtitle ? (
-              <p className="mt-1 text-lg text-gray-700">
-                {subtitle ?? "All users that are currently registered."}
-              </p>
-            ) : null}
-          </div>
-
-          {/* search */}
-          <div className="w-full">
-            {!disableSearch ? (
-              <div className="pb-4">
-                <Search title={title} onSearch={handleSearch} />
-              </div>
-            ) : null}
-          </div>
+    <>
+      <Commandbar
+        tags={commandBar?.all || []}
+        selected={commandBar?.selected || []}
+        isOpen={!!commandBar}
+        onClose={handleCloseCommandBar}
+      />
+      <div className="h-full flex flex-col">
+        <div className="z-50 absolute top-0 -right-0">
+          <Notification
+            isOpen={error.message !== ""}
+            isError={true}
+            message={error.message}
+            key={error.message}
+          />
         </div>
 
-        <div className="flex flex-col space-y-2 w-[33%] items-end">
-          {actions?.length || onAdd || onEdit || !disableSearch ? (
-            <div className="flex flex-row">
-              <div>
-                <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
-                  {selected.length < 2 ? (
-                    <>
-                      {selected.length === 1 && onDetailView ? (
-                        <div className="">
-                          <button
-                            onClick={() => onDetailView?.(selected[0])}
-                            type="button"
-                            className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white text-black border-2 border-black hover:bg-indigo-200 "
-                     }`}
-                          >
-                            View Detail
-                          </button>
-                        </div>
-                      ) : null}
+        <div className="flex flex-row w-full justify-between">
+          <div className="sm:flex sm:items-center flex flex-col flex-1">
+            <div className="sm:flex-auto w-full">
+              <h1
+                className={clsx(
+                  "font-semibold leading-9 -tracking-tight  text-black",
+                  compact ? "text-base" : "text-2xl"
+                )}
+              >
+                {title}
+              </h1>
 
-                      {actions?.map((action) => {
-                        return (
-                          <div key={action.name} className="">
+              {subtitle ? (
+                <p className="mt-1 text-lg text-gray-700">
+                  {subtitle ?? "All users that are currently registered."}
+                </p>
+              ) : null}
+            </div>
+
+            {/* search */}
+            <div className="w-full">
+              {!disableSearch ? (
+                <div className="pb-4">
+                  <Search title={title} onSearch={handleSearch} />
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="flex flex-col space-y-2 w-[33%] items-end">
+            {actions?.length || onAdd || onEdit || !disableSearch ? (
+              <div className="flex flex-row">
+                <div>
+                  <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
+                    {selected.length < 2 ? (
+                      <>
+                        {selected.length === 1 && onDetailView ? (
+                          <div className="">
                             <button
-                              onClick={() => {
-                                onClickAction?.(action, selected);
-                              }}
+                              onClick={() => onDetailView?.(selected[0])}
                               type="button"
-                              className={`
+                              className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white text-black border-2 border-black hover:bg-indigo-200 "
+                     }`}
+                            >
+                              View Detail
+                            </button>
+                          </div>
+                        ) : null}
+
+                        {actions?.map((action) => {
+                          return (
+                            <div key={action.name} className="">
+                              <button
+                                onClick={() => {
+                                  onClickAction?.(action, selected);
+                                }}
+                                type="button"
+                                className={`
                               block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
                               ${
                                 selected.length === 0
                                   ? "bg-black text-white hover:bg-indigo-500 "
                                   : "bg-amber-400 text-black hover:bg-amber-300"
                               }`}
-                            >
-                              {isRunningCutomAction ? (
-                                <div>LOADING</div>
-                              ) : (
-                                <>{action.label}</>
-                              )}
-                            </button>
-                          </div>
-                        );
-                      })}
+                              >
+                                {isRunningCutomAction ? (
+                                  <div>LOADING</div>
+                                ) : (
+                                  <>{action.label}</>
+                                )}
+                              </button>
+                            </div>
+                          );
+                        })}
 
-                      {(onAdd && selected.length === 0) ||
-                      (onEdit && selected.length > 0) ? (
-                        <>
-                          <div className="">
-                            <button
-                              onClick={
-                                selected.length === 0
-                                  ? onAdd
-                                  : () => onEdit?.(selected[0])
-                              }
-                              type="button"
-                              className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+                        {(onAdd && selected.length === 0) ||
+                        (onEdit && selected.length > 0) ? (
+                          <>
+                            <div className="">
+                              <button
+                                onClick={
+                                  selected.length === 0
+                                    ? onAdd
+                                    : () => onEdit?.(selected[0])
+                                }
+                                type="button"
+                                className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
                   ${
                     selected.length === 0
                       ? "bg-black text-white hover:bg-indigo-500 "
                       : "bg-amber-400 text-black hover:bg-amber-300"
                   }`}
-                            >
-                              {selected.length === 0
-                                ? `New ${title}`
-                                : `Edit ${title}`}
-                            </button>
-                          </div>
-                        </>
-                      ) : null}
-                    </>
-                  ) : (
-                    <>
-                      <div className="">
-                        <ActionDropdown
-                          onBulkDelete={() => {
-                            onBulkDelete?.(selected);
-                            _setSelected([]);
-                          }}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {showSelectColumns ? (
-            <SelectColumns
-              // key={JSON.stringify(selectedColumns)}
-              selectedColumns={
-                selectedColumns?.length === 0 || !selectedColumns
-                  ? columns
-                  : selectedColumns
-              }
-              onSelect={handleSelectColumns}
-              columns={columns}
-            />
-          ) : null}
-        </div>
-      </div>
-
-      {dataList.length === 0 ? (
-        <>
-          <div className="flex flex-col items-center justify-center h-[33vh]">
-            <h1 className="text-2xl font-semibold leading-9 tracking-tight  text-black">
-              No {title.toLowerCase()} found.
-            </h1>
-          </div>
-        </>
-      ) : null}
-
-      {dataList.length ? (
-        <div
-          className={clsx(
-            `flow-root flex-1 overflow-scroll`,
-            compact ? "mt-0" : "mt-4"
-          )}
-        >
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-              <div className="relative">
-                <table className="min-w-full table-fixed divide-y divide-gray-300 border-gray-100 border-[1px] overflow-hidden rounded-tl-lg rounded-tr-lg">
-                  <thead className="">
-                    <tr className="">
-                      <th
-                        scope="col"
-                        className="relative px-7 sm:w-12 sm:px-6 bg-white "
-                      >
-                        <input
-                          type="checkbox"
-                          className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                          ref={checkbox}
-                          checked={checked}
-                          onChange={toggleAll}
-                          style={{
-                            display: onBulkDelete ? "block" : "none",
-                          }}
-                          // style={{
-                          //   left: "1.5rem",
-                          //   top: "1.25rem",
-                          // }}
-                        />
-                      </th>
-
-                      {columnsToRender.map((column) => {
-                        return (
-                          <th
-                            key={`column-${column.accessorKey.toString()}`}
-                            scope="col"
-                            className="group min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-black bg-white"
-                          >
-                            <div className="flex flex-row items-center space-x-1">
-                              <button
-                                className="group"
-                                onClick={() => handleClickSortBy(column)}
                               >
-                                {column.header}
-                              </button>
-
-                              {onSelectColumns ? (
-                                <div className="group-hover:block hidden ">
-                                  <button
-                                    onClick={() => setShowSelectColumns(true)}
-                                    className="flex flex-row items-center space-x-1"
-                                  >
-                                    <PencilIcon className="h-4 w-4 text-gray-400" />
-                                  </button>
-                                </div>
-                              ) : null}
-
-                              <button
-                                onClick={() => handleClickSortBy(column)}
-                                type="button"
-                                className="text-gray-400 hover:text-gray-700"
-                              >
-                                {sortBy &&
-                                sortBy.column?.accessorKey ===
-                                  column.accessorKey ? (
-                                  <IconSortBy className="h-4 w-4 text-gray-400" />
-                                ) : null}
+                                {selected.length === 0
+                                  ? `New ${title}`
+                                  : `Edit ${title}`}
                               </button>
                             </div>
-                          </th>
-                        );
-                      })}
-                      {onDelete ? (
+                          </>
+                        ) : null}
+                      </>
+                    ) : (
+                      <>
+                        <div className="">
+                          <ActionDropdown
+                            onBulkDelete={() => {
+                              onBulkDelete?.(selected);
+                              _setSelected([]);
+                            }}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {showSelectColumns ? (
+              <SelectColumns
+                // key={JSON.stringify(selectedColumns)}
+                selectedColumns={
+                  selectedColumns?.length === 0 || !selectedColumns
+                    ? columns
+                    : selectedColumns
+                }
+                onSelect={handleSelectColumns}
+                columns={columns}
+              />
+            ) : null}
+          </div>
+        </div>
+
+        {dataList.length === 0 ? (
+          <>
+            <div className="flex flex-col items-center justify-center h-[33vh]">
+              <h1 className="text-2xl font-semibold leading-9 tracking-tight  text-black">
+                No {title.toLowerCase()} found.
+              </h1>
+            </div>
+          </>
+        ) : null}
+
+        {dataList.length ? (
+          <div
+            className={clsx(
+              `flow-root flex-1 overflow-scroll`,
+              compact ? "mt-0" : "mt-4"
+            )}
+          >
+            <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+              <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                <div className="relative">
+                  <table className="min-w-full table-fixed divide-y divide-gray-300 border-gray-100 border-[1px] overflow-hidden rounded-tl-lg rounded-tr-lg">
+                    <thead className="">
+                      <tr className="">
                         <th
                           scope="col"
-                          className="relative py-1 pl-3 pr-4 sm:pr-3"
+                          className="relative px-7 sm:w-12 sm:px-6 bg-white "
                         >
-                          <span className="sr-only">Delete</span>
+                          <input
+                            type="checkbox"
+                            className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                            ref={checkbox}
+                            checked={checked}
+                            onChange={toggleAll}
+                            style={{
+                              display: onBulkDelete ? "block" : "none",
+                            }}
+                            // style={{
+                            //   left: "1.5rem",
+                            //   top: "1.25rem",
+                            // }}
+                          />
                         </th>
-                      ) : null}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {/* <tbody
+
+                        {columnsToRender.map((column) => {
+                          return (
+                            <th
+                              key={`column-${column.accessorKey.toString()}`}
+                              scope="col"
+                              className="group min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-black bg-white"
+                            >
+                              <div className="flex flex-row items-center space-x-1">
+                                <button
+                                  className="group"
+                                  onClick={() => handleClickSortBy(column)}
+                                >
+                                  {column.header}
+                                </button>
+
+                                {onSelectColumns ? (
+                                  <div className="group-hover:block hidden ">
+                                    <button
+                                      onClick={() => setShowSelectColumns(true)}
+                                      className="flex flex-row items-center space-x-1"
+                                    >
+                                      <PencilIcon className="h-4 w-4 text-gray-400" />
+                                    </button>
+                                  </div>
+                                ) : null}
+
+                                <button
+                                  onClick={() => handleClickSortBy(column)}
+                                  type="button"
+                                  className="text-gray-400 hover:text-gray-700"
+                                >
+                                  {sortBy &&
+                                  sortBy.column?.accessorKey ===
+                                    column.accessorKey ? (
+                                    <IconSortBy className="h-4 w-4 text-gray-400" />
+                                  ) : null}
+                                </button>
+                              </div>
+                            </th>
+                          );
+                        })}
+                        {onDelete ? (
+                          <th
+                            scope="col"
+                            className="relative py-1 pl-3 pr-4 sm:pr-3"
+                          >
+                            <span className="sr-only">Delete</span>
+                          </th>
+                        ) : null}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {/* <tbody
                   style={{
                     borderTop: "1px solid rgb(243 244 246)",
                   }}
                   className="divide-y divide-gray-100 bg-white border-t-[1px] border-t-red-200"
                 > */}
-                    {dataListFiltered.map((dataItem, index) => {
-                      return (
-                        <tr
-                          key={`row-${dataItem.id}`}
-                          className={
-                            selected.includes(dataItem)
-                              ? "bg-gray-50"
-                              : undefined
-                          }
-                        >
-                          <td className="relative px-7 sm:w-12 sm:px-6">
-                            {selected.includes(dataItem) && (
-                              <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-600" />
-                            )}
-                            <input
-                              type="checkbox"
-                              className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                              value={dataItem.email}
-                              checked={selected.includes(dataItem)}
-                              onChange={(e) =>
-                                handleClickInputSelect(
-                                  dataItem,
-                                  e.target.checked
-                                )
-                              }
-                            />
-                          </td>
-
-                          {columnsToRender.map((column, indexColumn) => {
-                            const value = dataItem[column.accessorKey];
-
-                            return (
-                              <>
-                                {/* COLOR */}
-                                {column.isColor ? (
-                                  <td
-                                    key={`${index}-${indexColumn}-${value}-1`}
-                                    role="button"
-                                    className="whitespace-nowrap px-3 py-2 text-sm text-gray-500"
-                                  >
-                                    <span
-                                      style={{
-                                        backgroundColor: `${value}`,
-                                        color: "white",
-                                      }}
-                                      className={`inline-flex  items-center rounded-md  px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20`}
-                                    >
-                                      {value}
-                                    </span>
-                                  </td>
-                                ) : (
-                                  <>
-                                    <td
-                                      key={`${index}-${indexColumn}-${value}-2`}
-                                      className={classNames(
-                                        "whitespace-nowrap py-1 pr-3 text-sm font-medium",
-                                        selected.includes(dataItem)
-                                          ? "text-indigo-600"
-                                          : "text-gray-900"
-                                      )}
-                                    >
-                                      {column?.formatValue
-                                        ? column?.formatValue?.(
-                                            dataItem[column.accessorKey]
-                                          )
-                                        : dataItem[column.accessorKey]}
-                                    </td>
-                                  </>
-                                )}
-                              </>
-                            );
-                          })}
-
-                          {onDelete ? (
-                            <td className="whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-
-                                  onDelete?.(dataItem);
-                                }}
-                                className="text-red-600 z-20 hover:text-indigo-900 bg-red-100 hover:bg-indigo-100 px-2 py-1 rounded-md text-xs font-medium"
-                              >
-                                Delete
-                              </button>
+                      {dataListFiltered.map((dataItem, index) => {
+                        return (
+                          <tr
+                            key={`row-${dataItem.id}`}
+                            className={
+                              selected.includes(dataItem)
+                                ? "bg-gray-50"
+                                : undefined
+                            }
+                          >
+                            <td className="relative px-7 sm:w-12 sm:px-6">
+                              {selected.includes(dataItem) && (
+                                <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-600" />
+                              )}
+                              <input
+                                type="checkbox"
+                                className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                value={dataItem.email}
+                                checked={selected.includes(dataItem)}
+                                onChange={(e) =>
+                                  handleClickInputSelect(
+                                    dataItem,
+                                    e.target.checked
+                                  )
+                                }
+                              />
                             </td>
-                          ) : null}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+
+                            {columnsToRender.map((column, indexColumn) => {
+                              const value = dataItem[column.accessorKey];
+
+                              return (
+                                <>
+                                  {/* COLOR */}
+                                  {Array.isArray(value) ? (
+                                    <>
+                                      <td
+                                        style={{
+                                          maxWidth: "0rem",
+                                        }}
+                                        className="whitespace-nowrap text-sm text-gray-500 space-x-1 max-[10rem] overflow-scroll"
+                                      >
+                                        {value.length ? (
+                                          value.map((v: any) => {
+                                            return (
+                                              <span
+                                                key={`${index}-${indexColumn}-${v.label}-1`}
+                                                role="button"
+                                                className="relative"
+                                                onClick={() =>
+                                                  handleClickOnTag({
+                                                    col: column,
+                                                    tags: value,
+                                                    dataItem,
+                                                  })
+                                                }
+                                              >
+                                                <TagItem {...v} />
+                                              </span>
+                                            );
+                                          })
+                                        ) : (
+                                          <button
+                                            className="w-full text-left h-full text-gray-400 italic"
+                                            aria-label="Add tag"
+                                            onClick={() =>
+                                              handleClickOnTag({
+                                                col: column,
+                                                tags: [],
+                                                dataItem,
+                                              })
+                                            }
+                                          >
+                                            Add...
+                                          </button>
+                                        )}
+                                      </td>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {column.isColor ? (
+                                        <td
+                                          key={`${index}-${indexColumn}-${value}-1`}
+                                          role="button"
+                                          className="whitespace-nowrap px-3 py-2 text-sm text-gray-500"
+                                        >
+                                          <span
+                                            style={{
+                                              backgroundColor: `${value}`,
+                                              color: "white",
+                                            }}
+                                            className={`inline-flex  items-center rounded-md  px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20`}
+                                          >
+                                            {value}
+                                          </span>
+                                        </td>
+                                      ) : (
+                                        <>
+                                          <td
+                                            key={`${index}-${indexColumn}-${value}-2`}
+                                            className={classNames(
+                                              "whitespace-nowrap py-1 pr-3 text-sm font-medium",
+                                              selected.includes(dataItem)
+                                                ? "text-indigo-600"
+                                                : "text-gray-900"
+                                            )}
+                                          >
+                                            {column?.formatValue
+                                              ? column?.formatValue?.(
+                                                  dataItem[column.accessorKey]
+                                                )
+                                              : dataItem[column.accessorKey]}
+                                          </td>
+                                        </>
+                                      )}
+                                    </>
+                                  )}
+                                </>
+                              );
+                            })}
+
+                            {onDelete ? (
+                              <td className="whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+
+                                    onDelete?.(dataItem);
+                                  }}
+                                  className="text-red-600 z-20 hover:text-indigo-900 bg-red-100 hover:bg-indigo-100 px-2 py-1 rounded-md text-xs font-medium"
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            ) : null}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      ) : null}
-    </div>
+        ) : null}
+      </div>
+    </>
   );
 }
+
+const TagItem = ({
+  label,
+  color,
+  onDelete,
+}: {
+  label: string;
+  color: string;
+  onDelete?: () => void;
+}) => {
+  return (
+    <>
+      <span
+        style={{
+          backgroundColor: color ? `${color}` : undefined,
+        }}
+        className={`inline-flex opacity-20 items-center rounded-md px-2 py-1 text-xs flex-row space-x-2`}
+      >
+        <div>{label}</div>
+
+        {onDelete ? (
+          <div>
+            <XMarkIcon className="h-4 w-4 text-gray-400" />
+          </div>
+        ) : null}
+      </span>
+
+      <span
+        style={{
+          position: "absolute",
+          left: "0",
+          top: "2",
+          color: color ? `${color}` : undefined,
+        }}
+        className={`inline-flex flex-row space-x-2 whitespace-nowrap items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-gray-200 ring-inset`}
+      >
+        <div>{label}</div>
+
+        {onDelete ? (
+          <div role="button" onClick={onDelete}>
+            <XMarkIcon className="h-4 w-4 text-gray-400 cursor-pointer" />
+          </div>
+        ) : null}
+      </span>
+    </>
+  );
+};
 
 function ActionDropdown({ onBulkDelete }: { onBulkDelete?: () => void }) {
   return (
@@ -702,3 +871,232 @@ const SelectColumns = ({
     </div>
   );
 };
+
+const getRandomColor = () => {
+  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+  return randomColor;
+};
+
+function Commandbar({
+  isOpen,
+  onClose,
+  tags,
+  selected: _selected,
+}: {
+  isOpen: boolean;
+  onClose: (selected: Tag[]) => void;
+  tags: {
+    label: string;
+    color: string;
+  }[];
+  selected: {
+    label: string;
+    color: string;
+  }[];
+}) {
+  const [selected, setSelected] = useState<Tag[]>(_selected);
+
+  React.useEffect(() => {
+    setSelected(_selected);
+  }, [_selected]);
+
+  const [query, setQuery] = useState("");
+
+  const tagsWithoutSelected = tags.filter(
+    (tag) => !selected.find((s) => s.label === tag.label)
+  );
+
+  const filteredProjects =
+    query === ""
+      ? tagsWithoutSelected
+      : tagsWithoutSelected.filter((tag) => {
+          return tag.label.toLowerCase().includes(query.toLowerCase());
+        });
+
+  const handleAddTag = (tag: Tag) => {
+    const alreadyExists = selected.find((s) => s.label === tag.label);
+
+    if (alreadyExists) return;
+
+    setSelected([...selected, tag]);
+    setQuery("");
+    setColor(getRandomColor());
+  };
+
+  const [color, setColor] = useState(getRandomColor);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <Transition.Root
+      show={isOpen}
+      as={Fragment}
+      afterLeave={() => setQuery("")}
+      appear
+    >
+      <Dialog
+        as="div"
+        className="relative z-10"
+        onClose={() => onClose(selected)}
+      >
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-25 transition-opacity" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-20">
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <Dialog.Panel className="mx-auto max-w-2xl transform divide-y divide-gray-500 divide-opacity-20 overflow-hidden rounded-xl bg-white  bg-opacity-80 shadow-2xl backdrop-blur backdrop-filter transition-all">
+              {/* @ts-ignore */}
+              <Combobox
+                onChange={(item: any) => {
+                  handleAddTag(item);
+                }}
+              >
+                <div className="relative space-y-2 flex flex-col pl-4 pt-2">
+                  {selected.length ? (
+                    <div className="relative p-2 space-x-2 flex flex-row flex-wrap">
+                      {selected.map((tag) => {
+                        return (
+                          <div key={tag.label} className="relative">
+                            <TagItem
+                              {...tag}
+                              onDelete={() => {
+                                setSelected(
+                                  selected.filter((s) => s.label !== tag.label)
+                                );
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+
+                  <Combobox.Input
+                    ref={inputRef}
+                    className="h-12 w-full border-0 bg-transparent pr-4 text-black focus:ring-0 sm:text-sm"
+                    placeholder="Search..."
+                    // on enter
+                    onKeyDown={(event) => {
+                      if (
+                        event.key === "Enter" &&
+                        query !== "" &&
+                        filteredProjects.length === 0
+                      ) {
+                        event.preventDefault();
+                        handleAddTag({
+                          label: query,
+                          color: `#${color}`,
+                        });
+                        // remove input -> empty valye -> not blur
+                        if (inputRef.current) inputRef.current.value = "";
+                      }
+                    }}
+                    onChange={(event) => {
+                      setQuery(event.target.value);
+                    }}
+                  />
+                </div>
+
+                {(query === "" || filteredProjects.length > 0) && (
+                  <Combobox.Options
+                    static
+                    className="max-h-80 scroll-py-2 divide-y divide-gray-500 divide-opacity-20 overflow-y-auto"
+                  >
+                    <li className="p-2">
+                      {query === "" && (
+                        <h2 className="mb-2 mt-4 px-3 text-xs font-semibold text-black">
+                          {tagsWithoutSelected.length === 0 ? (
+                            <>No available tags</>
+                          ) : (
+                            "Available Tags"
+                          )}
+                        </h2>
+                      )}
+                      <ul className="text-sm text-black">
+                        {(query === ""
+                          ? tagsWithoutSelected
+                          : filteredProjects
+                        ).map((tag) => (
+                          <Combobox.Option
+                            key={tag.label}
+                            value={tag}
+                            className={({ active }) =>
+                              classNames(
+                                "flex cursor-default select-none items-center rounded-md px-3 py-2",
+                                active ? "bg-gray-800 text-white" : ""
+                              )
+                            }
+                          >
+                            {({ active }) => (
+                              <>
+                                <TagIcon
+                                  style={{
+                                    color: `${tag.color}`,
+                                  }}
+                                  className={classNames(
+                                    "h-6 w-6 flex-none",
+                                    active ? "text-white" : "text-gray-800"
+                                  )}
+                                  aria-hidden="true"
+                                />
+                                <span className="ml-3 flex-auto truncate ">
+                                  {tag.label}
+                                </span>
+                                {active && (
+                                  <span className="ml-3 flex-none text-gray-800">
+                                    Assign Tag...
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </Combobox.Option>
+                        ))}
+                      </ul>
+                    </li>
+                  </Combobox.Options>
+                )}
+
+                {query !== "" && filteredProjects.length === 0 && (
+                  <div
+                    role="button"
+                    onClick={() =>
+                      handleAddTag({ label: query, color: "green" })
+                    }
+                    className="flex flex-row space-x-2 justify-start items-center p-4 bg-gray-200 cursor-pointer"
+                  >
+                    <PlusIcon
+                      className="h-6 w-6 text-gray-700"
+                      aria-hidden="true"
+                    />
+                    <div className="text-sm text-black flex flex-row space-x-2 items-center ">
+                      <p>Create Tag</p>
+                      <div className="relative">
+                        <TagItem label={query} color={`#${color}`} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Combobox>
+            </Dialog.Panel>
+          </Transition.Child>
+        </div>
+      </Dialog>
+    </Transition.Root>
+  );
+}

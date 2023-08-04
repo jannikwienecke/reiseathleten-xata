@@ -1,17 +1,12 @@
 import { InboxIcon } from "@heroicons/react/20/solid";
 import { type Order } from "@prisma/client";
-import { Form } from "~/components";
 import { prisma } from "~/db.server";
 import { formatDateString } from "~/features/vacation-admin/utils/helpers";
 
-import type { DataFunctionArgs, ModelConfig } from "~/utils/lib/types";
-import { syncOrdersUsecase } from "../server-functions/sync-orders";
+import type { DataFunctionArgs, ModelConfig, Tag } from "~/utils/lib/types";
 import { createLoader } from "~/utils/stuff.server";
 import { type OrderStatusValueObject } from "../domain/order-status";
-import { getFormDataValue } from "~/utils/lib/core";
-import invariant from "tiny-invariant";
-import { props } from "cypress/types/bluebird";
-import { isLoggedIn } from "~/utils/helper";
+import { syncOrdersUsecase } from "../server-functions/sync-orders";
 
 export type OrderInterface = Omit<Order, "price"> & {
   price: number;
@@ -19,6 +14,7 @@ export type OrderInterface = Omit<Order, "price"> & {
   first_name: string;
   last_name: string;
   email: string;
+  tags: Tag[];
 };
 
 const ORDER_BY_OPTIONS = {
@@ -94,6 +90,7 @@ export const getOrders = async ({
           name: true,
         },
       },
+      OrderTag: true,
       User: {
         include: {
           Customer: {
@@ -110,6 +107,7 @@ export const getOrders = async ({
       status: {
         in: allowedStatusList,
       },
+      // id: 1444,
       // query -> check start_date and end_date if the string is included
       OR: [
         {
@@ -148,6 +146,10 @@ export const getOrders = async ({
     username:
       t.User.Customer[0].first_name + " " + t.User.Customer[0].last_name,
     email: t.User.email,
+    tags: t.OrderTag?.map((tag) => ({
+      label: tag.label,
+      color: tag.color,
+    })),
   }));
 };
 
@@ -182,6 +184,10 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
           accessorKey: "date_created",
           header: "Created",
           formatValue: formatDateString,
+        },
+        {
+          accessorKey: "tags",
+          header: "Tags",
         },
         {
           accessorKey: "first_name",

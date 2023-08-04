@@ -1,5 +1,15 @@
 export type Dict = {
-  [key: string]: string | number | boolean | undefined | null | Date;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | undefined
+    | null
+    | Date
+    | {
+        label: string;
+        color: string;
+      }[];
 } & {
   id: string | number;
 };
@@ -119,4 +129,9 @@ export interface TableActionType<T> {
   name: string;
   label: string;
   handler: (args: DataFunctionArgs) => Promise<unknown>;
+}
+
+export interface Tag {
+  label: string;
+  color: string;
 }

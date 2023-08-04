@@ -365,3 +365,21 @@ CREATE TABLE "public"."ViewColumns" (
 
 -- add index -> i always find by user_id && modelName
 CREATE UNIQUE INDEX "ViewColumns_modelName_user_id" ON "public"."ViewColumns"("modelName","user_id");
+
+CREATE TABLE "public"."OrderTag" (
+    "id" SERIAL,
+    "label" text  NOT NULL ,
+    "orderId" integer  NOT NULL ,
+    "colorId" integer  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("orderId") REFERENCES "public"."Order"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("colorId") REFERENCES "public"."Color"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- delete colorId from OrderTag
+ALTER TABLE "public"."OrderTag" DROP COLUMN "colorId";
+ALTER TABLE "public"."OrderTag" ADD COLUMN "color" text NOT NULL DEFAULT '';
+
+
+INSERT INTO "public"."OrderTag" ("label", "orderId", "colorId") VALUES ('testing', 1444, 1);
+INSERT INTO "public"."OrderTag" ("label", "orderId", "colorId") VALUES ('testing2', 1444, 2);

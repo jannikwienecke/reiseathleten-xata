@@ -9,6 +9,7 @@ import type {
   LibLoaderData,
   DataFunctionArgs,
   ActionFunctionArgs,
+  Tag,
 } from "./types";
 
 export const getFormDataValue = (
@@ -135,6 +136,36 @@ export const createPageFunction = ({
       }
     };
 
+    const onUpdateTags = async ({ formData, request }: ActionFunctionArgs) => {
+      const newTags = getFormDataValue(formData, "newTags") as string;
+      const deletedTags = getFormDataValue(formData, "deletedTags") as string;
+      const orderId = getFormDataValue(formData, "id") as string;
+
+      invariant(typeof newTags === "string", "newTags is required");
+      invariant(typeof deletedTags === "string", "deletedTags is required");
+      invariant(typeof orderId === "string", "orderId is required");
+
+      const _newTags = JSON.parse(newTags) as Tag[];
+      const _deletedTags = JSON.parse(deletedTags) as Tag[];
+
+      await prisma.orderTag.createMany({
+        data: _newTags.map((tag: any) => ({
+          color: tag.color,
+          label: tag.label,
+          orderId: +orderId,
+        })),
+      });
+
+      await prisma.orderTag.deleteMany({
+        where: {
+          label: {
+            in: _deletedTags.map((tag) => tag.label),
+          },
+          orderId: +orderId,
+        },
+      });
+    };
+
     const formData = await props.request.formData();
 
     const formAction = getFormDataValue(formData, "action");
@@ -161,6 +192,8 @@ export const createPageFunction = ({
       throw new Error("Bulk delete is not supported");
     } else if (formAction === "selectColumns") {
       actionToRun = onSelectColumns;
+    } else if (formAction === "updateTags") {
+      actionToRun = onUpdateTags;
     } else if (formAction === "custom_action") {
       const customActionToRu = modelConfig.actions?.find(
         (action) => action.name === customActionName

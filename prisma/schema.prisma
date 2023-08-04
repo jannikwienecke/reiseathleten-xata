@@ -149,6 +149,7 @@ model Order {
   Vacation             VacationDescription   @relation(fields: [vacation_id], references: [id], onDelete: NoAction)
   OrderActivity        OrderActivity[]
   OrderActivityEvents  OrderActivityEvents[]
+  OrderTag             OrderTag[]
 }
 
 model Service {
@@ -244,4 +245,14 @@ model ViewColumns {
   columnIds String
   user_id   Int
   User      User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([modelName, user_id], map: "ViewColumns_modelName_user_id")
+}
+
+model OrderTag {
+  id      Int    @id @default(autoincrement())
+  label   String
+  orderId Int
+  color   String @default("")
+  Order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }

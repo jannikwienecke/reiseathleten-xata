@@ -17,6 +17,7 @@ import type {
   ModelConfig,
   NavigationItem,
   TableActionType,
+  Tag,
 } from "./types";
 
 export const useModel = (options?: { model?: string }) => {
@@ -51,6 +52,7 @@ export const useModel = (options?: { model?: string }) => {
   const supportsEdit = modelConfig?.onEdit !== undefined;
   const supportsDelete = modelConfig?.onDelete !== undefined;
   const supportsSearch = modelConfig?.useAdvancedSearch === true;
+  const supportsTags = true;
   const supportsSelectColumn = true;
 
   return {
@@ -65,6 +67,7 @@ export const useModel = (options?: { model?: string }) => {
     supportsDelete,
     supportsSearch,
     supportsSelectColumn,
+    supportsTags,
     model,
     ...config,
     ...modelConfig,
@@ -161,6 +164,30 @@ export const useAdminPage = (options?: { model?: string }) => {
       {
         ids: JSON.stringify(newColumns.map((item) => item.accessorKey)),
         action: "selectColumns",
+        model: model.model || "",
+      },
+      {
+        method: "POST",
+      }
+    );
+  };
+
+  const handleUpdateTags = ({
+    newTags,
+    deletedTags,
+    id,
+  }: {
+    newTags: Tag[];
+    deletedTags: Tag[];
+    id: string | number;
+  }) => {
+    submit(
+      {
+        newTags: JSON.stringify(newTags),
+        deletedTags: JSON.stringify(deletedTags),
+        id: id.toString(),
+        action: "updateTags",
+
         model: model.model || "",
       },
       {
@@ -377,6 +404,7 @@ export const useAdminPage = (options?: { model?: string }) => {
     handleSelectColumns: model.supportsSelectColumn
       ? handleSelectColumns
       : undefined,
+    handleUpdateTags: model.supportsTags ? handleUpdateTags : undefined,
     currentData: singleItem,
     getOverlayProps,
     getFormProps,
