@@ -3,14 +3,22 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   MagnifyingGlassIcon,
+  PencilIcon,
+  PhoneArrowDownLeftIcon,
 } from "@heroicons/react/20/solid";
 import { useSearchParams } from "@remix-run/react";
 import clsx from "clsx";
 import React from "react";
-import { useEffect, useState, useRef, Fragment } from "react";
+import { useEffect, useRef, Fragment } from "react";
 import { classNames } from "~/utils/helper";
 import { type TableActionType } from "~/utils/lib/types";
 import { Notification } from "./notification";
+import { useState } from "react";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { Combobox } from "@headlessui/react";
+import Select from "react-select";
+import { MultiValue, ActionMeta, InputActionMeta } from "react-select";
+
 type ARecord = Record<string, any>;
 
 export type Column<T extends ARecord> = {
@@ -38,9 +46,12 @@ export function Table<TData extends ARecord>({
   isRunningCutomAction,
   onSearch,
   onSortBy,
+  onSelectColumns,
+  selectedColumns,
 }: {
   dataList: TData[];
   columns: Column<TData>[];
+  selectedColumns?: Column<TData>[];
   title: string;
   subtitle?: string;
   onEdit?: (dataItem: TData) => void;
@@ -55,11 +66,14 @@ export function Table<TData extends ARecord>({
   isRunningCutomAction?: boolean;
   onSearch?: (query: string) => void;
   onSortBy?: (column: Column<TData>) => void;
+  onSelectColumns?: (selected: Column<TData>[]) => void;
 }) {
   const checkbox = useRef<any>();
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selected, _setSelected] = useState<TData[]>([]);
+
+  const [showSelectColumns, setShowSelectColumns] = useState(false);
 
   const [searchParams] = useSearchParams();
 
@@ -195,6 +209,17 @@ export function Table<TData extends ARecord>({
   const IconSortBy =
     sortBy?.direction === "asc" ? ChevronDownIcon : ChevronUpIcon;
 
+  const handleSelectColumns = (selected: Column<TData>[]) => {
+    onSelectColumns?.(selected);
+    setShowSelectColumns(false);
+  };
+
+  const columnsToRender = React.useMemo(() => {
+    if (!selectedColumns || selectedColumns.length === 0) return columns;
+
+    return selectedColumns;
+  }, [columns, selectedColumns]);
+
   return (
     <div className="h-full flex flex-col">
       <div className="z-50 absolute top-0 -right-0">
@@ -235,93 +260,108 @@ export function Table<TData extends ARecord>({
           </div>
         </div>
 
-        {actions?.length || onAdd || onEdit || !disableSearch ? (
-          <div className="flex flex-row">
-            <div>
-              <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
-                {selected.length < 2 ? (
-                  <>
-                    {selected.length === 1 && onDetailView ? (
-                      <div className="">
-                        <button
-                          onClick={() => onDetailView?.(selected[0])}
-                          type="button"
-                          className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white text-black border-2 border-black hover:bg-indigo-200 "
-                     }`}
-                        >
-                          View Detail
-                        </button>
-                      </div>
-                    ) : null}
-
-                    {actions?.map((action) => {
-                      return (
-                        <div key={action.name} className="">
+        <div className="flex flex-col space-y-2 w-[33%] items-end">
+          {actions?.length || onAdd || onEdit || !disableSearch ? (
+            <div className="flex flex-row">
+              <div>
+                <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex flex-row gap-1 sm:gap-2">
+                  {selected.length < 2 ? (
+                    <>
+                      {selected.length === 1 && onDetailView ? (
+                        <div className="">
                           <button
-                            onClick={() => {
-                              onClickAction?.(action, selected);
-                            }}
+                            onClick={() => onDetailView?.(selected[0])}
                             type="button"
-                            className={`
+                            className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white text-black border-2 border-black hover:bg-indigo-200 "
+                     }`}
+                          >
+                            View Detail
+                          </button>
+                        </div>
+                      ) : null}
+
+                      {actions?.map((action) => {
+                        return (
+                          <div key={action.name} className="">
+                            <button
+                              onClick={() => {
+                                onClickAction?.(action, selected);
+                              }}
+                              type="button"
+                              className={`
                               block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
                               ${
                                 selected.length === 0
                                   ? "bg-black text-white hover:bg-indigo-500 "
                                   : "bg-amber-400 text-black hover:bg-amber-300"
                               }`}
-                          >
-                            {isRunningCutomAction ? (
-                              <div>LOADING</div>
-                            ) : (
-                              <>{action.label}</>
-                            )}
-                          </button>
-                        </div>
-                      );
-                    })}
+                            >
+                              {isRunningCutomAction ? (
+                                <div>LOADING</div>
+                              ) : (
+                                <>{action.label}</>
+                              )}
+                            </button>
+                          </div>
+                        );
+                      })}
 
-                    {(onAdd && selected.length === 0) ||
-                    (onEdit && selected.length > 0) ? (
-                      <>
-                        <div className="">
-                          <button
-                            onClick={
-                              selected.length === 0
-                                ? onAdd
-                                : () => onEdit?.(selected[0])
-                            }
-                            type="button"
-                            className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
+                      {(onAdd && selected.length === 0) ||
+                      (onEdit && selected.length > 0) ? (
+                        <>
+                          <div className="">
+                            <button
+                              onClick={
+                                selected.length === 0
+                                  ? onAdd
+                                  : () => onEdit?.(selected[0])
+                              }
+                              type="button"
+                              className={`block rounded-full  px-4 py-1.5 text-center text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
                   ${
                     selected.length === 0
                       ? "bg-black text-white hover:bg-indigo-500 "
                       : "bg-amber-400 text-black hover:bg-amber-300"
                   }`}
-                          >
-                            {selected.length === 0
-                              ? `New ${title}`
-                              : `Edit ${title}`}
-                          </button>
-                        </div>
-                      </>
-                    ) : null}
-                  </>
-                ) : (
-                  <>
-                    <div className="">
-                      <ActionDropdown
-                        onBulkDelete={() => {
-                          onBulkDelete?.(selected);
-                          _setSelected([]);
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
+                            >
+                              {selected.length === 0
+                                ? `New ${title}`
+                                : `Edit ${title}`}
+                            </button>
+                          </div>
+                        </>
+                      ) : null}
+                    </>
+                  ) : (
+                    <>
+                      <div className="">
+                        <ActionDropdown
+                          onBulkDelete={() => {
+                            onBulkDelete?.(selected);
+                            _setSelected([]);
+                          }}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ) : null}
+          ) : null}
+
+          {showSelectColumns ? (
+            <SelectColumns
+              // key={JSON.stringify(selectedColumns)}
+              selectedColumns={
+                selectedColumns?.length === 0 || !selectedColumns
+                  ? columns
+                  : selectedColumns
+              }
+              onSelect={handleSelectColumns}
+              columns={columns}
+            />
+          ) : null}
+        </div>
       </div>
 
       {dataList.length === 0 ? (
@@ -367,17 +407,32 @@ export function Table<TData extends ARecord>({
                         />
                       </th>
 
-                      {columns.map((column) => {
+                      {columnsToRender.map((column) => {
                         return (
                           <th
                             key={`column-${column.accessorKey.toString()}`}
                             scope="col"
-                            className="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-black bg-white"
+                            className="group min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-black bg-white"
                           >
                             <div className="flex flex-row items-center space-x-1">
-                              <button onClick={() => handleClickSortBy(column)}>
+                              <button
+                                className="group"
+                                onClick={() => handleClickSortBy(column)}
+                              >
                                 {column.header}
                               </button>
+
+                              {onSelectColumns ? (
+                                <div className="group-hover:block hidden ">
+                                  <button
+                                    onClick={() => setShowSelectColumns(true)}
+                                    className="flex flex-row items-center space-x-1"
+                                  >
+                                    <PencilIcon className="h-4 w-4 text-gray-400" />
+                                  </button>
+                                </div>
+                              ) : null}
+
                               <button
                                 onClick={() => handleClickSortBy(column)}
                                 type="button"
@@ -438,7 +493,7 @@ export function Table<TData extends ARecord>({
                             />
                           </td>
 
-                          {columns.map((column, indexColumn) => {
+                          {columnsToRender.map((column, indexColumn) => {
                             const value = dataItem[column.accessorKey];
 
                             return (
@@ -587,3 +642,63 @@ function Search({
     </div>
   );
 }
+
+const SelectColumns = ({
+  columns,
+  onSelect,
+  selectedColumns: _selectedColumns,
+}: {
+  columns: Column<any>[];
+  selectedColumns?: Column<any>[];
+  onSelect: (selected: Column<any>[]) => void;
+}) => {
+  const [selectedColumns, setSelectedColumns] = useState<Column<any>[]>(
+    _selectedColumns || []
+  );
+
+  const options = columns.map((column) => {
+    return {
+      value: column.accessorKey,
+      label: column.header,
+    };
+  });
+
+  const defaultOptions = selectedColumns?.map((column) => {
+    return {
+      value: column.accessorKey,
+      label: column.header,
+    };
+  });
+
+  return (
+    <div className="flex flex-row space-x-2 items-center w-[100%]">
+      <div className="grid place-items-center h-full ">
+        <button
+          onClick={() => {
+            onSelect(selectedColumns);
+          }}
+          className="bg-white px-3 py-1 rounded-lg text-xs font-medium text-black ring-1 ring-black ring-offset-2 active:bg-gray-200 active:ring-offset-gray-200 active:ring-offset-1"
+        >
+          Save
+        </button>
+      </div>
+
+      <Select
+        onChange={(selected) => {
+          const selectedColumns = selected.map((item) => {
+            return columns.find((column) => column.accessorKey === item.value);
+          });
+
+          // @ts-ignore
+          setSelectedColumns([...selectedColumns.filter(Boolean)]);
+        }}
+        defaultValue={defaultOptions}
+        isMulti
+        name="columns"
+        options={options}
+        className="basic-multi-select"
+        classNamePrefix="select"
+      />
+    </div>
+  );
+};

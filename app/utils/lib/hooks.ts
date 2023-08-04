@@ -1,5 +1,6 @@
 import {
   useActionData,
+  useFetcher,
   useLoaderData,
   useNavigate,
   useNavigation,
@@ -50,6 +51,7 @@ export const useModel = (options?: { model?: string }) => {
   const supportsEdit = modelConfig?.onEdit !== undefined;
   const supportsDelete = modelConfig?.onDelete !== undefined;
   const supportsSearch = modelConfig?.useAdvancedSearch === true;
+  const supportsSelectColumn = true;
 
   return {
     getColumns,
@@ -62,6 +64,7 @@ export const useModel = (options?: { model?: string }) => {
     supportsEdit,
     supportsDelete,
     supportsSearch,
+    supportsSelectColumn,
     model,
     ...config,
     ...modelConfig,
@@ -71,14 +74,15 @@ export const useModel = (options?: { model?: string }) => {
 export const useAdminPage = (options?: { model?: string }) => {
   const model = useModel(options);
   const navigate = useNavigate();
-  const { data } = useLoaderData<LibLoaderData>() || {};
+  const { data: loaderData } = useLoaderData<LibLoaderData>() || {};
+  const { items, columns } = loaderData || {};
 
   const actionData = useActionData<LibActionData>();
   const [searchParams, setSearchParams] = useSearchParams();
   const submit = useSubmit();
   const navigationState = useNavigation();
   const id = searchParams.get("id");
-  const singleItem = data?.find?.(
+  const singleItem = items?.find?.(
     (item: any) => item.id.toString() === id?.toString()
   );
 
@@ -91,6 +95,12 @@ export const useAdminPage = (options?: { model?: string }) => {
   const isSubmitting = navigationState.state === "submitting";
   const isRunningCutomAction =
     currentFormAction === "custom_action" && isSubmitting;
+
+  const isUpdatingColumns =
+    currentFormAction === "selectColumns" && navigationState.state !== "idle";
+
+  const columnIdsString = navigationState.formData?.get("ids") as string | null;
+  const columnIds = columnIdsString ? JSON.parse(columnIdsString) : null;
 
   const handleClickEdit = (dataItem: any) => {
     searchParams.set("action", "edit");
@@ -146,6 +156,19 @@ export const useAdminPage = (options?: { model?: string }) => {
     };
   };
 
+  const handleSelectColumns = (newColumns: Column<any>[]) => {
+    submit(
+      {
+        ids: JSON.stringify(newColumns.map((item) => item.accessorKey)),
+        action: "selectColumns",
+        model: model.model || "",
+      },
+      {
+        method: "POST",
+      }
+    );
+  };
+
   const handelClickDelete = (dataItem: any) => {
     submit(
       {
@@ -179,7 +202,7 @@ export const useAdminPage = (options?: { model?: string }) => {
   };
 
   const dataListToRender = (
-    data?.filter((data: any) => {
+    items?.filter((data: any) => {
       return (
         data.id !== dataItemDeleted && !dataItemsDeleted?.includes(data.id)
       );
@@ -321,10 +344,25 @@ export const useAdminPage = (options?: { model?: string }) => {
 
   const actions = model.actions || [];
 
+  const allColumns = model.getColumns();
+
+  const selectedColumns_ = columns
+    ? isUpdatingColumns
+      ? allColumns.filter((column) => {
+          return columnIds?.includes(column.accessorKey);
+        })
+      : allColumns.filter((column) => {
+          return columns
+            .map((c) => c.accessorKey)
+            ?.includes(column.accessorKey);
+        })
+    : [];
+
   return {
-    columns: model.getColumns(),
+    columns: allColumns,
+    selectedColumns: selectedColumns_,
     optimisicData: dataListToRender,
-    data,
+    data: items,
     handelClickAdd: model.supportsAdd ? handelClickAdd : undefined,
     handleClickEdit: model.supportsEdit ? handleClickEdit : undefined,
     handelClickDelete: model.supportsDelete ? handelClickDelete : undefined,
@@ -336,6 +374,9 @@ export const useAdminPage = (options?: { model?: string }) => {
       : undefined,
     handleSearchChange: model.supportsSearch ? handleSearchChange : undefined,
     handleSortChange: model.supportsSearch ? handleSortChange : undefined,
+    handleSelectColumns: model.supportsSelectColumn
+      ? handleSelectColumns
+      : undefined,
     currentData: singleItem,
     getOverlayProps,
     getFormProps,
@@ -345,7 +386,6 @@ export const useAdminPage = (options?: { model?: string }) => {
     actions,
     onClickAction,
     isRunningCutomAction,
-
     ...model,
   };
 };

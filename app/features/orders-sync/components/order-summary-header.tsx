@@ -2,8 +2,9 @@ import { Menu, Transition } from "@headlessui/react";
 import {
   CalendarDaysIcon,
   EllipsisVerticalIcon,
+  LinkIcon,
 } from "@heroicons/react/20/solid";
-import { useSubmit } from "@remix-run/react";
+import { Link, useSearchParams, useSubmit } from "@remix-run/react";
 import { Fragment } from "react";
 import { useOrderStore } from "~/features/orders-sync/store/single-order-store";
 import { classNames } from "~/utils/helper";
@@ -11,6 +12,7 @@ import { classNames } from "~/utils/helper";
 export const OrderSummaryHeader = () => {
   const order = useOrderStore((store) => store.order);
   const submit = useSubmit();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleClickCopyUrl = () => {
     navigator.clipboard.writeText(location.href);
@@ -28,6 +30,16 @@ export const OrderSummaryHeader = () => {
         method: "POST",
       }
     );
+  };
+
+  const handleClickAddRoom = () => {
+    searchParams.set("action", "addRoom");
+    setSearchParams(searchParams);
+  };
+
+  const handleClickAddHotel = () => {
+    searchParams.set("action", "addHotel");
+    setSearchParams(searchParams);
   };
 
   return (
@@ -64,8 +76,16 @@ export const OrderSummaryHeader = () => {
                     {order.props.orderKeyId}
                   </span>
                 </div>
-                <div className="mt-1 text-base font-semibold leading-6 text-gray-900">
-                  {order.props.vacation.props.name}
+                <div className="mt-1 text-base font-semibold leading-6 text-gray-900 flex flex-row items-center gap-x-1">
+                  <div>{order.props.vacation.props.name}</div>
+                  <Link
+                    to={`/admin/vacations/${order.props.vacation.props.id}`}
+                  >
+                    <LinkIcon
+                      className="h-5 w-5 text-gray-400 cursor-pointer"
+                      aria-hidden="true"
+                    />
+                  </Link>
                 </div>
 
                 <div className="flex items-center gap-x-4 pt-2">
@@ -88,7 +108,7 @@ export const OrderSummaryHeader = () => {
               </h1>
             </div>
 
-            <div className="flex items-center gap-x-4 sm:gap-x-6">
+            <div className="flex lg:w-[33%] items-center gap-x-4 sm:gap-x-6">
               <button
                 onClick={handleClickCopyUrl}
                 className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
@@ -96,12 +116,32 @@ export const OrderSummaryHeader = () => {
                 Copy URL
               </button>
 
-              <button
-                onClick={handleClickStatusButton}
-                className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white hover:border-black hover:outline-2 hover:outline hover:outline-black hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                {order.statusButtonText}
-              </button>
+              {order.hotel && order.room ? (
+                <button
+                  onClick={handleClickStatusButton}
+                  className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white hover:border-black hover:outline-2 hover:outline hover:outline-black hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  {order.statusButtonText}
+                </button>
+              ) : null}
+
+              {order.hotel && !order.room ? (
+                <button
+                  onClick={handleClickAddRoom}
+                  className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white hover:border-black hover:outline-2 hover:outline hover:outline-black hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  Add Room
+                </button>
+              ) : null}
+
+              {!order.hotel ? (
+                <button
+                  onClick={handleClickAddHotel}
+                  className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white hover:border-black hover:outline-2 hover:outline hover:outline-black hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  Add Hotel
+                </button>
+              ) : null}
 
               <Menu as="div" className="relative sm:hidden">
                 <Menu.Button className="-m-3 block p-3">

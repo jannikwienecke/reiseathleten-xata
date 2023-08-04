@@ -5,6 +5,9 @@ import type {
   User,
   VacationDescription,
   Order,
+  Hotel,
+  Room,
+  AcitivityDescription,
 } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { UserEntity } from "~/features/auth/domain/User";
@@ -54,6 +57,8 @@ export class OrderMapper {
       add_to_community: order.props.orderMeta.props.addToCommunity,
       order_key: order.props.orderKeyId,
       status: order.props.status.value,
+      hotel_id: order.props?.hotel?.id ?? null,
+      room_id: order.props?.room?.id ?? null,
       additional_services: JSON.stringify(
         order.additionalServices.map((service) => ({
           name: service.props.name,
@@ -91,6 +96,22 @@ export class OrderMapper {
           ...service.props,
         })),
         duration: order.props.vacation.props.duration,
+        dateCreated: order.props.vacation.props.dateCreated,
+        dateModified: order.props.vacation.props.dateModified,
+        dateCreatedGmt: order.props.vacation.props.dateCreatedGmt,
+        dateModifiedGmt: order.props.vacation.props.dateModifiedGmt,
+        type: order.props.vacation.props.type,
+        status: order.props.vacation.props.status,
+        slug: order.props.vacation.props.slug,
+        permalink: order.props.vacation.props.permalink,
+        location: order.props.vacation.props.location,
+        date_imported: order.props.vacation.props.date_imported,
+        isParent: order.props.vacation.props.isParent,
+        parentId: order.props.vacation.props.parentId,
+        children: order.props.vacation.props.children,
+        activities: order.props.vacation.props.activities,
+        hotels: order.props.vacation.props.hotels,
+        rooms: order.props.vacation.props.rooms,
       },
 
       // user
@@ -118,6 +139,9 @@ export class OrderMapper {
 
       // orderKey
       orderKey: order.props.orderKeyId,
+
+      hotel: order.props.hotel,
+      room: order.props.room,
 
       // activityEvents
       activityEvents: order.props.activityEvents.list.map((event) => ({
@@ -152,6 +176,15 @@ export class OrderMapper {
         value: order.vacation.endDate,
       }),
       services: ServiceList.create(servicesVacation),
+      date_imported: order.dateImported,
+      dateCreated: order.dateCreated,
+      dateModified: order.dateModified,
+      dateCreatedGmt: order.dateCreated,
+      dateModifiedGmt: order.dateModified,
+      hotels: order.vacation.hotels,
+      rooms: order.vacation.rooms,
+      children: order.vacation.children,
+      activities: order.vacation.activities,
     });
 
     const user = UserEntity.create({
@@ -193,15 +226,20 @@ export class OrderMapper {
       user,
       orderId: order.id,
       activityEvents: ActivityEventList.create(activityEvents),
+      hotel: order.hotel,
+      room: order.room,
     });
   }
 
   static toDomain(
     order: Order & {
+      Hotel?: Hotel;
+      Room?: Room;
       OrderActivityEvents: OrderActivityEvents[];
       Vacation: VacationDescription & {
         VacationServices: Service[];
         Location: Location | null;
+        Activities: AcitivityDescription[];
       };
     } & {
       User: User;
@@ -250,6 +288,25 @@ export class OrderMapper {
           })
         : undefined,
       services: ServiceList.create(services),
+      hotels: [],
+      rooms: [],
+
+      date_imported: order.date_imported.toISOString(),
+      dateCreated: order.date_created.toISOString(),
+      dateModified: order.date_modified.toISOString(),
+      dateCreatedGmt: order.date_created.toISOString(),
+      dateModifiedGmt: order.date_modified.toISOString(),
+      isParent: order.Vacation.is_parent,
+      parentId: order.Vacation.parent_id,
+      children: [],
+      type: order.Vacation.type || "",
+      status: order.Vacation.status || "",
+      slug: order.Vacation.slug || "",
+      permalink: order.Vacation.permalink || "",
+      activities: order.Vacation.Activities.map((activity) => ({
+        ...activity,
+        description: activity.description ?? "",
+      })),
     });
 
     const user = UserEntity.create({
@@ -276,6 +333,8 @@ export class OrderMapper {
 
     return OrderEntity.create({
       ...order,
+      hotel: order?.Hotel,
+      room: order?.Room,
       id: order.id,
       orderKeyId: order.order_key,
       paymentMethod: order.payment_method,

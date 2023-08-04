@@ -80,7 +80,7 @@ export const CustomerConfig: ModelConfig<CustomerInterface> = {
         },
         {
           accessorKey: "address_1",
-          header: "Address 2",
+          header: "Address 1",
         },
         {
           accessorKey: "address_2",

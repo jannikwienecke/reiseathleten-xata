@@ -82,6 +82,8 @@ const TableView = (props: ReturnType<typeof useAdminPage>) => {
   return (
     <Table
       {...props}
+      key={props.model}
+      selectedColumns={props.selectedColumns}
       onAdd={props.handelClickAdd}
       onEdit={props.handleClickEdit}
       onDelete={props.handelClickDelete}
@@ -89,6 +91,7 @@ const TableView = (props: ReturnType<typeof useAdminPage>) => {
       onDetailView={props.handleClickDetailView}
       onSearch={props.handleSearchChange}
       onSortBy={props.handleSortChange}
+      onSelectColumns={props.handleSelectColumns}
       dataList={props.optimisicData}
       title={props.pageTitle || ""}
       subtitle={props.pageSubtitle || ""}
@@ -154,6 +157,7 @@ function Commandbar() {
             leaveTo="opacity-0 scale-95"
           >
             <Dialog.Panel className="mx-auto max-w-2xl transform divide-y divide-gray-500 divide-opacity-20 overflow-hidden rounded-xl bg-gray-900 shadow-2xl transition-all">
+              {/* @ts-ignore */}
               <Combobox onChange={(item) => (window.location = item?.url)}>
                 <div className="relative">
                   <MagnifyingGlassIcon

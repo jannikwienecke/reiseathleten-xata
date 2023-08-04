@@ -12,6 +12,14 @@ export type GetOptionsFunction = (query: string) => Promise<
   }[]
 >;
 
+interface Column<T> {
+  accessorKey: keyof T;
+  header: string;
+  isColor?: boolean;
+  formatValue?: (value: any) => any;
+  disableSortBy?: boolean;
+}
+
 export type ModelConfig<T extends Dict = { id: number }> = {
   title: string;
   description?: string;
@@ -25,13 +33,8 @@ export type ModelConfig<T extends Dict = { id: number }> = {
   parent?: string;
   view: {
     table: {
-      columns: {
-        accessorKey: keyof T;
-        header: string;
-        isColor?: boolean;
-        formatValue?: (value: any) => any;
-        disableSortBy?: boolean;
-      }[];
+      getColumns?: (args: DataFunctionArgs) => Promise<string[]>;
+      columns: Column<T>[];
     };
     detail?: {
       getUrl?: (id: string | number) => string;
@@ -88,7 +91,13 @@ export interface PageHandler {
 }
 
 export interface LibLoaderData {
-  data: Dict[];
+  data: {
+    items: Dict[];
+    columns: {
+      accessorKey: string;
+      header: string;
+    }[];
+  };
 }
 
 export interface LibActionData {

@@ -126,6 +126,10 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
           accessorKey: "name",
           header: "Name",
         },
+        {
+          accessorKey: "is_parent",
+          header: "Parent",
+        },
       ],
     },
     detail: {

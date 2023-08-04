@@ -29,7 +29,7 @@ export class OrderRepoPrisma implements OrderRepository {
     // only vacations as orders will be saved
     if (!order.props.vacation.props.startDate.value) return;
 
-    const { vacation_id, user_id, ...rawOrder } =
+    const { vacation_id, user_id, hotel_id, room_id, ...rawOrder } =
       OrderMapper.toPersistence(order);
 
     if (isNewOrder) {
@@ -115,6 +115,8 @@ export class OrderRepoPrisma implements OrderRepository {
         id: orderId,
       },
       include: {
+        Hotel: true,
+        Room: true,
         Vacation: {
           include: {
             Location: true,
@@ -139,9 +141,12 @@ export class OrderRepoPrisma implements OrderRepository {
 
     return OrderMapper.toDomain({
       ...order,
+      Hotel: order.Hotel || undefined,
+      Room: order.Room || undefined,
       Vacation: {
         ...order.Vacation,
         VacationServices: order.Vacation.VacationServices.map((s) => s.Service),
+        Activities: [],
       },
       OrderActivityEvents: order.OrderActivityEvents,
     });

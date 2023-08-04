@@ -5,6 +5,8 @@ import { VacationChildrenTable } from "~/features/orders-sync/components/childre
 import { DetailsTabs } from "~/features/orders-sync/components/order-main-view-tabs";
 import { VacationActivitiesTable } from "~/features/orders-sync/components/vacation-activities";
 import { VacationDescription } from "~/features/orders-sync/components/vacation-description";
+import { VacationHotelsTable } from "~/features/orders-sync/components/vacation-hotels";
+import { VacationRoomsTable } from "~/features/orders-sync/components/vacation-rooms";
 import { VacationServicesTable } from "~/features/orders-sync/components/vacation-services";
 import { VacationSummary } from "~/features/orders-sync/components/vacation-summary";
 import { VacationSummaryHeader } from "~/features/orders-sync/components/vacation-summary-headerr";
@@ -52,12 +54,16 @@ export default function SyncOrdersPage() {
     vacation_services: "addService",
     vacation_children: "addChildVacation",
     vacation_activities: "addActivity",
+    vacation_hotels: "addHotel",
+    vacation_rooms: "addRoom",
   };
 
   const dictViewForm = {
     vacation_services: <FormSelectServices />,
     vacation_children: <FormSelectVacations />,
     vacation_activities: <FormActivities />,
+    vacation_hotels: <FormHotels />,
+    vacation_rooms: <FormRooms />,
   };
 
   const actionName =
@@ -111,6 +117,28 @@ const FormActivities = () => {
   );
 };
 
+const FormHotels = () => {
+  return (
+    <Form.Select
+      name="hotel"
+      onSelect={() => null}
+      model="hotel"
+      value={undefined}
+    />
+  );
+};
+
+const FormRooms = () => {
+  return (
+    <Form.Select
+      name="room"
+      onSelect={() => null}
+      model="room"
+      value={undefined}
+    />
+  );
+};
+
 export function VacationContent() {
   const vacation = useVacationState((store) => store.vacation);
   const [searchParams] = useSearchParams();
@@ -119,6 +147,8 @@ export function VacationContent() {
   const views = [
     { name: "vacation_description", label: "Description" },
     { name: "vacation_services", label: "Services" },
+    { name: "vacation_hotels", label: "Hotels" },
+    { name: "vacation_rooms", label: "Rooms" },
   ];
 
   if (vacation.props.isParent) {
@@ -134,6 +164,8 @@ export function VacationContent() {
     vacation_description: <VacationDescription />,
     vacation_children: <VacationChildrenTable />,
     vacation_activities: <VacationActivitiesTable />,
+    vacation_hotels: <VacationHotelsTable />,
+    vacation_rooms: <VacationRoomsTable />,
   };
 
   return (

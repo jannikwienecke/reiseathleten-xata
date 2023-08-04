@@ -122,6 +122,7 @@ const DefaultInput = ({
       <div className={`mt-2 ${props.type === "checkbox" && "h-8"}`}>
         {props.type === "textarea" ? (
           <>
+            {/* @ts-ignore */}
             <textarea
               {...props}
               rows={10}
@@ -249,8 +250,6 @@ const Select = ({
 }) => {
   const fetcher = useFetcher();
   const { model: paramsModel, id } = useParams();
-
-  console.log({ id });
 
   invariant(modelArgs || paramsModel, "model is required");
 

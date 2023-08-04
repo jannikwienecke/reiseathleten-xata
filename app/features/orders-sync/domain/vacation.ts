@@ -2,6 +2,8 @@ import { type DateValueObject } from "~/features/vacation/domain/date";
 import { Entity } from "~/shared/domain/entity";
 import type {
   ActivityType,
+  HotelType,
+  RoomType,
   VacationChildren,
 } from "../mapper/vacationDescriptionMap";
 import { type LocationEntity } from "./location";
@@ -33,6 +35,8 @@ interface VacationBookingProps {
   parentId: number | null;
   children: VacationChildren[];
   activities: ActivityType[];
+  hotels: HotelType[];
+  rooms: RoomType[];
 }
 
 export class VacationBooking extends Entity<VacationBookingProps> {
@@ -62,5 +66,13 @@ export class VacationBooking extends Entity<VacationBookingProps> {
 
   get activities() {
     return this.props.activities;
+  }
+
+  get hotels() {
+    return this.props.hotels;
+  }
+
+  get rooms() {
+    return this.props.rooms;
   }
 }

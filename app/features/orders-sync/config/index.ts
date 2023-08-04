@@ -8,7 +8,7 @@ import { DoneOrderConfig } from "./ordersDone";
 export const CONFIG_ORDERS_PAGE: ConfigType = {
   models: {
     Service: ServiceConfig,
-    Order: NewOrdersConfig,
+    NewOrder: NewOrdersConfig,
     CurrentOrder: CurrentOrdersConfig,
     ClosedOrder: DoneOrderConfig,
     // ActivityBooking: ActivityBookingConfig,

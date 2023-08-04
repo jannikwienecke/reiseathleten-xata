@@ -8,6 +8,7 @@ import { type VacationBooking } from "./vacation";
 import type { ServiceValueObject } from "./service";
 import type { ActivityEventList } from "./activity-event-list";
 import { type ActivityEvent } from "./activity-event";
+import { HotelType, RoomType } from "../mapper/vacationDescriptionMap";
 
 export interface OrderProps {
   id: number;
@@ -24,6 +25,8 @@ export interface OrderProps {
   status: OrderStatusValueObject;
   orderId: number;
   activityEvents: ActivityEventList;
+  hotel?: HotelType;
+  room?: RoomType;
 }
 
 export class OrderEntity extends Entity<OrderProps> {
@@ -98,5 +101,21 @@ export class OrderEntity extends Entity<OrderProps> {
 
   addActivityEvent(event: ActivityEvent) {
     this.props.activityEvents.addEvent(event);
+  }
+
+  get room(): RoomType | undefined {
+    return this.props?.room;
+  }
+
+  get hotel(): HotelType | undefined {
+    return this.props?.hotel;
+  }
+
+  set room(room: RoomType | undefined) {
+    this.props.room = room;
+  }
+
+  set hotel(hotel: HotelType | undefined) {
+    this.props.hotel = hotel;
   }
 }

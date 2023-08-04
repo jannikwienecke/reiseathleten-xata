@@ -8,6 +8,10 @@ import type { DataFunctionArgs, ModelConfig } from "~/utils/lib/types";
 import { syncOrdersUsecase } from "../server-functions/sync-orders";
 import { createLoader } from "~/utils/stuff.server";
 import { type OrderStatusValueObject } from "../domain/order-status";
+import { getFormDataValue } from "~/utils/lib/core";
+import invariant from "tiny-invariant";
+import { props } from "cypress/types/bluebird";
+import { isLoggedIn } from "~/utils/helper";
 
 export type OrderInterface = Omit<Order, "price"> & {
   price: number;
@@ -214,14 +218,7 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
     },
     AddForm: {
       title: "Order",
-      fields: [
-        {
-          Component: Form.DefaultInput,
-          name: "price",
-          label: "Price",
-          type: "number",
-        },
-      ],
+      fields: [],
     },
   },
   actions: [

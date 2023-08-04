@@ -44,6 +44,8 @@ export const singleVacationActionHandler = async ({
   const formId = getFormDataValue(formData, "id");
   const childrenIds = getFormDataValue(formData, "childrenIds");
   const activityId = getFormDataValue(formData, "acitivityName");
+  const hotelId = getFormDataValue(formData, "hotel");
+  const roomId = getFormDataValue(formData, "room");
 
   const orderId = params.id;
 
@@ -186,6 +188,44 @@ export const singleVacationActionHandler = async ({
     });
   };
 
+  const handleAddHotel = async () => {
+    invariant(hotelId, `Action ${action}: hotelId is required`);
+
+    await prisma.vacationHotel.create({
+      data: {
+        VacationDescription: {
+          connect: {
+            id: +id,
+          },
+        },
+        Hotel: {
+          connect: {
+            id: +hotelId,
+          },
+        },
+      },
+    });
+  };
+
+  const handleAddRoom = async () => {
+    invariant(roomId, `Action ${action}: roomId is required`);
+
+    await prisma.vacationRoom.create({
+      data: {
+        VacationDescription: {
+          connect: {
+            id: +id,
+          },
+        },
+        Room: {
+          connect: {
+            id: +roomId,
+          },
+        },
+      },
+    });
+  };
+
   switch (action) {
     case "addService":
       await handleAddService();
@@ -217,6 +257,14 @@ export const singleVacationActionHandler = async ({
 
     case "deleteVacationActivity":
       await handleDeleteVacationActivity();
+      break;
+
+    case "addHotel":
+      await handleAddHotel();
+      break;
+
+    case "addRoom":
+      await handleAddRoom();
       break;
 
     default:

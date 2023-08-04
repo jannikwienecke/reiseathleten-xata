@@ -1,11 +1,13 @@
 import {
   CalendarDaysIcon,
   CreditCardIcon,
+  ShieldCheckIcon,
   UserCircleIcon,
 } from "@heroicons/react/20/solid";
 import { useOrderStore } from "../store/single-order-store";
 import { type OrderStatusValueObject } from "../domain/order-status";
 import clsx from "clsx";
+import { HomeModernIcon } from "@heroicons/react/24/outline";
 
 export const InvoiceSummary = () => {
   const order = useOrderStore((state) => state.order);
@@ -70,7 +72,38 @@ export const InvoiceSummary = () => {
               {order.props.paymentMethod} + {order.props.paymentMethod_title}
             </dd>
           </div>
+
+          {order.hotel ? (
+            <div className="mt-4 flex w-full flex-none gap-x-4 px-6">
+              <dt className="flex-none">
+                <span className="sr-only">Hotel</span>
+                <HomeModernIcon
+                  className="h-6 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+              </dt>
+              <dd className="text-sm leading-6 text-gray-500">
+                {order.hotel?.name}
+              </dd>
+            </div>
+          ) : null}
+
+          {order.room ? (
+            <div className="mt-4 flex w-full flex-none gap-x-4 px-6">
+              <dt className="flex-none">
+                <span className="sr-only">Hotel</span>
+                <ShieldCheckIcon
+                  className="h-6 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+              </dt>
+              <dd className="text-sm leading-6 text-gray-500">
+                {order.room?.name}
+              </dd>
+            </div>
+          ) : null}
         </dl>
+
         <div className="mt-6 border-t border-gray-900/5 px-6 py-6">
           <a
             href="123"

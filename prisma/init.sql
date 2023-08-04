@@ -122,6 +122,24 @@ CREATE TABLE "public"."Hotel" (
     FOREIGN KEY ("contactId") REFERENCES "public"."Contact"("id") ON UPDATE CASCADE
 );
 
+CREATE TABLE "public"."VacationHotel"(
+    "id" SERIAL,
+    "vacation_id" integer  NOT NULL ,
+    "hotel_id" integer  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("vacation_id") REFERENCES "public"."VacationDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("hotel_id") REFERENCES "public"."Hotel"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- table VacationRoom
+CREATE TABLE "public"."VacationRoom"(
+    "id" SERIAL,
+    "vacation_id" integer  NOT NULL ,
+    "room_id" integer  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("vacation_id") REFERENCES "public"."VacationDescription"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY ("room_id") REFERENCES "public"."Room"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 
 
@@ -234,12 +252,24 @@ CREATE TABLE "public"."Order" (
 -- the order id which can be in multiple lines
     order_id integer  NOT NULL,
 
+    hotel_id integer;
+    room_id integer;
+
     -- user
     "user_id" integer  NOT NULL ,
     PRIMARY KEY ("id"),
     FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY ("vacation_id") REFERENCES "public"."VacationDescription"("id") ON UPDATE CASCADE
+    FOREIGN KEY ("vacation_id") REFERENCES "public"."VacationDescription"("id") ON UPDATE CASCADE,
+    FOREIGN KEY ("hotel_id") REFERENCES "public"."Hotel"("id") ON UPDATE CASCADE,
+    FOREIGN KEY ("room_id") REFERENCES "public"."Room"("id") ON UPDATE CASCADE
 );
+
+-- ALTER -> add room and hotel
+-- ALTER TABLE "public"."Order" ADD COLUMN "hotel_id" integer;
+-- ALTER TABLE "public"."Order" ADD COLUMN "room_id" integer;
+-- ALTER TABLE "public"."Order" ADD FOREIGN KEY ("hotel_id") REFERENCES "public"."Hotel"("id") ON UPDATE CASCADE;
+-- ALTER TABLE "public"."Order" ADD FOREIGN KEY ("room_id") REFERENCES "public"."Room"("id") ON UPDATE CASCADE;
+
 
 CREATE TABLE "public"."OrderActivityEvents" (
     "id" SERIAL,
@@ -323,5 +353,15 @@ INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24
 INSERT INTO "public"."VacationServices" ("vacation_id", "service_id") VALUES (24875, 3);
 
 
--- count orders
--- SELECT COUNT(*) FROM "public"."Order";
+CREATE TABLE "public"."ViewColumns" (
+    "id" SERIAL,
+    "modelName" text  NOT NULL ,
+    "columnIds" text  NOT NULL ,
+    -- user_id
+    "user_id" integer  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- add index -> i always find by user_id && modelName
+CREATE UNIQUE INDEX "ViewColumns_modelName_user_id" ON "public"."ViewColumns"("modelName","user_id");

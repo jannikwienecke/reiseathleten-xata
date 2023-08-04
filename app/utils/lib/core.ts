@@ -1,9 +1,14 @@
+import { request } from "@playwright/test";
+import invariant from "tiny-invariant";
+import { prisma } from "~/db.server";
+import { isLoggedIn } from "../helper";
 import type {
   ModelConfig,
   ConfigType,
   LibActionData,
   LibLoaderData,
   DataFunctionArgs,
+  ActionFunctionArgs,
 } from "./types";
 
 export const getFormDataValue = (
@@ -44,22 +49,92 @@ export const createPageFunction = ({
       });
     }
 
+    const user = await isLoggedIn(props.request);
+
+    invariant(user, "user is required");
+
+    const view = await prisma.viewColumns.findFirst({
+      where: {
+        user_id: user.props.id,
+        modelName: props.params.model,
+      },
+    });
+
+    const columnIds = view?.columnIds ? JSON.parse(view?.columnIds) : [];
+
+    const allColumns = modelConfig.view.table.columns;
+    const columns = allColumns.filter((column) =>
+      columnIds.includes(column.accessorKey)
+    );
+
+    const items = await modelConfig.loader({
+      ...props,
+      query: query.toLowerCase(),
+      sortBy:
+        sortByField && sortByDirection
+          ? {
+              field: sortByField,
+              direction: sortByDirection as "asc" | "desc",
+            }
+          : undefined,
+    });
+
     return {
-      data: await modelConfig.loader({
-        ...props,
-        query: query.toLowerCase(),
-        sortBy:
-          sortByField && sortByDirection
-            ? {
-                field: sortByField,
-                direction: sortByDirection as "asc" | "desc",
-              }
-            : undefined,
-      }),
+      data: {
+        columns,
+        items,
+      },
     };
   };
 
   const action = async (props: DataFunctionArgs) => {
+    const onSelectColumns = async ({
+      formData,
+      request,
+    }: ActionFunctionArgs) => {
+      const user = await isLoggedIn(request);
+
+      const ids = getFormDataValue(formData, "ids");
+      const model = getFormDataValue(formData, "model");
+
+      invariant(ids, "ids is required");
+      invariant(model, "model is required");
+      invariant(user, "user is required");
+
+      const viewColumns = await prisma.viewColumns.findFirst({
+        where: {
+          modelName: model,
+          User: {
+            id: user.props.id,
+          },
+        },
+      });
+
+      if (viewColumns) {
+        await prisma.viewColumns.update({
+          where: {
+            id: viewColumns.id,
+          },
+          data: {
+            columnIds: ids,
+          },
+        });
+        return;
+      } else {
+        await prisma.viewColumns.create({
+          data: {
+            modelName: model,
+            columnIds: ids,
+            User: {
+              connect: {
+                id: user.props.id,
+              },
+            },
+          },
+        });
+      }
+    };
+
     const formData = await props.request.formData();
 
     const formAction = getFormDataValue(formData, "action");
@@ -84,6 +159,8 @@ export const createPageFunction = ({
       actionToRun = modelConfig.onBulkDelete;
     } else if (formAction === "bulkDelete" && !modelConfig.onBulkDelete) {
       throw new Error("Bulk delete is not supported");
+    } else if (formAction === "selectColumns") {
+      actionToRun = onSelectColumns;
     } else if (formAction === "custom_action") {
       const customActionToRu = modelConfig.actions?.find(
         (action) => action.name === customActionName

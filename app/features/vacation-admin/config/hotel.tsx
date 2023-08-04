@@ -14,6 +14,7 @@ export type HotelInterface = Room & {
   contactName: string;
   contactId: number | null;
   locationId: number | null;
+  hotel: string;
 };
 
 const prismaCrudHandler = new PrismaCrudHandler(prisma, "hotel");
@@ -36,6 +37,7 @@ export const HotelConfig: ModelConfig<HotelInterface> = {
         (t?.Contact?.first_name || "") + " " + (t?.Contact?.last_name || ""),
       contactId: t.contactId,
       locationId: t.locationId,
+      hotel: "",
     }));
   },
 
@@ -185,6 +187,31 @@ export const HotelConfig: ModelConfig<HotelInterface> = {
             return contacts.map((t) => ({
               id: t.id,
               name: t.first_name + " " + t.last_name,
+            }));
+          },
+        },
+
+        {
+          Component: Form.Select,
+          name: "hotel",
+          label: "Hotel",
+          selectField: {
+            fieldId: "id",
+          },
+
+          onGetOptions: async (query) => {
+            const hotels = await prisma.hotel.findMany({
+              where: {
+                name: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+            });
+
+            return hotels.map((t) => ({
+              id: t.id,
+              name: t.name,
             }));
           },
         },

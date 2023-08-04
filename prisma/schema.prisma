@@ -59,6 +59,7 @@ model User {
   Customer            Customer[]
   Order               Order[]
   OrderActivityEvents OrderActivityEvents[]
+  ViewColumns         ViewColumns[]
 }
 
 model VacationDescription {
@@ -84,6 +85,8 @@ model VacationDescription {
   Location                  Location?                 @relation(fields: [locationId], references: [id], onDelete: NoAction)
   VacationDescription       VacationDescription?      @relation("VacationDescriptionToVacationDescription", fields: [parent_id], references: [id], onDelete: NoAction)
   other_VacationDescription VacationDescription[]     @relation("VacationDescriptionToVacationDescription")
+  VacationHotel             VacationHotel[]
+  VacationRoom              VacationRoom[]
   VacationServices          VacationServices[]
 }
 
@@ -138,6 +141,10 @@ model Order {
   additional_services  String                @default("")
   order_id             Int
   user_id              Int
+  hotel_id             Int?
+  room_id              Int?
+  Hotel                Hotel?                @relation(fields: [hotel_id], references: [id], onDelete: NoAction)
+  Room                 Room?                 @relation(fields: [room_id], references: [id], onDelete: NoAction)
   User                 User                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
   Vacation             VacationDescription   @relation(fields: [vacation_id], references: [id], onDelete: NoAction)
   OrderActivity        OrderActivity[]
@@ -197,16 +204,44 @@ model Contact {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Hotel {
-  id         Int       @id @default(autoincrement())
-  name       String
-  locationId Int?
-  contactId  Int?
-  Contact    Contact?  @relation(fields: [contactId], references: [id], onDelete: NoAction)
-  Location   Location? @relation(fields: [locationId], references: [id], onDelete: NoAction)
+  id            Int             @id @default(autoincrement())
+  name          String
+  locationId    Int?
+  contactId     Int?
+  Contact       Contact?        @relation(fields: [contactId], references: [id], onDelete: NoAction)
+  Location      Location?       @relation(fields: [locationId], references: [id], onDelete: NoAction)
+  Order         Order[]
+  VacationHotel VacationHotel[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Room {
-  id   Int    @id @default(autoincrement())
-  name String
+  id           Int            @id @default(autoincrement())
+  name         String
+  Order        Order[]
+  VacationRoom VacationRoom[]
+}
+
+model VacationHotel {
+  id                  Int                 @id @default(autoincrement())
+  vacation_id         Int
+  hotel_id            Int
+  Hotel               Hotel               @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  VacationDescription VacationDescription @relation(fields: [vacation_id], references: [id], onDelete: Cascade)
+}
+
+model VacationRoom {
+  id                  Int                 @id @default(autoincrement())
+  vacation_id         Int
+  room_id             Int
+  Room                Room                @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  VacationDescription VacationDescription @relation(fields: [vacation_id], references: [id], onDelete: Cascade)
+}
+
+model ViewColumns {
+  id        Int    @id @default(autoincrement())
+  modelName String
+  columnIds String
+  user_id   Int
+  User      User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

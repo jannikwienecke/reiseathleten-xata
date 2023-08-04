@@ -12,6 +12,7 @@ import { Mood } from "../domain/mood";
 import { DateValueObject } from "~/features/vacation/domain/date";
 import { isLoggedIn } from "~/utils/helper";
 import { OrderMapper } from "../mapper/orderMap";
+import { prisma } from "~/db.server";
 
 type Props = {
   repository: Repository;
@@ -49,6 +50,8 @@ export const singleOrderActionHandler = async ({
 
   const serviceId = getFormDataValue(formData, "serviceName");
   const newStatus = getFormDataValue(formData, "newStatus");
+  const hotelId = getFormDataValue(formData, "hotel");
+  const roomId = getFormDataValue(formData, "room");
 
   const serviceIdToDelete = getFormDataValue(formData, "id");
 
@@ -109,6 +112,40 @@ export const singleOrderActionHandler = async ({
     repository.order.updateStatus(+orderId, newStatus);
   };
 
+  const handleAddHotel = async () => {
+    invariant(hotelId, "hotelId is required");
+
+    await prisma.order.update({
+      where: {
+        id: +orderId,
+      },
+      data: {
+        Hotel: {
+          connect: {
+            id: +hotelId,
+          },
+        },
+      },
+    });
+  };
+
+  const handleAddRoom = async () => {
+    invariant(roomId, "roomId is required");
+
+    await prisma.order.update({
+      where: {
+        id: +orderId,
+      },
+      data: {
+        Room: {
+          connect: {
+            id: +roomId,
+          },
+        },
+      },
+    });
+  };
+
   switch (action) {
     case "comment":
       await handleComment();
@@ -124,6 +161,14 @@ export const singleOrderActionHandler = async ({
 
     case "updateStatus":
       await handleStatusUpdate();
+      break;
+
+    case "addHotel":
+      await handleAddHotel();
+      break;
+
+    case "addRoom":
+      await handleAddRoom();
       break;
 
     default:

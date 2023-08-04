@@ -50,7 +50,7 @@ export const ColorConfig: ModelConfig<ColorInterface> = {
         },
         {
           accessorKey: "color",
-          header: "",
+          header: "Color",
           isColor: true,
         },
       ],

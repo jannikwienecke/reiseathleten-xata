@@ -62,6 +62,8 @@ export default function SyncOrdersPage() {
 
   const orderStore = useOrderStore((store) => store.order);
 
+  const [searchParams] = useSearchParams();
+
   const { getFormProps, getOverlayProps } = useAdminPage({
     model: "VacationServices",
   });
@@ -74,27 +76,65 @@ export default function SyncOrdersPage() {
     initOrder(orderEntity);
   }, [data]);
 
+  const currentAction = searchParams.get("action");
+
+  const action = currentAction || "addAdditionalService";
+
+  const dictViewForm = {
+    addAdditionalService: <FormSelectServices />,
+    addHotel: <FormHotels />,
+    addRoom: <FormRooms />,
+  };
+
   if (!data.order) return <div>Not Found</div>;
   if (!orderStore.props) return <div>loading...</div>;
 
   return (
     <>
-      <LibSliderOver {...getOverlayProps()}>
+      <LibSliderOver {...getOverlayProps()} isOpen={!!currentAction}>
         <LibForm {...getFormProps()} title="Add Service to this order">
-          <input type="hidden" name="action" value={"addAdditionalService"} />
+          <input type="hidden" name="action" value={action} />
 
-          <Form.Select
-            name="serviceName"
-            onSelect={() => null}
-            model="VacationServices"
-            value={undefined}
-          />
+          {dictViewForm[currentAction as keyof typeof dictViewForm]}
         </LibForm>
       </LibSliderOver>
       <OrderSummaryContent />
     </>
   );
 }
+
+const FormSelectServices = () => {
+  return (
+    <Form.Select
+      name="serviceName"
+      onSelect={() => null}
+      model="VacationServices"
+      value={undefined}
+    />
+  );
+};
+
+const FormHotels = () => {
+  return (
+    <Form.Select
+      name="hotel"
+      onSelect={() => null}
+      model="hotel"
+      value={undefined}
+    />
+  );
+};
+
+const FormRooms = () => {
+  return (
+    <Form.Select
+      name="room"
+      onSelect={() => null}
+      model="room"
+      value={undefined}
+    />
+  );
+};
 
 const views = [
   { name: "order_services", label: "Services" },
