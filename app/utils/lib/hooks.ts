@@ -666,10 +666,12 @@ export const useTagsCombobox = ({
     })
     .flat() as Tag[];
 
-  const labels = Array.from(new Set(allTags.map((t) => t.label)));
+  const labels = allTags.length
+    ? Array.from(new Set(allTags.map((t) => t?.label)))
+    : [];
 
   const all = labels.map(
-    (label) => allTags.find((t) => t.label === label) as Tag
+    (label) => allTags.find((t) => t?.label === label) as Tag
   );
 
   const handleClickOnTag = ({
