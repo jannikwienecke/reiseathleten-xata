@@ -20,11 +20,66 @@ import type {
   Tag,
 } from "./types";
 import { ComboboxItem } from "~/components/command-bar";
-import { set } from "cypress/types/lodash";
+
+export const useModels = ({
+  models,
+}: {
+  models: {
+    [key: string]: ModelConfig<any>;
+  };
+}) => {
+  const customViews = [
+    {
+      viewName: "NewOrderSpecial",
+      baseView: "NewOrder",
+      tags: ["test"],
+      title: "New Orders2",
+    },
+  ];
+
+  const findView = (viewName: string) => {
+    return Object.entries(models).find(([key, value]) => {
+      return key === viewName;
+    })?.[1];
+  };
+
+  const customModels = customViews.reduce(
+    (acc, view) => {
+      const modelConfig = findView(view.baseView);
+
+      if (!modelConfig) {
+        throw new Error(`View ${view.baseView} not found`);
+      }
+
+      return {
+        ...acc,
+        [view.baseView]: {
+          ...modelConfig,
+          title: view.title,
+          customName: view.viewName,
+        },
+      };
+    },
+    {} as {
+      [key: string]: ModelConfig<any>;
+    }
+  );
+
+  const modelList = [
+    ...Object.entries(models),
+    ...Object.entries(customModels),
+  ];
+
+  return {
+    modelList,
+  };
+};
 
 export const useModel = (options?: { model?: string }) => {
   const { config } = useContext(LibContext);
   const { model: modelFromOptions } = options || {};
+
+  const models = useModels({ models: config.models });
 
   if (!config.models) {
     throw new Error("Please Provide the config in the LibProvider");
@@ -33,6 +88,9 @@ export const useModel = (options?: { model?: string }) => {
   const { model: modelFromParams } = useParams<{
     model: string;
   }>();
+
+  const [searchParams] = useSearchParams();
+  const customView = searchParams.get("view");
 
   const model = modelFromOptions || modelFromParams;
 
@@ -70,9 +128,11 @@ export const useModel = (options?: { model?: string }) => {
     supportsSearch,
     supportsSelectColumn,
     supportsTags,
+    customView,
     model,
     ...config,
     ...modelConfig,
+    ...models,
   };
 };
 
@@ -231,8 +291,6 @@ export const useAdminPage = (options?: { model?: string }) => {
     if (showTagsRef.current) {
       if (deletedTags.length === 0 && newTags.length === 0) return;
 
-      console.log({ deletedTags, newTags, tags: tagsRef.current });
-
       const allWithoutDeletedTags = tagsRef.current.filter((tag) => {
         return !deletedTags.find((t) => t.label === tag.label);
       });
@@ -388,13 +446,16 @@ export const useAdminPage = (options?: { model?: string }) => {
     const itemsWithoutParent: NavigationItem[] = [];
     const itemsWithParent: NavigationItem[] = [];
 
-    Object.entries(model.models).forEach(([key, value]) => {
+    model.modelList.forEach(([key, value]) => {
       const item = {
         parent: value.parent,
         label: value.title,
         icon: value.view?.navigation?.icon,
-        isCurrent: key === model.model,
-        name: key,
+        name: value.customName ? `${key}?view=${value.customName}` : key,
+        // isCurrent: key === model.model,
+        isCurrent: model.customView
+          ? value.customName === model.customView
+          : key === model.model && !value.customName,
       };
 
       if (value.parent) {
@@ -476,6 +537,7 @@ export const useAdminPage = (options?: { model?: string }) => {
     actions,
     onClickAction,
     isRunningCutomAction,
+    tags,
     ...model,
   };
 };
@@ -537,6 +599,11 @@ export const useCommandbar = ({
     }
   };
 
+  const handleClickTags = () => {
+    setShowTags(true);
+    tagsCombobox.open({ tags });
+  };
+
   return {
     items,
     isOpen: commandbarIsOpen,
@@ -544,6 +611,7 @@ export const useCommandbar = ({
     onClose,
     onSelect,
     showTags,
+    handleClickTags,
   };
 };
 
@@ -635,6 +703,7 @@ export const useTagsCombobox = ({
     onClose: handleCloseCommandBar,
     onChange,
     handleClickOnTag,
+
     open,
   };
 };

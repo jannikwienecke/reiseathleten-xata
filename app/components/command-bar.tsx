@@ -216,12 +216,6 @@ const ComboboxTags = ({
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Tag[]>(_selected);
 
-  // React.useEffect(() => {
-  //   console.log({ _selected, selected });
-
-  //   // setSelected(_selected);
-  // }, [_selected]);
-
   const tagsWithoutSelected = tags.filter(
     (tag) => !selected.find((s) => s.label === tag.label)
   );

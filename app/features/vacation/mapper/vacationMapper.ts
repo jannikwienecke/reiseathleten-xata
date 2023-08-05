@@ -32,7 +32,7 @@ export class VacationMap {
           value: a.description || "",
         }),
         tags: a.tags.map((t) =>
-          TagValueObject.create({ color: t.color, label: t.label })
+          TagValueObject.create({ color: t.color, label: t?.label })
         ),
       })
     );

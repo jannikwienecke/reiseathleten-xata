@@ -81,6 +81,7 @@ const TableView = (props: ReturnType<typeof useAdminPage>) => {
   return (
     <Table
       {...props}
+      tags={props.tags}
       key={props.model}
       selectedColumns={props.selectedColumns}
       onAdd={props.handelClickAdd}
@@ -95,6 +96,7 @@ const TableView = (props: ReturnType<typeof useAdminPage>) => {
       title={props.pageTitle || ""}
       subtitle={props.pageSubtitle || ""}
       onClickOnTag={props.tagsCombobox.handleClickOnTag}
+      onClickTags={props.commandbar.handleClickTags}
     />
   );
 };

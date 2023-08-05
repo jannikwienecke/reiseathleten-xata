@@ -31,6 +31,7 @@ interface Column<T> {
 }
 
 export type ModelConfig<T extends Dict = { id: number }> = {
+  customName?: string;
   title: string;
   description?: string;
   loader: (args: LoaderFunctionArgs) => Promise<T[]>;

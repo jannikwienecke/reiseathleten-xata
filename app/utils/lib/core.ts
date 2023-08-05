@@ -30,10 +30,37 @@ export const createPageFunction = ({
   config: ConfigType;
 }) => {
   const loader = async (props: DataFunctionArgs): Promise<LibLoaderData> => {
-    const modelConfig: ModelConfig =
+    const url = new URL(props.request.url);
+    const query = url.searchParams.get("query") || "";
+    const custoVview = url.searchParams.get("view") || "";
+
+    const customViews = [
+      {
+        viewName: "NewOrderSpecial",
+        baseView: "NewOrder",
+        tags: ["test"],
+        title: "New Orders2",
+      },
+    ];
+
+    const modelConfigNormal: ModelConfig =
       config["models"][props.params.model as keyof typeof config["models"]];
 
-    const query = new URL(props.request.url).searchParams.get("query") || "";
+    const findView = (viewName: string) => {
+      return Object.entries(config.models).find(([key, value]) => {
+        return key === viewName;
+      })?.[1];
+    };
+    const customView = customViews.find((v) => v.viewName === custoVview);
+
+    const modelConfig = customView
+      ? {
+          ...findView(customView?.baseView),
+          ...customView,
+        }
+      : modelConfigNormal;
+
+    if (!modelConfig.loader) throw new Error("Loader is required");
 
     const sortByField = new URL(props.request.url).searchParams.get(
       "sortField"
@@ -57,7 +84,7 @@ export const createPageFunction = ({
     const view = await prisma.viewColumns.findFirst({
       where: {
         user_id: user.props.id,
-        modelName: props.params.model,
+        modelName: customView ? customView.viewName : props.params.model,
       },
     });
 
@@ -65,20 +92,18 @@ export const createPageFunction = ({
     const viewTags = await prisma.viewTags.findFirst({
       where: {
         user_id: user.props.id,
-        modelName: props.params.model,
+        modelName: customView ? customView.viewName : props.params.model,
       },
     });
 
     const columnIds = view?.columnIds ? JSON.parse(view?.columnIds) : [];
     const tags: Tag[] = viewTags?.tags ? JSON.parse(viewTags?.tags) : [];
 
-    const allColumns = modelConfig.view.table.columns;
+    const allColumns = modelConfig.view?.table.columns || [];
 
     const columns = allColumns.filter((column) =>
       columnIds.includes(column.accessorKey)
     );
-
-    console.log("===TAGS: ", { tags });
 
     const items = await modelConfig.loader({
       ...props,

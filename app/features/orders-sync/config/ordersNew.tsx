@@ -82,8 +82,6 @@ export const getOrders = async ({
       : ORDER_BY_OPTIONS[orderBy];
   }
 
-  console.log("===", { tags });
-
   const orders = await prisma.order.findMany({
     orderBy: _orderBy,
 
