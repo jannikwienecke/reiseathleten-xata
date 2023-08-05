@@ -90,6 +90,7 @@ export type ActionFunctionArgs = DataFunctionArgs & {
 
 export type LoaderFunctionArgs = {
   query?: string;
+  tags?: Tag[];
   sortBy?: {
     field: string;
     direction: "asc" | "desc";
@@ -103,6 +104,7 @@ export interface PageHandler {
 export interface LibLoaderData {
   data: {
     items: Dict[];
+    tags: Tag[];
     columns: {
       accessorKey: string;
       header: string;

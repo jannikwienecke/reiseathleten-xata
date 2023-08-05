@@ -61,16 +61,29 @@ export const createPageFunction = ({
       },
     });
 
+    // same for viewTags
+    const viewTags = await prisma.viewTags.findFirst({
+      where: {
+        user_id: user.props.id,
+        modelName: props.params.model,
+      },
+    });
+
     const columnIds = view?.columnIds ? JSON.parse(view?.columnIds) : [];
+    const tags: Tag[] = viewTags?.tags ? JSON.parse(viewTags?.tags) : [];
 
     const allColumns = modelConfig.view.table.columns;
+
     const columns = allColumns.filter((column) =>
       columnIds.includes(column.accessorKey)
     );
 
+    console.log("===TAGS: ", { tags });
+
     const items = await modelConfig.loader({
       ...props,
       query: query.toLowerCase(),
+      tags,
       sortBy:
         sortByField && sortByDirection
           ? {
@@ -83,6 +96,7 @@ export const createPageFunction = ({
     return {
       data: {
         columns,
+        tags,
         items,
       },
     };
@@ -166,6 +180,41 @@ export const createPageFunction = ({
       });
     };
 
+    const onUpdateTagsOfView = async ({
+      formData,
+      request,
+    }: ActionFunctionArgs) => {
+      const tags = getFormDataValue(formData, "tags") as string;
+      const user = await isLoggedIn(request);
+
+      invariant(typeof tags === "string", "tags is required");
+      invariant(user, "user is required");
+
+      const _tags = JSON.parse(tags) as Tag[];
+
+      console.log("UPDATE TAGS", _tags);
+
+      await prisma.viewTags.deleteMany({
+        where: {
+          modelName: props.params.model,
+          user_id: user.props.id,
+        },
+      });
+
+      await prisma.viewTags.create({
+        data: {
+          tags: JSON.stringify(_tags),
+          modelName: props.params.model,
+
+          User: {
+            connect: {
+              id: user.props.id,
+            },
+          },
+        },
+      });
+    };
+
     const formData = await props.request.formData();
 
     const formAction = getFormDataValue(formData, "action");
@@ -194,6 +243,8 @@ export const createPageFunction = ({
       actionToRun = onSelectColumns;
     } else if (formAction === "updateTags") {
       actionToRun = onUpdateTags;
+    } else if (formAction === "updateTagsOfView") {
+      actionToRun = onUpdateTagsOfView;
     } else if (formAction === "custom_action") {
       const customActionToRu = modelConfig.actions?.find(
         (action) => action.name === customActionName

@@ -363,6 +363,17 @@ CREATE TABLE "public"."ViewColumns" (
     FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- view tags
+CREATE TABLE "public"."ViewTags" (
+    "id" SERIAL,
+    "modelName" text  NOT NULL ,
+    "tags" text  NOT NULL ,
+    -- user_id
+    "user_id" integer  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 -- add index -> i always find by user_id && modelName
 CREATE UNIQUE INDEX "ViewColumns_modelName_user_id" ON "public"."ViewColumns"("modelName","user_id");
 

@@ -1,20 +1,16 @@
-import { Combobox, Dialog, Transition } from "@headlessui/react";
-import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-import {
-  DocumentPlusIcon,
-  FolderIcon,
-  FolderPlusIcon,
-  HashtagIcon,
-  TagIcon,
-} from "@heroicons/react/24/outline";
 import { Outlet, useParams } from "@remix-run/react";
-import { Fragment, useState } from "react";
+import React from "react";
 import { LibForm, Notification, Table } from "~/components";
+import { type ComboboxItem, Commandbar } from "~/components/command-bar";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { CONFIG_ORDERS_PAGE } from "~/features/orders-sync/config";
 import { CONFIG } from "~/features/vacation-admin/config";
 import { createPageFunction } from "~/utils/lib/core";
-import { useAdminPage } from "~/utils/lib/hooks";
+import {
+  useAdminPage,
+  useCommandbar,
+  type useTagsCombobox,
+} from "~/utils/lib/hooks";
 import { LibSliderOver } from "~/utils/lib/react";
 
 export const pageFunction = createPageFunction({
@@ -43,6 +39,8 @@ const Content = () => {
     getFormProps,
     getFormFieldProps,
     getNotificationProps,
+    tagsCombobox,
+    commandbar,
   } = adminPageProps;
 
   const { id } = useParams();
@@ -69,6 +67,7 @@ const Content = () => {
             <TableView {...adminPageProps} />
           </>
         )}
+        <MainCommandbar {...commandbar} />
       </>
 
       <div className="z-50 absolute top-0 -right-0">
@@ -92,10 +91,10 @@ const TableView = (props: ReturnType<typeof useAdminPage>) => {
       onSearch={props.handleSearchChange}
       onSortBy={props.handleSortChange}
       onSelectColumns={props.handleSelectColumns}
-      onUpdateTags={props.handleUpdateTags}
       dataList={props.optimisicData}
       title={props.pageTitle || ""}
       subtitle={props.pageSubtitle || ""}
+      onClickOnTag={props.tagsCombobox.handleClickOnTag}
     />
   );
 };
@@ -248,3 +247,29 @@ export function ErrorBoundary({ error }: { error: Error }) {
     />
   );
 }
+
+export const MainCommandbar = ({
+  tagsCombobox,
+  isOpen,
+  onClose,
+  items,
+  onSelect,
+  showTags,
+}: ReturnType<typeof useCommandbar>) => {
+  return (
+    <Commandbar.Base isOpen={isOpen} onClose={onClose}>
+      {tagsCombobox.isOpen || showTags ? (
+        <>
+          <Commandbar.Tags {...tagsCombobox} />
+        </>
+      ) : (
+        <Commandbar.Combobox
+          items={items}
+          onSelect={onSelect}
+          quickActions={[]}
+          recent={items}
+        />
+      )}
+    </Commandbar.Base>
+  );
+};

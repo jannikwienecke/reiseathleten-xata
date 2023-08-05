@@ -19,6 +19,8 @@ import type {
   TableActionType,
   Tag,
 } from "./types";
+import { ComboboxItem } from "~/components/command-bar";
+import { set } from "cypress/types/lodash";
 
 export const useModel = (options?: { model?: string }) => {
   const { config } = useContext(LibContext);
@@ -77,8 +79,16 @@ export const useModel = (options?: { model?: string }) => {
 export const useAdminPage = (options?: { model?: string }) => {
   const model = useModel(options);
   const navigate = useNavigate();
+
   const { data: loaderData } = useLoaderData<LibLoaderData>() || {};
-  const { items, columns } = loaderData || {};
+  const { items, columns, tags } = loaderData || {};
+
+  const tagsCombobox = useTagsCombobox({
+    onUpdateTags: (props) => handleUpdateTagsRef.current(props),
+    items: items || [],
+  });
+
+  const commandbar = useCommandbar({ tagsCombobox, tags });
 
   const actionData = useActionData<LibActionData>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -172,7 +182,7 @@ export const useAdminPage = (options?: { model?: string }) => {
     );
   };
 
-  const handleUpdateTags = ({
+  const updateTagsInDb = ({
     newTags,
     deletedTags,
     id,
@@ -195,6 +205,57 @@ export const useAdminPage = (options?: { model?: string }) => {
       }
     );
   };
+
+  const showTagsRef = React.useRef(commandbar.showTags);
+
+  React.useEffect(() => {
+    showTagsRef.current = commandbar.showTags;
+  }, [commandbar.showTags]);
+
+  // same for tagsRef
+
+  const tagsRef = React.useRef(tags);
+  React.useEffect(() => {
+    tagsRef.current = tags;
+  }, [tags]);
+
+  const handleUpdateTags = ({
+    newTags,
+    deletedTags,
+    id,
+  }: {
+    newTags: Tag[];
+    deletedTags: Tag[];
+    id: string | number;
+  }) => {
+    if (showTagsRef.current) {
+      if (deletedTags.length === 0 && newTags.length === 0) return;
+
+      console.log({ deletedTags, newTags, tags: tagsRef.current });
+
+      const allWithoutDeletedTags = tagsRef.current.filter((tag) => {
+        return !deletedTags.find((t) => t.label === tag.label);
+      });
+
+      submit(
+        {
+          tags: JSON.stringify([...allWithoutDeletedTags, ...newTags]),
+          action: "updateTagsOfView",
+          model: model.model || "",
+        },
+        {
+          method: "POST",
+        }
+      );
+    } else {
+      updateTagsInDb({
+        newTags,
+        deletedTags,
+        id,
+      });
+    }
+  };
+  const handleUpdateTagsRef = React.useRef(handleUpdateTags);
 
   const handelClickDelete = (dataItem: any) => {
     submit(
@@ -386,6 +447,8 @@ export const useAdminPage = (options?: { model?: string }) => {
     : [];
 
   return {
+    tagsCombobox,
+    commandbar,
     columns: allColumns,
     selectedColumns: selectedColumns_,
     optimisicData: dataListToRender,
@@ -404,7 +467,6 @@ export const useAdminPage = (options?: { model?: string }) => {
     handleSelectColumns: model.supportsSelectColumn
       ? handleSelectColumns
       : undefined,
-    handleUpdateTags: model.supportsTags ? handleUpdateTags : undefined,
     currentData: singleItem,
     getOverlayProps,
     getFormProps,
@@ -415,5 +477,164 @@ export const useAdminPage = (options?: { model?: string }) => {
     onClickAction,
     isRunningCutomAction,
     ...model,
+  };
+};
+
+export const useCommandbar = ({
+  tagsCombobox,
+  tags,
+}: {
+  tagsCombobox: ReturnType<typeof useTagsCombobox>;
+  tags: Tag[];
+}) => {
+  const [showTags, setShowTags] = React.useState(false);
+  const [commandbarIsOpen, setCommandbarIsOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setCommandbarIsOpen((prev) => {
+      return tagsCombobox.isOpen !== prev ? tagsCombobox.isOpen : prev;
+    });
+  }, [tagsCombobox.isOpen]);
+
+  const items: ComboboxItem[] = [
+    {
+      label: "New",
+      id: 1,
+    },
+    {
+      label: "Filter by tags",
+      id: 2,
+    },
+  ];
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "k" && event.metaKey) {
+      setCommandbarIsOpen(true);
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  const onClose = () => {
+    setCommandbarIsOpen(false);
+    tagsCombobox.onClose();
+    setShowTags(false);
+  };
+
+  const onSelect = (item: ComboboxItem) => {
+    if (item.id === 2) {
+      setShowTags(true);
+      tagsCombobox.open({ tags });
+    } else {
+      setShowTags(false);
+      onClose();
+    }
+  };
+
+  return {
+    items,
+    isOpen: commandbarIsOpen,
+    tagsCombobox,
+    onClose,
+    onSelect,
+    showTags,
+  };
+};
+
+export const useTagsCombobox = ({
+  items,
+  onUpdateTags,
+}: {
+  items: any[];
+  onUpdateTags: (options: {
+    newTags: Tag[];
+    deletedTags: Tag[];
+    id: number | string;
+  }) => void;
+}) => {
+  const [selected, setSelected] = React.useState<Tag[]>([]);
+  const [commandBar, setCommandBar] = React.useState<{
+    all: Tag[];
+    selected: Tag[];
+    dataItem?: Record<string, any>;
+  }>();
+
+  const handleCloseCommandBar = () => {
+    const newTags =
+      selected.filter((tag) => {
+        return !commandBar?.selected.find((t) => t.label === tag.label);
+      }) || [];
+
+    const deletedTags =
+      commandBar?.selected.filter((tag) => {
+        return !selected.find((t) => t.label === tag.label);
+      }) || [];
+
+    const id = commandBar?.dataItem?.id as string | number;
+
+    onUpdateTags?.({
+      newTags,
+      deletedTags,
+      id,
+    });
+
+    setCommandBar(undefined);
+    setSelected([]);
+  };
+
+  const onChange = (selected: Tag[]) => {
+    setSelected(selected);
+  };
+
+  const allTags = items
+    .map((dataItem) => {
+      return dataItem["tags"];
+    })
+    .flat() as Tag[];
+
+  const labels = Array.from(new Set(allTags.map((t) => t.label)));
+
+  const all = labels.map(
+    (label) => allTags.find((t) => t.label === label) as Tag
+  );
+
+  const handleClickOnTag = ({
+    col,
+    tags,
+    dataItem,
+  }: {
+    col: Column<any>;
+    tags: Tag[];
+    dataItem: Record<string, any>;
+  }) => {
+    setCommandBar({
+      all,
+      selected: tags,
+      dataItem: dataItem,
+    });
+  };
+
+  const open = ({ tags }: { tags: Tag[] }) => {
+    setCommandBar({
+      all,
+      selected: tags,
+      dataItem: undefined,
+    });
+  };
+
+  return {
+    isOpen: !!commandBar,
+    selected: commandBar?.selected || [],
+    tags: commandBar?.all || [],
+    onClose: handleCloseCommandBar,
+    onChange,
+    handleClickOnTag,
+    open,
   };
 };

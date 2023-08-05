@@ -28,8 +28,10 @@ export const getOrders = async ({
   sortBy,
   allowedStatusList,
   orderBy,
+  tags,
 }: {
   query?: string;
+  tags?: Tag[];
   sortBy?: {
     field: string;
     direction: "asc" | "desc";
@@ -80,6 +82,8 @@ export const getOrders = async ({
       : ORDER_BY_OPTIONS[orderBy];
   }
 
+  console.log("===", { tags });
+
   const orders = await prisma.order.findMany({
     orderBy: _orderBy,
 
@@ -107,6 +111,7 @@ export const getOrders = async ({
       status: {
         in: allowedStatusList,
       },
+
       // id: 1444,
       // query -> check start_date and end_date if the string is included
       OR: [
@@ -138,7 +143,15 @@ export const getOrders = async ({
     },
   });
 
-  return orders.map((t) => ({
+  const _orders = tags?.length
+    ? orders.filter((order) => {
+        const allTagsOfOrder = order.OrderTag?.map((tag) => tag.label);
+
+        return tags?.every((tag) => allTagsOfOrder?.includes(tag.label));
+      })
+    : orders;
+
+  return _orders.map((t) => ({
     ...t,
     price: t.price.toNumber(),
     last_name: t.User.Customer[0].last_name,
@@ -162,6 +175,7 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
       allowedStatusList: ["pending"],
       orderBy: "created",
       sortBy: props.sortBy,
+      tags: props.tags,
     });
   },
 

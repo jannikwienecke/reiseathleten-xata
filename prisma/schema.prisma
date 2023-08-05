@@ -60,6 +60,7 @@ model User {
   Order               Order[]
   OrderActivityEvents OrderActivityEvents[]
   ViewColumns         ViewColumns[]
+  ViewTags            ViewTags[]
 }
 
 model VacationDescription {
@@ -255,4 +256,12 @@ model OrderTag {
   orderId Int
   color   String @default("")
   Order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model ViewTags {
+  id        Int    @id @default(autoincrement())
+  modelName String
+  tags      String
+  user_id   Int
+  User      User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

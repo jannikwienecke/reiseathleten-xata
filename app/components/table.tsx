@@ -1,32 +1,19 @@
-import { Dialog, Menu, Transition } from "@headlessui/react";
+import { Menu, Transition } from "@headlessui/react";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
-  DocumentPlusIcon,
-  FolderIcon,
-  FolderPlusIcon,
-  HashtagIcon,
   MagnifyingGlassIcon,
   PencilIcon,
-  PhoneArrowDownLeftIcon,
-  PlusIcon,
-  TagIcon,
   XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { useSearchParams } from "@remix-run/react";
 import clsx from "clsx";
-import React from "react";
-import { useEffect, useRef, Fragment } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
+import Select from "react-select";
 import { classNames } from "~/utils/helper";
 import { Tag, type TableActionType } from "~/utils/lib/types";
 import { Notification } from "./notification";
-import { useState } from "react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { Combobox } from "@headlessui/react";
-import Select from "react-select";
-import { MultiValue, ActionMeta, InputActionMeta } from "react-select";
-import { Popover } from "@headlessui/react";
-import { SketchPicker } from "react-color";
+import { TagItem } from "./tag-item";
 
 type ARecord = Record<string, any>;
 
@@ -57,7 +44,7 @@ export function Table<TData extends ARecord>({
   onSortBy,
   onSelectColumns,
   selectedColumns,
-  onUpdateTags,
+  onClickOnTag,
 }: {
   dataList: TData[];
   columns: Column<TData>[];
@@ -77,10 +64,10 @@ export function Table<TData extends ARecord>({
   onSearch?: (query: string) => void;
   onSortBy?: (column: Column<TData>) => void;
   onSelectColumns?: (selected: Column<TData>[]) => void;
-  onUpdateTags?: (options: {
-    newTags: Tag[];
-    deletedTags: Tag[];
-    id: string | number;
+  onClickOnTag?: (options: {
+    col: Column<TData>;
+    tags: Tag[];
+    dataItem: TData;
   }) => void;
 }) {
   const checkbox = useRef<any>();
@@ -235,65 +222,15 @@ export function Table<TData extends ARecord>({
     return selectedColumns;
   }, [columns, selectedColumns]);
 
-  const [commandBar, setCommandBar] = useState<{
-    all: Tag[];
-    selected: Tag[];
-    dataItem?: TData;
-  }>();
-
-  const handleClickOnTag = ({
-    col,
-    tags,
-    dataItem,
-  }: {
-    col: Column<TData>;
-    tags: Tag[];
-    dataItem: TData;
-  }) => {
-    const allTags = dataList
-      .map((dataItem) => {
-        return dataItem[col.accessorKey];
-      })
-      .flat();
-    const labels = Array.from(new Set(allTags.map((t) => t.label)));
-
-    setCommandBar({
-      all: labels.map((label) => allTags.find((t) => t.label === label) as Tag),
-      selected: tags,
-      dataItem,
-    });
-  };
-
-  const handleCloseCommandBar = (selected: Tag[]) => {
-    const newTags =
-      selected.filter((tag) => {
-        return !commandBar?.selected.find((t) => t.label === tag.label);
-      }) || [];
-
-    const deletedTags =
-      commandBar?.selected.filter((tag) => {
-        return !selected.find((t) => t.label === tag.label);
-      }) || [];
-
-    const id = commandBar?.dataItem?.id as string | number;
-
-    onUpdateTags?.({
-      newTags,
-      deletedTags,
-      id,
-    });
-
-    setCommandBar(undefined);
-  };
-
   return (
     <>
-      <Commandbar
+      {/* <CommandbarTags
         tags={commandBar?.all || []}
         selected={commandBar?.selected || []}
         isOpen={!!commandBar}
         onClose={handleCloseCommandBar}
-      />
+      /> */}
+
       <div className="h-full flex flex-col">
         <div className="z-50 absolute top-0 -right-0">
           <Notification
@@ -588,7 +525,7 @@ export function Table<TData extends ARecord>({
                                                 role="button"
                                                 className="relative"
                                                 onClick={() =>
-                                                  handleClickOnTag({
+                                                  onClickOnTag?.({
                                                     col: column,
                                                     tags: value,
                                                     dataItem,
@@ -604,7 +541,7 @@ export function Table<TData extends ARecord>({
                                             className="w-full text-left h-full text-gray-400 italic"
                                             aria-label="Add tag"
                                             onClick={() =>
-                                              handleClickOnTag({
+                                              onClickOnTag?.({
                                                 col: column,
                                                 tags: [],
                                                 dataItem,
@@ -687,53 +624,6 @@ export function Table<TData extends ARecord>({
     </>
   );
 }
-
-const TagItem = ({
-  label,
-  color,
-  onDelete,
-}: {
-  label: string;
-  color: string;
-  onDelete?: () => void;
-}) => {
-  return (
-    <>
-      <span
-        style={{
-          backgroundColor: color ? `${color}` : undefined,
-        }}
-        className={`inline-flex opacity-20 items-center rounded-md px-2 py-1 text-xs flex-row space-x-2`}
-      >
-        <div>{label}</div>
-
-        {onDelete ? (
-          <div>
-            <XMarkIcon className="h-4 w-4 text-gray-400" />
-          </div>
-        ) : null}
-      </span>
-
-      <span
-        style={{
-          position: "absolute",
-          left: "0",
-          top: "2",
-          color: color ? `${color}` : undefined,
-        }}
-        className={`inline-flex flex-row space-x-2 whitespace-nowrap items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-gray-200 ring-inset`}
-      >
-        <div>{label}</div>
-
-        {onDelete ? (
-          <div role="button" onClick={onDelete}>
-            <XMarkIcon className="h-4 w-4 text-gray-400 cursor-pointer" />
-          </div>
-        ) : null}
-      </span>
-    </>
-  );
-};
 
 function ActionDropdown({ onBulkDelete }: { onBulkDelete?: () => void }) {
   return (
@@ -872,231 +762,31 @@ const SelectColumns = ({
   );
 };
 
-const getRandomColor = () => {
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-  return randomColor;
-};
-
-function Commandbar({
-  isOpen,
-  onClose,
-  tags,
-  selected: _selected,
-}: {
-  isOpen: boolean;
-  onClose: (selected: Tag[]) => void;
-  tags: {
-    label: string;
-    color: string;
-  }[];
-  selected: {
-    label: string;
-    color: string;
-  }[];
-}) {
-  const [selected, setSelected] = useState<Tag[]>(_selected);
-
-  React.useEffect(() => {
-    setSelected(_selected);
-  }, [_selected]);
-
-  const [query, setQuery] = useState("");
-
-  const tagsWithoutSelected = tags.filter(
-    (tag) => !selected.find((s) => s.label === tag.label)
-  );
-
-  const filteredProjects =
-    query === ""
-      ? tagsWithoutSelected
-      : tagsWithoutSelected.filter((tag) => {
-          return tag.label.toLowerCase().includes(query.toLowerCase());
-        });
-
-  const handleAddTag = (tag: Tag) => {
-    const alreadyExists = selected.find((s) => s.label === tag.label);
-
-    if (alreadyExists) return;
-
-    setSelected([...selected, tag]);
-    setQuery("");
-    setColor(getRandomColor());
-  };
-
-  const [color, setColor] = useState(getRandomColor);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  return (
-    <Transition.Root
-      show={isOpen}
-      as={Fragment}
-      afterLeave={() => setQuery("")}
-      appear
-    >
-      <Dialog
-        as="div"
-        className="relative z-10"
-        onClose={() => onClose(selected)}
-      >
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-25 transition-opacity" />
-        </Transition.Child>
-
-        <div className="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-20">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
-          >
-            <Dialog.Panel className="mx-auto max-w-2xl transform divide-y divide-gray-500 divide-opacity-20 overflow-hidden rounded-xl bg-white  bg-opacity-80 shadow-2xl backdrop-blur backdrop-filter transition-all">
-              {/* @ts-ignore */}
-              <Combobox
-                onChange={(item: any) => {
-                  handleAddTag(item);
-                }}
-              >
-                <div className="relative space-y-2 flex flex-col pl-4 pt-2">
-                  {selected.length ? (
-                    <div className="relative p-2 space-x-2 flex flex-row flex-wrap">
-                      {selected.map((tag) => {
-                        return (
-                          <div key={tag.label} className="relative">
-                            <TagItem
-                              {...tag}
-                              onDelete={() => {
-                                setSelected(
-                                  selected.filter((s) => s.label !== tag.label)
-                                );
-                              }}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-
-                  <Combobox.Input
-                    ref={inputRef}
-                    className="h-12 w-full border-0 bg-transparent pr-4 text-black focus:ring-0 sm:text-sm"
-                    placeholder="Search..."
-                    // on enter
-                    onKeyDown={(event) => {
-                      if (
-                        event.key === "Enter" &&
-                        query !== "" &&
-                        filteredProjects.length === 0
-                      ) {
-                        event.preventDefault();
-                        handleAddTag({
-                          label: query,
-                          color: `#${color}`,
-                        });
-                        // remove input -> empty valye -> not blur
-                        if (inputRef.current) inputRef.current.value = "";
-                      }
-                    }}
-                    onChange={(event) => {
-                      setQuery(event.target.value);
-                    }}
-                  />
-                </div>
-
-                {(query === "" || filteredProjects.length > 0) && (
-                  <Combobox.Options
-                    static
-                    className="max-h-80 scroll-py-2 divide-y divide-gray-500 divide-opacity-20 overflow-y-auto"
-                  >
-                    <li className="p-2">
-                      {query === "" && (
-                        <h2 className="mb-2 mt-4 px-3 text-xs font-semibold text-black">
-                          {tagsWithoutSelected.length === 0 ? (
-                            <>No available tags</>
-                          ) : (
-                            "Available Tags"
-                          )}
-                        </h2>
-                      )}
-                      <ul className="text-sm text-black">
-                        {(query === ""
-                          ? tagsWithoutSelected
-                          : filteredProjects
-                        ).map((tag) => (
-                          <Combobox.Option
-                            key={tag.label}
-                            value={tag}
-                            className={({ active }) =>
-                              classNames(
-                                "flex cursor-default select-none items-center rounded-md px-3 py-2",
-                                active ? "bg-gray-800 text-white" : ""
-                              )
-                            }
-                          >
-                            {({ active }) => (
-                              <>
-                                <TagIcon
-                                  style={{
-                                    color: `${tag.color}`,
-                                  }}
-                                  className={classNames(
-                                    "h-6 w-6 flex-none",
-                                    active ? "text-white" : "text-gray-800"
-                                  )}
-                                  aria-hidden="true"
-                                />
-                                <span className="ml-3 flex-auto truncate ">
-                                  {tag.label}
-                                </span>
-                                {active && (
-                                  <span className="ml-3 flex-none text-gray-800">
-                                    Assign Tag...
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          </Combobox.Option>
-                        ))}
-                      </ul>
-                    </li>
-                  </Combobox.Options>
-                )}
-
-                {query !== "" && filteredProjects.length === 0 && (
-                  <div
-                    role="button"
-                    onClick={() =>
-                      handleAddTag({ label: query, color: "green" })
-                    }
-                    className="flex flex-row space-x-2 justify-start items-center p-4 bg-gray-200 cursor-pointer"
-                  >
-                    <PlusIcon
-                      className="h-6 w-6 text-gray-700"
-                      aria-hidden="true"
-                    />
-                    <div className="text-sm text-black flex flex-row space-x-2 items-center ">
-                      <p>Create Tag</p>
-                      <div className="relative">
-                        <TagItem label={query} color={`#${color}`} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </Combobox>
-            </Dialog.Panel>
-          </Transition.Child>
-        </div>
-      </Dialog>
-    </Transition.Root>
-  );
-}
+// export const CommandbarTags = ({
+//   isOpen,
+//   onClose,
+//   tags,
+//   selected: _selected,
+// }: {
+//   isOpen: boolean;
+//   onClose: (selected: Tag[]) => void;
+//   tags: {
+//     label: string;
+//     color: string;
+//   }[];
+//   selected: {
+//     label: string;
+//     color: string;
+//   }[];
+// }) => {
+//   return (
+//     <>
+//       <Commandbar.Base
+//         isOpen={isOpen}
+//         onClose={() => onClose(selected)}
+//         afterLeave={() => setQuery("")}
+//       >
+//       </Commandbar.Base>
+//     </>
+//   );
+// };
