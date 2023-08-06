@@ -12,11 +12,9 @@ import clsx from "clsx";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { classNames } from "~/utils/helper";
-import { Tag, type TableActionType } from "~/utils/lib/types";
+import { Tag, type TableActionType, ARecord } from "~/utils/lib/types";
 import { Notification } from "./notification";
 import { TagItem } from "./tag-item";
-
-type ARecord = Record<string, any>;
 
 export type Column<T extends ARecord> = {
   accessorKey: keyof T;
