@@ -1,12 +1,23 @@
-import { type DataFunctionArgs, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 import { Layout } from "~/components";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { CONFIG_ORDERS_PAGE } from "~/features/orders-sync/config";
 import { CONFIG } from "~/features/vacation-admin/config";
 import { isLoggedIn } from "~/utils/helper";
+import { createPageFunction } from "~/utils/lib/core";
 import { useAdminPage } from "~/utils/lib/hooks";
-import { LibProvider } from "~/utils/lib/react";
+import { LibConfigProvider } from "~/utils/lib/react";
+import { type DataFunctionArgs } from "~/utils/lib/types";
+
+export const pageFunction = createPageFunction({
+  config: {
+    models: {
+      ...CONFIG.models,
+      ...CONFIG_ORDERS_PAGE.models,
+    },
+  },
+});
 
 export const loader = async (props: DataFunctionArgs) => {
   const url = new URL(props.request.url);
@@ -28,12 +39,12 @@ export const loader = async (props: DataFunctionArgs) => {
     return redirect("/admin/Vacation");
   }
 
-  return {};
+  return pageFunction.loader(props);
 };
 
 export default function Index() {
   return (
-    <LibProvider
+    <LibConfigProvider
       config={{
         models: {
           ...CONFIG.models,
@@ -42,17 +53,15 @@ export default function Index() {
       }}
     >
       <Content />
-    </LibProvider>
+    </LibConfigProvider>
   );
 }
 
 const Content = () => {
-  const adminPageProps = useAdminPage();
-
-  const { getLayoutProps } = adminPageProps;
+  const adminPageProps = useAdminPage({});
 
   return (
-    <Layout {...getLayoutProps()}>
+    <Layout {...adminPageProps.getLayoutProps()}>
       <Outlet />
     </Layout>
   );

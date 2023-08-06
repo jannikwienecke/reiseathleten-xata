@@ -1,6 +1,6 @@
+import { CustomView } from "@prisma/client";
 import {
   useActionData,
-  useFetcher,
   useLoaderData,
   useNavigate,
   useNavigation,
@@ -8,9 +8,10 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import React, { useContext } from "react";
+import React from "react";
+import { ComboboxItem } from "~/components/command-bar";
 import { type Column } from "./components/table";
-import { LibContext } from "./react";
+import { useLibConfig } from "./react";
 import type {
   LibActionData,
   LibLoaderData,
@@ -19,67 +20,83 @@ import type {
   TableActionType,
   Tag,
 } from "./types";
-import { ComboboxItem } from "~/components/command-bar";
 
 export const useModels = ({
   models,
+  customViews,
 }: {
   models: {
     [key: string]: ModelConfig<any>;
   };
+  customViews: CustomView[];
 }) => {
-  const customViews = [
-    {
-      viewName: "NewOrderSpecial",
-      baseView: "NewOrder",
-      tags: ["test"],
-      title: "New Orders2",
-    },
-  ];
+  const [modelList, setModelList] = React.useState<
+    [string, ModelConfig<any>][]
+  >([]);
 
-  const findView = (viewName: string) => {
-    return Object.entries(models).find(([key, value]) => {
-      return key === viewName;
-    })?.[1];
-  };
+  const modelsRef = React.useRef(models);
+  const customViewsRef = React.useRef(customViews);
 
-  const customModels = customViews.reduce(
-    (acc, view) => {
-      const modelConfig = findView(view.baseView);
+  React.useEffect(() => {
+    modelsRef.current = models;
+    customViewsRef.current = customViews;
+  }, [customViews, models]);
 
-      if (!modelConfig) {
-        throw new Error(`View ${view.baseView} not found`);
+  React.useEffect(() => {
+    const findView = (viewName: string) => {
+      return Object.entries(modelsRef.current).find(([key, value]) => {
+        return key === viewName;
+      })?.[1];
+    };
+
+    const customModels = customViewsRef.current.reduce(
+      (acc, view) => {
+        const modelConfig = findView(view.baseView);
+
+        if (!modelConfig) {
+          throw new Error(`View ${view.baseView} not found`);
+        }
+
+        const name = `${view.baseView}?view=${view.name}`;
+        return {
+          ...acc,
+          [name]: {
+            ...modelConfig,
+            title: view.title,
+            customName: view.name,
+          },
+        };
+      },
+      {} as {
+        [key: string]: ModelConfig<any>;
       }
+    );
 
-      return {
-        ...acc,
-        [view.baseView]: {
-          ...modelConfig,
-          title: view.title,
-          customName: view.viewName,
-        },
-      };
-    },
-    {} as {
-      [key: string]: ModelConfig<any>;
-    }
-  );
+    const modelList = [
+      ...Object.entries(modelsRef.current),
+      ...Object.entries(customModels),
+    ];
 
-  const modelList = [
-    ...Object.entries(models),
-    ...Object.entries(customModels),
-  ];
+    setModelList(modelList);
+  }, []);
 
   return {
     modelList,
   };
 };
 
-export const useModel = (options?: { model?: string }) => {
-  const { config } = useContext(LibContext);
+export const useModel = (options: {
+  model?: string;
+  customViews: CustomView[];
+}) => {
+  const config = useLibConfig();
+
   const { model: modelFromOptions } = options || {};
 
-  const models = useModels({ models: config.models });
+  const models = useModels({
+    models: config.models,
+    customViews: options?.customViews || [],
+  });
 
   if (!config.models) {
     throw new Error("Please Provide the config in the LibProvider");
@@ -94,11 +111,11 @@ export const useModel = (options?: { model?: string }) => {
 
   const model = modelFromOptions || modelFromParams;
 
-  // invariant(model, "Model is required");
-
-  const modelConfig = config.models[model as keyof typeof config["models"]] as
-    | ModelConfig
-    | undefined;
+  const modelConfig = models.modelList.find(([key, value]) => {
+    return customView
+      ? value.customName === customView
+      : key === model && !value.customName;
+  })?.[1];
 
   const getColumns = () => {
     return modelConfig?.view?.table?.columns || [];
@@ -130,18 +147,44 @@ export const useModel = (options?: { model?: string }) => {
     supportsTags,
     customView,
     model,
-    ...config,
     ...modelConfig,
     ...models,
   };
 };
 
-export const useAdminPage = (options?: { model?: string }) => {
-  const model = useModel(options);
-  const navigate = useNavigate();
+export const useTable = () => {
+  const model = useModel({ customViews: [] });
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleClickEdit = (dataItem: any) => {
+    searchParams.set("action", "edit");
+    searchParams.set("id", dataItem.id);
+
+    setSearchParams(searchParams);
+  };
+
+  const handelClickAdd = () => {
+    searchParams.set("action", "create");
+    setSearchParams(searchParams);
+  };
+
+  return {
+    handelClickAdd: model.supportsAdd ? handelClickAdd : undefined,
+    handleClickEdit: model.supportsEdit ? handleClickEdit : undefined,
+  };
+};
+
+export const useAdminPage = (options: { model?: string }) => {
   const { data: loaderData } = useLoaderData<LibLoaderData>() || {};
-  const { items, columns, tags } = loaderData || {};
+  const { items, columns, tags, customViews } = loaderData || {};
+
+  const model = useModel({
+    ...options,
+    customViews: customViews || [],
+  });
+
+  const navigate = useNavigate();
 
   const tagsCombobox = useTagsCombobox({
     onUpdateTags: (props) => handleUpdateTagsRef.current(props),
@@ -175,17 +218,7 @@ export const useAdminPage = (options?: { model?: string }) => {
   const columnIdsString = navigationState.formData?.get("ids") as string | null;
   const columnIds = columnIdsString ? JSON.parse(columnIdsString) : null;
 
-  const handleClickEdit = (dataItem: any) => {
-    searchParams.set("action", "edit");
-    searchParams.set("id", dataItem.id);
-
-    setSearchParams(searchParams);
-  };
-
-  const handelClickAdd = () => {
-    searchParams.set("action", "create");
-    setSearchParams(searchParams);
-  };
+  const table = useTable();
 
   const updateSearchParamsWithQuery = (query: string) => {
     searchParams.set("query", query);
@@ -451,7 +484,7 @@ export const useAdminPage = (options?: { model?: string }) => {
         parent: value.parent,
         label: value.title,
         icon: value.view?.navigation?.icon,
-        name: value.customName ? `${key}?view=${value.customName}` : key,
+        name: key,
         // isCurrent: key === model.model,
         isCurrent: model.customView
           ? value.customName === model.customView
@@ -514,8 +547,7 @@ export const useAdminPage = (options?: { model?: string }) => {
     selectedColumns: selectedColumns_,
     optimisicData: dataListToRender,
     data: items,
-    handelClickAdd: model.supportsAdd ? handelClickAdd : undefined,
-    handleClickEdit: model.supportsEdit ? handleClickEdit : undefined,
+
     handelClickDelete: model.supportsDelete ? handelClickDelete : undefined,
     handleClickBulkDelete: model.supportsBulkDelete
       ? handleClickBulkDelete
@@ -538,6 +570,7 @@ export const useAdminPage = (options?: { model?: string }) => {
     onClickAction,
     isRunningCutomAction,
     tags,
+    ...table,
     ...model,
   };
 };

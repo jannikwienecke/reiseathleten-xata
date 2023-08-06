@@ -1,3 +1,5 @@
+import { CustomView } from "@prisma/client";
+
 export type Dict = {
   [key: string]:
     | string
@@ -104,6 +106,7 @@ export interface PageHandler {
 
 export interface LibLoaderData {
   data: {
+    customViews: CustomView[];
     items: Dict[];
     tags: Tag[];
     columns: {
@@ -131,7 +134,7 @@ export interface NavigationItem {
 export interface TableActionType<T> {
   name: string;
   label: string;
-  handler: (args: DataFunctionArgs) => Promise<unknown>;
+  handler: (args: ActionFunctionArgs) => Promise<unknown>;
 }
 
 export interface Tag {

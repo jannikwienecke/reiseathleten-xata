@@ -394,3 +394,15 @@ ALTER TABLE "public"."OrderTag" ADD COLUMN "color" text NOT NULL DEFAULT '';
 
 INSERT INTO "public"."OrderTag" ("label", "orderId", "colorId") VALUES ('testing', 1444, 1);
 INSERT INTO "public"."OrderTag" ("label", "orderId", "colorId") VALUES ('testing2', 1444, 2);
+
+
+CREATE TABLE "public"."CustomView" (
+    "id" SERIAL,
+    "baseView" text  NOT NULL ,
+    "title" text  NOT NULL ,
+    "user_id" integer  NOT NULL ,
+    "name" text  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+-- INSERT INTO "public"."CustomView" ("baseView", "title", "user_id", "name") VALUES ('NewOrder', 'My Custom View', 1, 'CustomNewOrder');

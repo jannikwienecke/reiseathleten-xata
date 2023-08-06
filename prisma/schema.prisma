@@ -56,6 +56,7 @@ model User {
   id                  Int                   @id @default(autoincrement())
   email               String                @unique
   password            String
+  CustomView          CustomView[]
   Customer            Customer[]
   Order               Order[]
   OrderActivityEvents OrderActivityEvents[]
@@ -264,4 +265,13 @@ model ViewTags {
   tags      String
   user_id   Int
   User      User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model CustomView {
+  id       Int    @id @default(autoincrement())
+  baseView String
+  title    String
+  user_id  Int
+  name     String
+  User     User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

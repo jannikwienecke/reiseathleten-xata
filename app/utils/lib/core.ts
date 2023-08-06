@@ -11,6 +11,9 @@ import type {
   ActionFunctionArgs,
   Tag,
 } from "./types";
+import { getSchema, logger } from "@prisma/internals";
+import { DMMF } from "@prisma/client/runtime";
+import { Prisma } from "@prisma/client";
 
 export const getFormDataValue = (
   formData: FormData | undefined,
@@ -29,19 +32,30 @@ export const createPageFunction = ({
 }: {
   config: ConfigType;
 }) => {
+  const getCustomConfig = async ({ request }: DataFunctionArgs) => {
+    const user = await isLoggedIn(request);
+    invariant(user, "user is required");
+
+    const views = await prisma.customView.findMany({
+      where: {
+        User: {
+          id: user.props.id,
+        },
+      },
+    });
+
+    return {
+      views,
+    };
+  };
+
   const loader = async (props: DataFunctionArgs): Promise<LibLoaderData> => {
+    const customConfig = await getCustomConfig(props);
+    const customViews = customConfig.views;
+
     const url = new URL(props.request.url);
     const query = url.searchParams.get("query") || "";
-    const custoVview = url.searchParams.get("view") || "";
-
-    const customViews = [
-      {
-        viewName: "NewOrderSpecial",
-        baseView: "NewOrder",
-        tags: ["test"],
-        title: "New Orders2",
-      },
-    ];
+    const customViewName = url.searchParams.get("view") || "";
 
     const modelConfigNormal: ModelConfig =
       config["models"][props.params.model as keyof typeof config["models"]];
@@ -51,7 +65,7 @@ export const createPageFunction = ({
         return key === viewName;
       })?.[1];
     };
-    const customView = customViews.find((v) => v.viewName === custoVview);
+    const customView = customViews.find((v) => v.name === customViewName);
 
     const modelConfig = customView
       ? {
@@ -84,15 +98,18 @@ export const createPageFunction = ({
     const view = await prisma.viewColumns.findFirst({
       where: {
         user_id: user.props.id,
-        modelName: customView ? customView.viewName : props.params.model,
+        modelName: customView ? customView.name : props.params.model,
       },
     });
+
+    // const x = Prisma.dmmf.datamodel.models.find((m) => m.name === "User");
+    // console.log(x);
 
     // same for viewTags
     const viewTags = await prisma.viewTags.findFirst({
       where: {
         user_id: user.props.id,
-        modelName: customView ? customView.viewName : props.params.model,
+        modelName: customView ? customView.name : props.params.model,
       },
     });
 
@@ -123,6 +140,7 @@ export const createPageFunction = ({
         columns,
         tags,
         items,
+        customViews,
       },
     };
   };
@@ -137,13 +155,15 @@ export const createPageFunction = ({
       const ids = getFormDataValue(formData, "ids");
       const model = getFormDataValue(formData, "model");
 
+      const customViewName = url.searchParams.get("view") || "";
+
       invariant(ids, "ids is required");
       invariant(model, "model is required");
       invariant(user, "user is required");
 
       const viewColumns = await prisma.viewColumns.findFirst({
         where: {
-          modelName: model,
+          modelName: customViewName || model,
           User: {
             id: user.props.id,
           },
@@ -163,7 +183,7 @@ export const createPageFunction = ({
       } else {
         await prisma.viewColumns.create({
           data: {
-            modelName: model,
+            modelName: customViewName || model,
             columnIds: ids,
             User: {
               connect: {
@@ -212,16 +232,16 @@ export const createPageFunction = ({
       const tags = getFormDataValue(formData, "tags") as string;
       const user = await isLoggedIn(request);
 
+      const customViewName = url.searchParams.get("view") || "";
+
       invariant(typeof tags === "string", "tags is required");
       invariant(user, "user is required");
 
       const _tags = JSON.parse(tags) as Tag[];
 
-      console.log("UPDATE TAGS", _tags);
-
       await prisma.viewTags.deleteMany({
         where: {
-          modelName: props.params.model,
+          modelName: customViewName || props.params.model,
           user_id: user.props.id,
         },
       });
@@ -229,7 +249,7 @@ export const createPageFunction = ({
       await prisma.viewTags.create({
         data: {
           tags: JSON.stringify(_tags),
-          modelName: props.params.model,
+          modelName: customViewName || props.params.model,
 
           User: {
             connect: {

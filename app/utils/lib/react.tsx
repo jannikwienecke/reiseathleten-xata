@@ -1,17 +1,41 @@
 import { useNavigation } from "@remix-run/react";
 import React from "react";
-import { FormOld } from "./components/form";
-import { SlideOver } from "./components/slide-over";
-import type { ConfigType } from "./types";
 import { Form } from "~/components";
+import { SlideOver } from "./components/slide-over";
+import { useAdminPage } from "./hooks";
+import { ConfigType } from "./types";
+
+export const useLib = () => {
+  const { admin } = React.useContext(LibContext);
+
+  return admin;
+};
 
 export const LibContext = React.createContext<{
+  admin: ReturnType<typeof useAdminPage>;
+}>({
+  admin: {} as ReturnType<typeof useAdminPage>,
+});
+
+export const LibProvider = ({
+  children,
+  admin,
+}: {
+  children: React.ReactNode;
+  admin: ReturnType<typeof useAdminPage>;
+}) => {
+  return (
+    <LibContext.Provider value={{ admin }}>{children}</LibContext.Provider>
+  );
+};
+
+export const LibConfigContext = React.createContext<{
   config: ConfigType;
 }>({
   config: {} as ConfigType,
 });
 
-export const LibProvider = ({
+export const LibConfigProvider = ({
   children,
   config,
 }: {
@@ -19,8 +43,20 @@ export const LibProvider = ({
   config: ConfigType;
 }) => {
   return (
-    <LibContext.Provider value={{ config }}>{children}</LibContext.Provider>
+    <LibConfigContext.Provider value={{ config }}>
+      {children}
+    </LibConfigContext.Provider>
   );
+};
+
+export const useLibConfig = () => {
+  const { config } = React.useContext(LibConfigContext);
+
+  if (!config) {
+    throw new Error("LibConfigProvider is missing");
+  }
+
+  return config;
 };
 
 export const LibFormOld = ({

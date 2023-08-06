@@ -1,17 +1,12 @@
 import { Outlet, useParams } from "@remix-run/react";
-import React from "react";
 import { LibForm, Notification, Table } from "~/components";
-import { type ComboboxItem, Commandbar } from "~/components/command-bar";
+import { Commandbar } from "~/components/command-bar";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { CONFIG_ORDERS_PAGE } from "~/features/orders-sync/config";
 import { CONFIG } from "~/features/vacation-admin/config";
 import { createPageFunction } from "~/utils/lib/core";
-import {
-  useAdminPage,
-  useCommandbar,
-  type useTagsCombobox,
-} from "~/utils/lib/hooks";
-import { LibSliderOver } from "~/utils/lib/react";
+import { useAdminPage, useCommandbar } from "~/utils/lib/hooks";
+import { LibProvider, LibSliderOver, useLib } from "~/utils/lib/react";
 
 export const pageFunction = createPageFunction({
   config: {
@@ -23,15 +18,20 @@ export const pageFunction = createPageFunction({
 });
 
 export const loader = pageFunction.loader;
-
 export const action = pageFunction.action;
 
 export default function AdminModelPage() {
-  return <Content />;
+  const adminPageProps = useAdminPage({});
+
+  return (
+    <LibProvider admin={adminPageProps}>
+      <Content />;
+    </LibProvider>
+  );
 }
 
 const Content = () => {
-  const adminPageProps = useAdminPage();
+  const adminPageProps = useLib();
 
   const {
     addForm,
@@ -39,7 +39,6 @@ const Content = () => {
     getFormProps,
     getFormFieldProps,
     getNotificationProps,
-    tagsCombobox,
     commandbar,
   } = adminPageProps;
 
