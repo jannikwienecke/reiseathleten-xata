@@ -117,8 +117,10 @@ export const useModel = (options: {
       : key === model && !value.customName;
   })?.[1];
 
-  const getColumns = () => {
-    return modelConfig?.view?.table?.columns || [];
+  const getColumns = (): Column<{ id: string }>[] => {
+    return (modelConfig?.view?.table?.columns || []) as Column<{
+      id: string;
+    }>[];
   };
 
   const pageTitle = modelConfig?.title;

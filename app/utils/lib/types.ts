@@ -141,3 +141,5 @@ export interface Tag {
   label: string;
   color: string;
 }
+
+export type ARecord = Record<string, any>;

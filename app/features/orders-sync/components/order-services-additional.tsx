@@ -1,7 +1,7 @@
+import { useNavigation, useSubmit } from "@remix-run/react";
 import { Table } from "~/components";
 import { useAdminPage } from "~/utils/lib/hooks";
 import { useOrderStore } from "../store/single-order-store";
-import { useNavigation, useSubmit } from "@remix-run/react";
 
 export const ServiceTableAdditional = () => {
   const submit = useSubmit();

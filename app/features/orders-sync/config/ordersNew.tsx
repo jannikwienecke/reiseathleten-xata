@@ -3,7 +3,10 @@ import { type Order } from "@prisma/client";
 import { prisma } from "~/db.server";
 import { formatDateString } from "~/features/vacation-admin/utils/helpers";
 
-import type { DataFunctionArgs, ModelConfig, Tag } from "~/utils/lib/types";
+import invariant from "tiny-invariant";
+import { isLoggedIn } from "~/utils/helper";
+import { getFormDataValue } from "~/utils/lib/core";
+import type { ActionFunctionArgs, ModelConfig, Tag } from "~/utils/lib/types";
 import { createLoader } from "~/utils/stuff.server";
 import { type OrderStatusValueObject } from "../domain/order-status";
 import { syncOrdersUsecase } from "../server-functions/sync-orders";
@@ -243,8 +246,87 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
     {
       name: "syncOrdersWooCommerce",
       label: "Sync Orders",
-      handler: async (args: DataFunctionArgs) => {
+      handler: async (args: ActionFunctionArgs) => {
         await createLoader(syncOrdersUsecase)(args);
+      },
+    },
+
+    {
+      name: "createCustomView",
+      label: "Create Custom View",
+      handler: async (args: ActionFunctionArgs) => {
+        const user = await isLoggedIn(args.request);
+
+        const formData = args.formData;
+
+        const actionName = getFormDataValue(formData, "actionName");
+        const model = getFormDataValue(formData, "model");
+
+        invariant(user, "User must be logged in");
+        invariant(actionName, "actionName must be defined");
+        invariant(model, "model must be defined");
+
+        await prisma.customView.create({
+          data: {
+            name: "customView",
+            baseView: model,
+            title: "SOME RANDOM TITLE",
+            User: {
+              connect: {
+                id: user.props.id,
+              },
+            },
+          },
+        });
+
+        const tags = await prisma.viewTags.findFirst({
+          where: {
+            User: {
+              id: user.props.id,
+            },
+            modelName: model,
+          },
+        });
+
+        const columsn = await prisma.viewColumns.findFirst({
+          where: {
+            User: {
+              id: user.props.id,
+            },
+            modelName: model,
+          },
+        });
+
+        // create the tags and columns for the custom view
+        tags?.tags &&
+          (await prisma.viewTags.create({
+            data: {
+              User: {
+                connect: {
+                  id: user.props.id,
+                },
+              },
+              modelName: "customView",
+              tags: tags?.tags,
+            },
+          }));
+
+        columsn?.columnIds &&
+          (await prisma.viewColumns.create({
+            data: {
+              User: {
+                connect: {
+                  id: user.props.id,
+                },
+              },
+              modelName: "customView",
+              columnIds: columsn?.columnIds,
+            },
+          }));
+
+        return {};
+
+        // await createLoader(syncOrdersUsecase)(args);
       },
     },
   ],
