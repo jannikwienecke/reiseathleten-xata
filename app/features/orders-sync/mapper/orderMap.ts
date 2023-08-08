@@ -104,7 +104,10 @@ export class OrderMapper {
         status: order.props.vacation.props.status,
         slug: order.props.vacation.props.slug,
         permalink: order.props.vacation.props.permalink,
-        location: order.props.vacation.props.location,
+        location: {
+          ...order.props.vacation.props.location?.props,
+          name: order.props.vacation.props.location?.props.name || "",
+        },
         date_imported: order.props.vacation.props.date_imported,
         isParent: order.props.vacation.props.isParent,
         parentId: order.props.vacation.props.parentId,
@@ -112,6 +115,7 @@ export class OrderMapper {
         activities: order.props.vacation.props.activities,
         hotels: order.props.vacation.props.hotels,
         rooms: order.props.vacation.props.rooms,
+        locationId: order.props.vacation.props.location?.id || 0,
       },
 
       // user
@@ -140,8 +144,8 @@ export class OrderMapper {
       // orderKey
       orderKey: order.props.orderKeyId,
 
-      hotel: order.props.hotel,
-      room: order.props.room,
+      hotel: order.props.hotel!,
+      room: order.props.room!,
 
       // activityEvents
       activityEvents: order.props.activityEvents.list.map((event) => ({
@@ -151,7 +155,7 @@ export class OrderMapper {
         content: event.props.content ?? "",
         mood: event.props.mood?.props.value ?? null,
       })),
-    } as const;
+    };
   }
 
   static fromDto(order: ReturnType<typeof OrderMapper["toDto"]>): OrderEntity {
@@ -185,6 +189,13 @@ export class OrderMapper {
       rooms: order.vacation.rooms,
       children: order.vacation.children,
       activities: order.vacation.activities,
+      location: order.vacation.location.name
+        ? LocationEntity.create({
+            ...order.vacation.location,
+            name: order.vacation.location.name || "",
+            description: order.vacation.location.description || "",
+          })
+        : undefined,
     });
 
     const user = UserEntity.create({
