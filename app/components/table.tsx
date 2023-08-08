@@ -137,8 +137,6 @@ export function Table<TData extends ARecord>({
         clearTimeout(timeoutRef.current);
       }
 
-      console.log("set ERROR");
-
       setError({
         message: `Cannot be sorted by "${column.header}"`,
       });
@@ -225,6 +223,7 @@ export function Table<TData extends ARecord>({
     return selectedColumns;
   }, [columns, selectedColumns]);
 
+  if (columns.length === 0) return null;
   return (
     <>
       <div className="h-full flex flex-col">

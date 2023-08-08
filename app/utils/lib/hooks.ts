@@ -1,6 +1,7 @@
 import { CustomView } from "@prisma/client";
 import {
   useActionData,
+  useFetcher,
   useLoaderData,
   useNavigate,
   useNavigation,
@@ -9,7 +10,11 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import React from "react";
-import { ComboboxItem } from "~/components/command-bar";
+import {
+  ComboboxItem,
+  CommandbarConfig,
+  CommandbarFormItem,
+} from "~/components/command-bar";
 import { type Column } from "./components/table";
 import { useLibConfig } from "./react";
 import type {
@@ -179,7 +184,14 @@ export const useTable = () => {
 
 export const useAdminPage = (options: { model?: string }) => {
   const { data: loaderData } = useLoaderData<LibLoaderData>() || {};
-  const { items, columns, tags, customViews } = loaderData || {};
+  const {
+    items,
+    columns,
+    tags,
+    customViews,
+    navigationItems,
+    navigationItemsHidden,
+  } = loaderData || {};
 
   const model = useModel({
     ...options,
@@ -193,7 +205,11 @@ export const useAdminPage = (options: { model?: string }) => {
     items: items || [],
   });
 
-  const commandbar = useCommandbar({ tagsCombobox, tags });
+  const commandbar = useCommandbar({
+    tagsCombobox,
+    tags,
+    hiddenNavigationItems: navigationItemsHidden,
+  });
 
   const actionData = useActionData<LibActionData>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -286,6 +302,8 @@ export const useAdminPage = (options: { model?: string }) => {
     deletedTags: Tag[];
     id: string | number;
   }) => {
+    if (!id) return;
+
     submit(
       {
         newTags: JSON.stringify(newTags),
@@ -372,6 +390,21 @@ export const useAdminPage = (options: { model?: string }) => {
       },
       {
         method: "POST",
+      }
+    );
+  };
+
+  const fetcher = useFetcher();
+
+  const handleDeleteNavigationItem = (navigationItemName: string) => {
+    fetcher.submit(
+      {
+        name: navigationItemName,
+        action: "deleteNavigationItem",
+      },
+      {
+        method: "POST",
+        action: `/admin/${model.model}`,
       }
     );
   };
@@ -477,28 +510,59 @@ export const useAdminPage = (options: { model?: string }) => {
     };
   }, [actionData?.message, closedNotification]);
 
+  const [deletedNavigationItems, setDeletedNavigationItems] = React.useState<
+    NavigationItem[]
+  >([]);
+
   const getLayoutProps = () => {
     const itemsWithoutParent: NavigationItem[] = [];
     const itemsWithParent: NavigationItem[] = [];
 
-    model.modelList.forEach(([key, value]) => {
-      const item = {
-        parent: value.parent,
-        label: value.title,
-        icon: value.view?.navigation?.icon,
-        name: key,
-        // isCurrent: key === model.model,
-        isCurrent: model.customView
-          ? value.customName === model.customView
-          : key === model.model && !value.customName,
-      };
+    const handleDeleteViewFromNavigation = (viewName: string) => {
+      handleDeleteNavigationItem(viewName);
+    };
 
-      if (value.parent) {
-        itemsWithParent.push(item);
-      } else {
-        itemsWithoutParent.push(item);
-      }
-    });
+    const handleClickDelete = (item: NavigationItem) => {
+      setDeletedNavigationItems((prev) => [...prev, item]);
+      handleDeleteViewFromNavigation(item.name);
+    };
+
+    model.modelList
+      .filter(([key, value]) => {
+        const customName = value.customName;
+
+        if (deletedNavigationItems.find((item) => item.name === customName)) {
+          return false;
+        }
+
+        if (deletedNavigationItems.find((item) => item.name === key)) {
+          return false;
+        }
+
+        if (customName) {
+          return navigationItems.includes(customName);
+        } else {
+          return navigationItems.includes(key);
+        }
+      })
+      .forEach(([key, value]) => {
+        const item = {
+          parent: value.parent,
+          label: value.title,
+          icon: value.view?.navigation?.icon,
+          name: key,
+          onDelete: handleClickDelete,
+          isCurrent: model.customView
+            ? value.customName === model.customView
+            : key === model.model && !value.customName,
+        };
+
+        if (value.parent) {
+          itemsWithParent.push(item);
+        } else {
+          itemsWithoutParent.push(item);
+        }
+      });
 
     return {
       items: [...itemsWithoutParent, ...itemsWithParent].sort((a, b) => {
@@ -511,6 +575,8 @@ export const useAdminPage = (options: { model?: string }) => {
       }),
     };
   };
+
+  // const o
 
   const onClickAction = (action: TableActionType<any>, dataItems: any[]) => {
     submit(
@@ -580,12 +646,23 @@ export const useAdminPage = (options: { model?: string }) => {
 export const useCommandbar = ({
   tagsCombobox,
   tags,
+  hiddenNavigationItems,
 }: {
   tagsCombobox: ReturnType<typeof useTagsCombobox>;
   tags: Tag[];
+  hiddenNavigationItems?: string[];
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [showCustomViewForm, setShowCustomViewForm] = React.useState(false);
   const [showTags, setShowTags] = React.useState(false);
   const [commandbarIsOpen, setCommandbarIsOpen] = React.useState(false);
+
+  const [activeItem, setActiveItem] = React.useState<ComboboxItem>();
+
+  const isInEditMode = searchParams.get("editMode") === "true";
+
+  const fetcher = useFetcher();
 
   React.useEffect(() => {
     setCommandbarIsOpen((prev) => {
@@ -593,16 +670,89 @@ export const useCommandbar = ({
     });
   }, [tagsCombobox.isOpen]);
 
-  const items: ComboboxItem[] = [
+  const createCustomViewFormItems: CommandbarFormItem[] = [
     {
-      label: "New",
-      id: 1,
+      label: "Name",
+      name: "name",
     },
     {
-      label: "Filter by tags",
-      id: 2,
+      label: "Title",
+      name: "title",
+    },
+    {
+      label: "Description",
+      name: "description",
+      type: "textarea",
+    },
+    {
+      label: "Show in navigation",
+      name: "showInNavigation",
+      type: "checkbox",
     },
   ];
+
+  const commandbarConfig: CommandbarConfig = {
+    actions: [
+      {
+        id: 1,
+        label: "Create Custom View",
+        name: "createCustomView",
+        handler: () => {
+          setShowCustomViewForm(true);
+        },
+        form: {
+          title: "New Custom View",
+          items: createCustomViewFormItems,
+        },
+      },
+      {
+        id: 2,
+        label: "Filter by tags",
+        name: "filterByTags",
+        handler: () => {
+          setShowTags(true);
+          tagsCombobox.open({ tags });
+        },
+      },
+
+      {
+        id: 3,
+        label: isInEditMode ? "Exit edit mode" : "Edit mode",
+        name: "editMode",
+        handler: () => {
+          isInEditMode && searchParams.delete("editMode");
+          !isInEditMode && searchParams.set("editMode", "true");
+          setSearchParams(searchParams);
+
+          setCommandbarIsOpen(false);
+        },
+      },
+      {
+        id: 4,
+        label: "Add View to Navigation",
+        name: "addViewToNavigation",
+        list:
+          hiddenNavigationItems?.map((item, index) => {
+            return {
+              id: 4 + index,
+              label: item,
+              name: item,
+              handler: () => {
+                fetcher.submit(
+                  {
+                    name: item,
+                    action: "addNavigationItem",
+                  },
+                  {
+                    method: "POST",
+                  }
+                );
+              },
+            };
+          }) || [],
+      },
+    ],
+  };
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "k" && event.metaKey) {
@@ -610,24 +760,64 @@ export const useCommandbar = ({
     }
   };
 
+  const closeTagsRef = React.useRef(tagsCombobox.onClose);
+  const onClose = React.useCallback(() => {
+    if (clickedEscapeRef.current) {
+      clickedEscapeRef.current = false;
+      return;
+    }
+
+    setCommandbarIsOpen(false);
+    setTimeout(() => {
+      // we dont want to see the change from the active item to the base commandbar
+      closeTagsRef.current();
+      setShowTags(false);
+      setActiveItem(undefined);
+    }, 300);
+  }, []);
+
+  const onBack = () => {
+    if (activeItem) {
+      setActiveItem(undefined);
+    } else {
+      onClose();
+    }
+  };
+
+  // add eent listener for esc key
+  // if activeItem -> set activeItem to undefined
+  // if no activeItem -> close commandbar
+  const clickedEscapeRef = React.useRef(false);
+  const handleEsc = React.useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (activeItem) {
+          setActiveItem(undefined);
+        } else {
+          clickedEscapeRef.current = true;
+          onClose();
+        }
+      }
+    },
+    [activeItem, onClose]
+  );
+
   React.useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleEsc);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleEsc);
     };
-  }, []);
-
-  const onClose = () => {
-    setCommandbarIsOpen(false);
-    tagsCombobox.onClose();
-    setShowTags(false);
-  };
+  }, [handleEsc]);
 
   const onSelect = (item: ComboboxItem) => {
-    if (item.id === 2) {
-      setShowTags(true);
-      tagsCombobox.open({ tags });
+    if (item.form || item.list) {
+      setActiveItem(item);
+      item.handler?.();
+    } else if (item.handler) {
+      item.handler?.();
     } else {
       setShowTags(false);
       onClose();
@@ -640,13 +830,18 @@ export const useCommandbar = ({
   };
 
   return {
-    items,
+    activeItem,
+    commandbarConfig,
+    createCustomViewFormItems,
     isOpen: commandbarIsOpen,
     tagsCombobox,
     onClose,
+    onBack,
     onSelect,
     showTags,
+    showCustomViewForm,
     handleClickTags,
+    isInEditMode,
   };
 };
 
@@ -668,7 +863,18 @@ export const useTagsCombobox = ({
     dataItem?: Record<string, any>;
   }>();
 
+  const selectedRef = React.useRef(selected);
+  const commandBarRef = React.useRef(commandBar);
+
+  React.useEffect(() => {
+    selectedRef.current = selected;
+    commandBarRef.current = commandBar;
+  }, [commandBar, selected]);
+
   const handleCloseCommandBar = () => {
+    const selected = selectedRef.current;
+    const commandBar = commandBarRef.current;
+
     const newTags =
       selected.filter((tag) => {
         return !commandBar?.selected.find((t) => t.label === tag.label);

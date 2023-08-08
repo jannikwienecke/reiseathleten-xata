@@ -2,37 +2,22 @@ import { Dialog, Menu, Transition } from "@headlessui/react";
 import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
+  TrashIcon,
 } from "@heroicons/react/20/solid";
 import {
   BellIcon,
-  CalendarIcon,
-  ChartPieIcon,
   Cog6ToothIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
   HomeIcon,
-  UsersIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
 
-import logo from "../logo.png";
 import { Link } from "@remix-run/react";
 import { NavigationItem } from "~/utils/lib/types";
+import logo from "../logo.png";
 
 const navigation = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-];
-const teams = [
-  { id: 1, name: "New Orders", href: "#", initial: "NEW", current: false },
-  { id: 2, name: "Open Orders", href: "#", initial: "OPEN", current: false },
-  {
-    id: 3,
-    name: "Closed ORders",
-    href: "#",
-    initial: "X",
-    current: false,
-  },
 ];
 
 const userNavigation = [
@@ -47,11 +32,17 @@ function classNames(...classes: any[]) {
 export function Layout({
   children,
   items,
+  editable,
 }: {
   children: React.ReactNode;
   items: NavigationItem[];
+  editable?: boolean;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleClickDelete = (item: NavigationItem) => {
+    item.onDelete?.(item);
+  };
 
   return (
     <>
@@ -195,26 +186,34 @@ export function Layout({
                             </div>
                           ) : null}
 
-                          <li key={item.label}>
-                            <Link
-                              to={`/admin/${item.name}`}
-                              className={classNames(
-                                item.isCurrent
-                                  ? "bg-gray-800 text-white"
-                                  : "text-gray-400 hover:text-white hover:bg-gray-800",
-                                "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                              )}
-                            >
-                              {item?.icon ? (
-                                <item.icon
-                                  className="h-6 w-6 shrink-0"
-                                  aria-hidden="true"
-                                />
-                              ) : null}
+                          <div className="flex flex-row justify-between items-center space-x-2 group">
+                            <li className="flex-1" key={item.label}>
+                              <Link
+                                to={`/admin/${item.name}`}
+                                className={classNames(
+                                  item.isCurrent
+                                    ? "bg-gray-800 text-white"
+                                    : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                  "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                                )}
+                              >
+                                {item?.icon ? (
+                                  <item.icon
+                                    className="h-6 w-6 shrink-0"
+                                    aria-hidden="true"
+                                  />
+                                ) : null}
 
-                              {item.label}
-                            </Link>
-                          </li>
+                                {item.label}
+                              </Link>
+                            </li>
+
+                            {item.onDelete && editable ? (
+                              <button onClick={() => handleClickDelete(item)}>
+                                <TrashIcon className="h-4 w-4 shrink-0 text-gray-400" />
+                              </button>
+                            ) : null}
+                          </div>
                         </div>
                       );
                     })}
@@ -241,7 +240,9 @@ export function Layout({
         <div className="bg-black lg:pl-72 pt-1 rounded-lg overflow-hidden h-full">
           <div className="bg-black mt-[4px] rounded-tl-lg overflow-hidden h-full">
             <main className="py-10 h-full bg-white">
-              <div className="px-4 sm:px-6 lg:px-8 h-full">{children}</div>
+              <div className="px-4 sm:px-6 lg:px-8 h-full relative">
+                {children}
+              </div>
             </main>
           </div>
         </div>

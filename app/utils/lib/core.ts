@@ -1,4 +1,3 @@
-import { request } from "@playwright/test";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
 import { isLoggedIn } from "../helper";
@@ -11,9 +10,8 @@ import type {
   ActionFunctionArgs,
   Tag,
 } from "./types";
-import { getSchema, logger } from "@prisma/internals";
 import { DMMF } from "@prisma/client/runtime";
-import { Prisma } from "@prisma/client";
+import { type CustomView, Prisma } from "@prisma/client";
 
 export const getFormDataValue = (
   formData: FormData | undefined,
@@ -49,13 +47,75 @@ export const createPageFunction = ({
     };
   };
 
+  const getSidebarConfig = async ({
+    request,
+    customViews,
+  }: DataFunctionArgs & {
+    customViews: CustomView[];
+  }) => {
+    const sidebar = await prisma.viewSidebar.findMany();
+    const modelsToHide = sidebar
+      .filter((v) => v.show === false)
+      .map((v) => v.modelName);
+
+    const modelsToShow = sidebar
+      .filter((v) => v.show === true)
+      .map((v) => v.modelName);
+
+    let _hiddenCustomViews: string[] = [];
+    const getNavigationItemsToShowInSidebar = () => {
+      const customViewNames = customViews.map((v) => v.name);
+      const models = Object.keys(config.models);
+
+      const _modelsToShow = models.filter((model) => {
+        if (modelsToHide.includes(model)) return false;
+        else return true;
+      });
+
+      const _customViewsToShow = customViewNames.filter((view) => {
+        if (modelsToShow.includes(view)) return true;
+        else return false;
+      });
+
+      _hiddenCustomViews = customViewNames.filter((view) => {
+        if (modelsToShow.includes(view)) return false;
+        else return true;
+      });
+
+      return [..._modelsToShow, ..._customViewsToShow];
+    };
+
+    const toShow = getNavigationItemsToShowInSidebar();
+
+    return {
+      navigationItems: toShow,
+      navigationItemsHidden: [...modelsToHide, ..._hiddenCustomViews],
+    };
+  };
+
   const loader = async (props: DataFunctionArgs): Promise<LibLoaderData> => {
     const customConfig = await getCustomConfig(props);
+    const sidebarConfig = await getSidebarConfig({
+      ...props,
+      customViews: customConfig.views,
+    });
     const customViews = customConfig.views;
 
     const url = new URL(props.request.url);
     const query = url.searchParams.get("query") || "";
     const customViewName = url.searchParams.get("view") || "";
+
+    if (props.params.id) {
+      return {
+        data: {
+          items: [],
+          columns: [],
+          tags: [],
+          customViews,
+          ...sidebarConfig,
+        },
+      };
+    }
 
     const modelConfigNormal: ModelConfig =
       config["models"][props.params.model as keyof typeof config["models"]];
@@ -137,6 +197,7 @@ export const createPageFunction = ({
 
     return {
       data: {
+        ...sidebarConfig,
         columns,
         tags,
         items,
@@ -146,6 +207,94 @@ export const createPageFunction = ({
   };
 
   const action = async (props: DataFunctionArgs) => {
+    const onCreateNewView = async ({
+      formData,
+      request,
+      params,
+    }: ActionFunctionArgs) => {
+      const user = await isLoggedIn(request);
+
+      const customViewTitle = getFormDataValue(formData, "title");
+      const customViewName = getFormDataValue(formData, "name");
+      const shouldCustomViewBeShownInNavigation = getFormDataValue(
+        formData,
+        "showInNavigation"
+      );
+      // NOT IN DB MODEL YET
+      const description = getFormDataValue(formData, "description");
+
+      const model = params.model;
+
+      invariant(user, "User must be logged in");
+      invariant(model, "model must be defined");
+      invariant(customViewTitle, "title must be defined");
+      invariant(customViewName, "name must be defined");
+      invariant(
+        shouldCustomViewBeShownInNavigation !== undefined,
+        "showInSidebar must be defined"
+      );
+
+      await prisma.customView.create({
+        data: {
+          name: customViewName,
+          baseView: model,
+          title: customViewTitle,
+          User: {
+            connect: {
+              id: user.props.id,
+            },
+          },
+        },
+      });
+
+      const tags = await prisma.viewTags.findFirst({
+        where: {
+          User: {
+            id: user.props.id,
+          },
+          modelName: model,
+        },
+      });
+
+      const columsn = await prisma.viewColumns.findFirst({
+        where: {
+          User: {
+            id: user.props.id,
+          },
+          modelName: model,
+        },
+      });
+
+      // create the tags and columns for the custom view
+      tags?.tags &&
+        (await prisma.viewTags.create({
+          data: {
+            User: {
+              connect: {
+                id: user.props.id,
+              },
+            },
+            modelName: customViewName,
+            tags: tags?.tags,
+          },
+        }));
+
+      columsn?.columnIds &&
+        (await prisma.viewColumns.create({
+          data: {
+            User: {
+              connect: {
+                id: user.props.id,
+              },
+            },
+            modelName: customViewName,
+            columnIds: columsn?.columnIds,
+          },
+        }));
+
+      return {};
+    };
+
     const onSelectColumns = async ({
       formData,
       request,
@@ -260,9 +409,88 @@ export const createPageFunction = ({
       });
     };
 
+    const onDeleteNavigationItem = async ({
+      formData,
+      request,
+    }: ActionFunctionArgs) => {
+      const user = await isLoggedIn(request);
+      invariant(user, "user is required");
+
+      const name = getFormDataValue(formData, "name") as string;
+
+      // model name can be User or User?view=customViewName
+      const customViewName = name.split("?view=")[1];
+      const modelName = customViewName || name.split("?view=")[0];
+
+      const _model = customViewName || modelName;
+
+      await prisma.viewSidebar.create({
+        data: {
+          modelName: _model,
+          show: false,
+          User: {
+            connect: {
+              id: user.props.id,
+            },
+          },
+        },
+      });
+    };
+
+    const onAddNavigationItem = async ({
+      formData,
+      request,
+    }: ActionFunctionArgs) => {
+      const user = await isLoggedIn(request);
+      invariant(user, "user is required");
+
+      const name = getFormDataValue(formData, "name") as string;
+
+      // model name can be User or User?view=customViewName
+      const customViewName = name.split("?view=")[1];
+      const modelName = customViewName || name.split("?view=")[0];
+
+      const _model = customViewName || modelName;
+
+      // has already? then update
+      const existing = await prisma.viewSidebar.findFirst({
+        where: {
+          modelName: _model,
+          User: {
+            id: user.props.id,
+          },
+        },
+      });
+
+      if (existing) {
+        await prisma.viewSidebar.update({
+          where: {
+            id: existing.id,
+          },
+          data: {
+            show: true,
+          },
+        });
+        return;
+      } else {
+        await prisma.viewSidebar.create({
+          data: {
+            modelName: _model,
+            show: true,
+            User: {
+              connect: {
+                id: user.props.id,
+              },
+            },
+          },
+        });
+      }
+    };
+
     const formData = await props.request.formData();
 
     const formAction = getFormDataValue(formData, "action");
+
     const customActionName = getFormDataValue(formData, "actionName");
     const model = getFormDataValue(formData, "model");
     const query = new URL(props.request.url).searchParams.get("query") || "";
@@ -290,6 +518,12 @@ export const createPageFunction = ({
       actionToRun = onUpdateTags;
     } else if (formAction === "updateTagsOfView") {
       actionToRun = onUpdateTagsOfView;
+    } else if (customActionName === "createCustomView") {
+      actionToRun = onCreateNewView;
+    } else if (formAction === "deleteNavigationItem") {
+      actionToRun = onDeleteNavigationItem;
+    } else if (formAction === "addNavigationItem") {
+      actionToRun = onAddNavigationItem;
     } else if (formAction === "custom_action") {
       const customActionToRu = modelConfig.actions?.find(
         (action) => action.name === customActionName

@@ -1,14 +1,15 @@
-import { Transition, Dialog, Combobox } from "@headlessui/react";
+import { Combobox, Dialog, Transition } from "@headlessui/react";
 import {
-  MagnifyingGlassIcon,
   FolderIcon,
+  MagnifyingGlassIcon,
   PlusIcon,
-  TagIcon,
+  TagIcon
 } from "@heroicons/react/20/solid";
-import React from "react";
-import { Fragment, useRef, useState } from "react";
+import { ArrowLeftCircleIcon } from "@heroicons/react/24/outline";
+import React, { Fragment, useRef, useState } from "react";
 import { classNames } from "~/utils/helper";
 import { type Tag } from "~/utils/lib/types";
+import { Form, LibForm } from "./form";
 import { TagItem } from "./tag-item";
 const CommandbarBase = ({
   onClose,
@@ -17,7 +18,7 @@ const CommandbarBase = ({
   children,
 }: {
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   afterLeave?: () => void;
   children: React.ReactNode;
 }) => {
@@ -46,7 +47,7 @@ const CommandbarBase = ({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <Dialog.Panel className="mx-auto max-w-2xl transform divide-y divide-gray-500 divide-opacity-20 overflow-hidden rounded-xl bg-white  bg-opacity-80 shadow-2xl backdrop-blur backdrop-filter transition-all">
+            <Dialog.Panel className="bg-white mx-auto max-w-2xl transform divide-y divide-gray-500 divide-opacity-20 overflow-hidden rounded-xl bg-opacity-60 shadow-2xl backdrop-blur backdrop-filter transition-all">
               {children}
             </Dialog.Panel>
           </Transition.Child>
@@ -63,9 +64,25 @@ export interface ComboboxShortcut {
   icon: React.ComponentType<React.ComponentProps<"svg">>;
 }
 
+export type CommandbarFormItem = React.HTMLProps<HTMLInputElement> & {
+  label: string;
+  name: string;
+};
+
+export interface CommandbarConfig {
+  actions: ComboboxItem[];
+}
+
 export interface ComboboxItem {
   label: string;
+  name: string;
   id: number;
+  handler?: () => void;
+  form?: {
+    title?: string;
+    items: CommandbarFormItem[];
+  };
+  list?: ComboboxItem[];
 }
 
 const ComboboxBase = <T extends ComboboxItem>({
@@ -376,10 +393,67 @@ const ComboboxTags = ({
   );
 };
 
+const ComboboxForm = <T extends CommandbarFormItem>({
+  items,
+  title,
+  onBack,
+  name,
+}: {
+  items: T[];
+  title?: string;
+  onBack?: () => void;
+  name?: string;
+}) => {
+  return (
+    <div className="">
+      <div className="flex flex-row justify-between items-center mb-4 border-b-[1px] border-gray-300 p-4">
+        <button onClick={onBack}>
+          <ArrowLeftCircleIcon
+            className="h-6 w-6 text-gray-700 cursor-pointer"
+            aria-hidden="true"
+          />
+        </button>
+
+        <h1 className="text-sm font-bold text-gray-600">{title}</h1>
+      </div>
+      <div className="px-16">
+        <LibForm>
+          <input type="hidden" name={"actionName"} value={name} />
+          {items.map((item, index) => {
+            const TypeComponentMapping = {
+              select: Form.Select,
+              checkbox: Form.Checkbox,
+            };
+
+            const Component = item.type
+              ? TypeComponentMapping[
+                  item.type as keyof typeof TypeComponentMapping
+                ] || Form.DefaultInput
+              : Form.DefaultInput;
+
+            return (
+              <Component
+                autoFocus={index === 0}
+                key={`input-${item.name}`}
+                horizontal={true}
+                onSelect={() => null}
+                value={item.value}
+                rows={item.rows || 3}
+                {...item}
+              />
+            );
+          })}
+        </LibForm>
+      </div>
+    </div>
+  );
+};
+
 export const Commandbar = {
   Base: CommandbarBase,
   Combobox: ComboboxBase,
   Tags: ComboboxTags,
+  Form: ComboboxForm,
 };
 
 const getRandomColor = () => {

@@ -9,6 +9,7 @@ import {
 import React from "react";
 import { type Color, ComboBox } from "./combobox";
 import invariant from "tiny-invariant";
+import { Toggle } from "./toggle";
 
 export const LibForm = ({
   title,
@@ -16,7 +17,7 @@ export const LibForm = ({
   onCancel,
   model,
 }: {
-  title: string;
+  title?: string;
   children: React.ReactNode;
   onCancel?: () => void;
   model?: string;
@@ -54,7 +55,7 @@ export function Form({
   onCancel,
   ...props
 }: {
-  title: string;
+  title?: string;
   description?: string;
   children: React.ReactNode;
   SaveButton?: React.ReactNode;
@@ -63,14 +64,16 @@ export function Form({
   return (
     <div className="space-y-10 divide-y divide-gray-900/10 h-full ">
       <div className="flex flex-col gap-x-8 gap-y-6 h-full ">
-        <div className="px-4 sm:px-0">
-          <h2 className="text-xl font-bold text-black leading-9 tracking-wide">
-            {title}
-          </h2>
-          <p className=" text-lg text-gray-700 leading-9">
-            {description || "Update Model Information"}
-          </p>
-        </div>
+        {title || description ? (
+          <div className="px-4 sm:px-0">
+            <h2 className="text-xl font-bold text-black leading-9 tracking-wide">
+              {title}
+            </h2>
+            <p className=" text-lg text-gray-700 leading-9">
+              {description || "Update Model Information"}
+            </p>
+          </div>
+        ) : null}
 
         <RemixForm
           {...props}
@@ -105,27 +108,36 @@ const DefaultInput = ({
   label?: string;
   name: string;
   error?: string;
+  horizontal?: boolean;
+  rows?: number;
 } & React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 >) => {
   return (
-    <div className={`${props.hidden ? "hidden" : ""}`}>
+    <div
+      className={`${
+        props.horizontal ? "flex flex-row items-center space-x-4 w-full " : ""
+      } ${props.hidden ? "hidden" : ""}`}
+    >
       {label ? (
         <label
           htmlFor="first-name"
-          className="block text-sm font-medium leading-6 text-gray-900"
+          className={`block text-sm font-medium leading-6 text-gray-900 ${
+            props.horizontal ? "w-1/4" : ""
+          }`}
         >
           {label}
         </label>
       ) : null}
-      <div className={`mt-2 ${props.type === "checkbox" && "h-8"}`}>
+
+      <div className={`flex-1  ${props.type === "checkbox" && "h-8"}`}>
         {props.type === "textarea" ? (
           <>
             {/* @ts-ignore */}
             <textarea
               {...props}
-              rows={10}
+              rows={props.rows || 10}
               defaultValue={props.value}
               value={undefined}
               className={`h-full ${
@@ -141,7 +153,7 @@ const DefaultInput = ({
               {...props}
               defaultValue={props.value}
               value={undefined}
-              className={`h-full ${
+              className={`h-full w-full ${
                 props.error ? "focus:ring-red-600" : "focus:ring-indigo-600"
               } block w-full pl-4 rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6 ${
                 props.hidden ? "hidden" : ""
@@ -318,7 +330,64 @@ const Select = ({
   );
 };
 
+const Checkbox = ({
+  label,
+  ...props
+}: {
+  label?: string;
+  name: string;
+  error?: string;
+  horizontal?: boolean;
+} & React.DetailedHTMLProps<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+>) => {
+  const [checked, setChecked] = React.useState(false);
+
+  const handleCheck = (checked: boolean) => {
+    setChecked(checked);
+  };
+
+  return (
+    <>
+      <input
+        type="hidden"
+        name={props.name}
+        value={checked ? "true" : "false"}
+      />
+
+      <div
+        className={`${
+          props.horizontal ? "flex flex-row items-center space-x-4 w-full " : ""
+        } ${props.hidden ? "hidden" : ""}`}
+      >
+        {label ? (
+          <label
+            htmlFor={props.name}
+            className={`block text-sm font-medium leading-6 text-gray-900 ${
+              props.horizontal ? "w-1/4" : ""
+            }`}
+          >
+            {label}
+          </label>
+        ) : null}
+
+        <div className="pl-2">
+          <Toggle onCheck={handleCheck} />
+        </div>
+
+        {props.error ? (
+          <p className="mt-2 text-sm text-red-600" id="email-error">
+            {props.error}
+          </p>
+        ) : null}
+      </div>
+    </>
+  );
+};
+
 Form.ImageInput = ImageInput;
 Form.DefaultInput = DefaultInput;
 Form.SaveButton = SaveButton;
 Form.Select = Select;
+Form.Checkbox = Checkbox;

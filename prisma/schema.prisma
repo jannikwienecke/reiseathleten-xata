@@ -61,6 +61,7 @@ model User {
   Order               Order[]
   OrderActivityEvents OrderActivityEvents[]
   ViewColumns         ViewColumns[]
+  ViewSidebar         ViewSidebar[]
   ViewTags            ViewTags[]
 }
 
@@ -274,4 +275,12 @@ model CustomView {
   user_id  Int
   name     String
   User     User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model ViewSidebar {
+  id        Int     @id @default(autoincrement())
+  modelName String
+  show      Boolean @default(false)
+  user_id   Int
+  User      User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

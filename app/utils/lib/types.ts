@@ -106,6 +106,8 @@ export interface PageHandler {
 
 export interface LibLoaderData {
   data: {
+    navigationItems: string[];
+    navigationItemsHidden: string[];
     customViews: CustomView[];
     items: Dict[];
     tags: Tag[];
@@ -129,6 +131,7 @@ export interface NavigationItem {
   name: string;
   icon: React.ComponentType<any>;
   isCurrent: boolean;
+  onDelete?: (item: NavigationItem) => void;
 }
 
 export interface TableActionType<T> {

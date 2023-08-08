@@ -406,3 +406,13 @@ CREATE TABLE "public"."CustomView" (
     FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 -- INSERT INTO "public"."CustomView" ("baseView", "title", "user_id", "name") VALUES ('NewOrder', 'My Custom View', 1, 'CustomNewOrder');
+
+-- table that stores information about if the view should be shown in the sidebar
+CREATE TABLE "public"."ViewSidebar" (
+    "id" SERIAL,
+    "modelName" text  NOT NULL ,
+    "show" boolean NOT NULL DEFAULT false,
+    "user_id" integer  NOT NULL ,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);

@@ -1,5 +1,10 @@
 import { redirect } from "@remix-run/node";
-import { Outlet } from "@remix-run/react";
+import {
+  Outlet,
+  ShouldRevalidateFunction,
+  useFetchers,
+  useSearchParams,
+} from "@remix-run/react";
 import { Layout } from "~/components";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { CONFIG_ORDERS_PAGE } from "~/features/orders-sync/config";
@@ -18,6 +23,10 @@ export const pageFunction = createPageFunction({
     },
   },
 });
+
+export const shouldRevalidate: ShouldRevalidateFunction = () => {
+  return false;
+};
 
 export const loader = async (props: DataFunctionArgs) => {
   const url = new URL(props.request.url);
@@ -60,8 +69,11 @@ export default function Index() {
 const Content = () => {
   const adminPageProps = useAdminPage({});
 
+  const [searchParams] = useSearchParams();
+  const editMode = searchParams.get("editMode") === "true";
+
   return (
-    <Layout {...adminPageProps.getLayoutProps()}>
+    <Layout editable={editMode} {...adminPageProps.getLayoutProps()}>
       <Outlet />
     </Layout>
   );
