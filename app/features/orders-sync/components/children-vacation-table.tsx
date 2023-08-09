@@ -1,14 +1,12 @@
 import { useNavigation, useSubmit } from "@remix-run/react";
 import { Table } from "~/components";
-import { useAdminPage } from "~/utils/lib/hooks";
+import { useTable } from "~/utils/lib/hooks";
 import { useVacationState } from "../store/single-vacation-store";
 
 export const VacationChildrenTable = () => {
   const submit = useSubmit();
   const vacation = useVacationState((store) => store.vacation);
-  const { handelClickAdd } = useAdminPage({
-    model: "Service",
-  });
+  const { handelClickAdd } = useTable();
 
   const { state, formData } = useNavigation();
   const isSubmitting = state !== "idle";

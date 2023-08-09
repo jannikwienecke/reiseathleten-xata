@@ -68,7 +68,6 @@ export const InvoiceSummary = () => {
               />
             </dt>
             <dd className="text-sm leading-6 text-gray-500">
-              {/* Paid with MasterCard */}
               {order.props.paymentMethod} + {order.props.paymentMethod_title}
             </dd>
           </div>

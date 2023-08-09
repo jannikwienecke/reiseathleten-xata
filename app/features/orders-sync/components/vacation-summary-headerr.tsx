@@ -84,12 +84,14 @@ export const VacationSummaryHeader = () => {
                 {vacation.parentToggleButtonText}
               </button> */}
 
-              <button
-                onClick={handleClickSetAsParentVacation}
-                className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white hover:border-black hover:outline-2 hover:outline hover:outline-black hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                {vacation.parentToggleButtonText}
-              </button>
+              {!vacation.props.parentId ? (
+                <button
+                  onClick={handleClickSetAsParentVacation}
+                  className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white hover:border-black hover:outline-2 hover:outline hover:outline-black hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  {vacation.parentToggleButtonText}
+                </button>
+              ) : null}
 
               <Menu as="div" className="relative sm:hidden">
                 <Menu.Button className="-m-3 block p-3">

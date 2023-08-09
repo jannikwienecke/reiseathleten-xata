@@ -160,8 +160,6 @@ export const useModel = (options: {
 };
 
 export const useTable = () => {
-  const model = useModel({ customViews: [] });
-
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleClickEdit = (dataItem: any) => {
@@ -177,8 +175,8 @@ export const useTable = () => {
   };
 
   return {
-    handelClickAdd: model.supportsAdd ? handelClickAdd : undefined,
-    handleClickEdit: model.supportsEdit ? handleClickEdit : undefined,
+    handleClickEdit,
+    handelClickAdd,
   };
 };
 
@@ -205,11 +203,21 @@ export const useAdminPage = (options: { model?: string }) => {
     items: items || [],
   });
 
+  const [commands, setCommands] = React.useState<CommandbarConfig["actions"]>();
+
   const commandbar = useCommandbar({
     tagsCombobox,
     tags,
     hiddenNavigationItems: navigationItemsHidden,
+    commands,
   });
+
+  const addCommands = React.useCallback(
+    (commands: CommandbarConfig["actions"]) => {
+      setCommands(commands);
+    },
+    []
+  );
 
   const actionData = useActionData<LibActionData>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -236,7 +244,7 @@ export const useAdminPage = (options: { model?: string }) => {
   const columnIdsString = navigationState.formData?.get("ids") as string | null;
   const columnIds = columnIdsString ? JSON.parse(columnIdsString) : null;
 
-  const table = useTable();
+  const { handelClickAdd, handleClickEdit } = useTable();
 
   const updateSearchParamsWithQuery = (query: string) => {
     searchParams.set("query", query);
@@ -638,7 +646,9 @@ export const useAdminPage = (options: { model?: string }) => {
     onClickAction,
     isRunningCutomAction,
     tags,
-    ...table,
+    addCommands,
+    handelClickAdd: model.supportsAdd ? handelClickAdd : undefined,
+    handleClickEdit: model.supportsEdit ? handleClickEdit : undefined,
     ...model,
   };
 };
@@ -647,10 +657,12 @@ export const useCommandbar = ({
   tagsCombobox,
   tags,
   hiddenNavigationItems,
+  commands,
 }: {
   tagsCombobox: ReturnType<typeof useTagsCombobox>;
   tags: Tag[];
   hiddenNavigationItems?: string[];
+  commands?: CommandbarConfig["actions"];
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -663,6 +675,17 @@ export const useCommandbar = ({
   const isInEditMode = searchParams.get("editMode") === "true";
 
   const fetcher = useFetcher();
+  const fetcherSubmitRef = React.useRef(fetcher.submit);
+  const openTagsRef = React.useRef(tagsCombobox.open);
+
+  const navigation = useNavigation();
+
+  const activeFormActionName = activeItem?.form ? activeItem?.name : undefined;
+  const actionName = navigation.formData?.get("action");
+  const isSubmitting =
+    navigation.state === "submitting" && actionName === activeFormActionName;
+  const isLoading =
+    navigation.state === "loading" && actionName === activeFormActionName;
 
   React.useEffect(() => {
     setCommandbarIsOpen((prev) => {
@@ -670,89 +693,115 @@ export const useCommandbar = ({
     });
   }, [tagsCombobox.isOpen]);
 
-  const createCustomViewFormItems: CommandbarFormItem[] = [
-    {
-      label: "Name",
-      name: "name",
-    },
-    {
-      label: "Title",
-      name: "title",
-    },
-    {
-      label: "Description",
-      name: "description",
-      type: "textarea",
-    },
-    {
-      label: "Show in navigation",
-      name: "showInNavigation",
-      type: "checkbox",
-    },
-  ];
+  const isSubmittingRef = React.useRef(false);
+  React.useEffect(() => {
+    if (isSubmitting) {
+      isSubmittingRef.current = true;
+    }
+  }, [isSubmitting]);
 
-  const commandbarConfig: CommandbarConfig = {
-    actions: [
-      {
-        id: 1,
-        label: "Create Custom View",
-        name: "createCustomView",
-        handler: () => {
-          setShowCustomViewForm(true);
-        },
-        form: {
-          title: "New Custom View",
-          items: createCustomViewFormItems,
-        },
-      },
-      {
-        id: 2,
-        label: "Filter by tags",
-        name: "filterByTags",
-        handler: () => {
-          setShowTags(true);
-          tagsCombobox.open({ tags });
-        },
-      },
+  // after the form is submitted -> RESET THE ACTIVE ITEM
+  React.useEffect(() => {
+    if (isLoading && isSubmittingRef.current) {
+      setActiveItem(undefined);
+    }
+  }, [isLoading]);
 
-      {
-        id: 3,
-        label: isInEditMode ? "Exit edit mode" : "Edit mode",
-        name: "editMode",
-        handler: () => {
-          isInEditMode && searchParams.delete("editMode");
-          !isInEditMode && searchParams.set("editMode", "true");
-          setSearchParams(searchParams);
+  const [commandbarConfig, setCommandbarConfig] =
+    React.useState<CommandbarConfig>();
 
-          setCommandbarIsOpen(false);
-        },
+  React.useEffect(() => {
+    const createCustomViewFormItems: CommandbarFormItem[] = [
+      {
+        label: "Name",
+        name: "name",
       },
       {
-        id: 4,
-        label: "Add View to Navigation",
-        name: "addViewToNavigation",
-        list:
-          hiddenNavigationItems?.map((item, index) => {
-            return {
-              id: 4 + index,
-              label: item,
-              name: item,
-              handler: () => {
-                fetcher.submit(
-                  {
-                    name: item,
-                    action: "addNavigationItem",
-                  },
-                  {
-                    method: "POST",
-                  }
-                );
-              },
-            };
-          }) || [],
+        label: "Title",
+        name: "title",
       },
-    ],
-  };
+      {
+        label: "Description",
+        name: "description",
+        type: "textarea",
+      },
+      {
+        label: "Show in navigation",
+        name: "showInNavigation",
+        type: "checkbox",
+      },
+    ];
+
+    const commandbarConfig: CommandbarConfig = {
+      actions: [
+        {
+          id: 1,
+          label: "Create Custom View",
+          name: "createCustomView",
+          handler: () => {
+            setShowCustomViewForm(true);
+          },
+          form: {
+            title: "New Custom View",
+            items: createCustomViewFormItems,
+          },
+        },
+        {
+          id: 2,
+          label: "Filter by tags",
+          name: "filterByTags",
+          handler: () => {
+            setShowTags(true);
+            openTagsRef.current({ tags });
+          },
+        },
+
+        {
+          id: 3,
+          label: isInEditMode ? "Exit edit mode" : "Edit mode",
+          name: "editMode",
+          handler: () => {
+            isInEditMode && searchParams.delete("editMode");
+            !isInEditMode && searchParams.set("editMode", "true");
+            setSearchParams(searchParams);
+
+            setCommandbarIsOpen(false);
+          },
+        },
+        {
+          id: 4,
+          label: "Add View to Navigation",
+          name: "addViewToNavigation",
+          list:
+            hiddenNavigationItems?.map((item, index) => {
+              return {
+                id: 4 + index,
+                label: item,
+                name: item,
+                handler: () => {
+                  fetcherSubmitRef.current(
+                    {
+                      name: item,
+                      action: "addNavigationItem",
+                    },
+                    {
+                      method: "POST",
+                    }
+                  );
+                },
+              };
+            }) || [],
+        },
+      ],
+    };
+    setCommandbarConfig(commandbarConfig);
+  }, [
+    hiddenNavigationItems,
+    isInEditMode,
+    searchParams,
+    setSearchParams,
+    tags,
+  ]);
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "k" && event.metaKey) {
@@ -772,12 +821,14 @@ export const useCommandbar = ({
       // we dont want to see the change from the active item to the base commandbar
       closeTagsRef.current();
       setShowTags(false);
+
       setActiveItem(undefined);
     }, 300);
   }, []);
 
   const onBack = () => {
     if (activeItem) {
+      console.log("CLOSE2");
       setActiveItem(undefined);
     } else {
       onClose();
@@ -826,13 +877,15 @@ export const useCommandbar = ({
 
   const handleClickTags = () => {
     setShowTags(true);
-    tagsCombobox.open({ tags });
+    openTagsRef.current({ tags });
   };
 
   return {
     activeItem,
-    commandbarConfig,
-    createCustomViewFormItems,
+    commandbarConfig: {
+      ...commandbarConfig,
+      actions: commands || commandbarConfig?.actions || [],
+    },
     isOpen: commandbarIsOpen,
     tagsCombobox,
     onClose,

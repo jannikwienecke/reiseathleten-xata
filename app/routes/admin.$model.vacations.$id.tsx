@@ -155,6 +155,8 @@ export function VacationContent() {
     views.push({ name: "vacation_children", label: "Vacations" });
   }
 
+  console.log("ACTIVTIES:", vacation.activities);
+
   if (vacation.activities.length > 0) {
     views.push({ name: "vacation_activities", label: "Activities" });
   }

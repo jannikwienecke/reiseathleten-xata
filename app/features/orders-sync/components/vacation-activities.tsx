@@ -1,14 +1,12 @@
 import { useNavigation, useSubmit } from "@remix-run/react";
 import { Table } from "~/components";
-import { useAdminPage } from "~/utils/lib/hooks";
+import { useAdminPage, useTable } from "~/utils/lib/hooks";
 import { useVacationState } from "../store/single-vacation-store";
 
 export const VacationActivitiesTable = () => {
   const submit = useSubmit();
   const vacation = useVacationState((store) => store.vacation);
-  const { columns, handelClickAdd } = useAdminPage({
-    model: "Service",
-  });
+  const { handelClickAdd } = useTable();
 
   const { state, formData } = useNavigation();
   const isSubmitting = state !== "idle";
@@ -52,7 +50,16 @@ export const VacationActivitiesTable = () => {
               description: service.description,
             };
           })}
-        columns={columns}
+        columns={[
+          {
+            accessorKey: "name",
+            header: "Name",
+          },
+          {
+            accessorKey: "description",
+            header: "Description",
+          },
+        ]}
         title={""}
       />
     </>

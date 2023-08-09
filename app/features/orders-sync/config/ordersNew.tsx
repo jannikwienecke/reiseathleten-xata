@@ -3,9 +3,6 @@ import { type Order } from "@prisma/client";
 import { prisma } from "~/db.server";
 import { formatDateString } from "~/features/vacation-admin/utils/helpers";
 
-import invariant from "tiny-invariant";
-import { isLoggedIn } from "~/utils/helper";
-import { getFormDataValue } from "~/utils/lib/core";
 import type { ActionFunctionArgs, ModelConfig, Tag } from "~/utils/lib/types";
 import { createLoader } from "~/utils/stuff.server";
 import { type OrderStatusValueObject } from "../domain/order-status";
@@ -18,6 +15,7 @@ export type OrderInterface = Omit<Order, "price"> & {
   last_name: string;
   email: string;
   tags: Tag[];
+  reminder?: string;
 };
 
 const ORDER_BY_OPTIONS = {
@@ -32,9 +30,11 @@ export const getOrders = async ({
   allowedStatusList,
   orderBy,
   tags,
+  orderIds,
 }: {
   query?: string;
   tags?: Tag[];
+  orderIds?: number[];
   sortBy?: {
     field: string;
     direction: "asc" | "desc";
@@ -85,6 +85,8 @@ export const getOrders = async ({
       : ORDER_BY_OPTIONS[orderBy];
   }
 
+  console.log({ orderIds });
+
   const orders = await prisma.order.findMany({
     orderBy: _orderBy,
 
@@ -109,6 +111,9 @@ export const getOrders = async ({
     },
 
     where: {
+      id: {
+        in: orderIds,
+      },
       status: {
         in: allowedStatusList,
       },
@@ -187,7 +192,7 @@ export const NewOrdersConfig: ModelConfig<OrderInterface> = {
       icon: InboxIcon,
     },
     detail: {
-      getUrl: (id) => `/admin/orders/${id}`,
+      getUrl: (id) => `/admin/NewOrder/orders/${id}`,
     },
     table: {
       columns: [

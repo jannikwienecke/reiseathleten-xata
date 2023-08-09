@@ -13,6 +13,9 @@ import { DateValueObject } from "~/features/vacation/domain/date";
 import { isLoggedIn } from "~/utils/helper";
 import { OrderMapper } from "../mapper/orderMap";
 import { prisma } from "~/db.server";
+import { EventsActivityFeed } from "../components/event-acitivity-feed";
+import { OrderActivityEventRepoPrisma } from "../repos/implementations/orderActivityEventRepoPrisma";
+import { ActivityEventList } from "../domain/activity-event-list";
 
 type Props = {
   repository: Repository;
@@ -47,6 +50,8 @@ export const singleOrderActionHandler = async ({
   const action = getFormDataValue(formData, "action");
   const comment = getFormDataValue(formData, "comment");
   const mood = getFormDataValue(formData, "mood") as Mood["mood"] | undefined;
+
+  console.log({ action });
 
   const serviceId = getFormDataValue(formData, "serviceName");
   const newStatus = getFormDataValue(formData, "newStatus");
@@ -146,6 +151,50 @@ export const singleOrderActionHandler = async ({
     });
   };
 
+  const handleAddReminder = async () => {
+    // title, description, date
+
+    const title = getFormDataValue(formData, "title") as string;
+    const date = getFormDataValue(formData, "date") as string;
+    const description = getFormDataValue(formData, "description");
+
+    invariant(user.props.id, "user is required");
+    invariant(title, "title is required");
+    invariant(date, "date is required");
+
+    await prisma.orderReminder.create({
+      data: {
+        title,
+        description: description || "",
+        date: new Date(date),
+        Order: {
+          connect: {
+            id: +orderId,
+          },
+        },
+      },
+    });
+
+    const reminderEvent = ActivityEvent.create({
+      date: DateValueObject.create({ value: new Date().toISOString() }),
+      type: "commented",
+      content: `Reminder "${title}" was created: ${description}`,
+      user: {
+        name: user?.props.email,
+        imageUri: "",
+      },
+    });
+
+    const eventList = ActivityEventList.create([]);
+    eventList.addEvent(reminderEvent);
+
+    await repository.orderActivityEventRepo.save({
+      activityEventList: eventList,
+      orderId: +orderId,
+      userId: user.props.id,
+    });
+  };
+
   switch (action) {
     case "comment":
       await handleComment();
@@ -169,6 +218,10 @@ export const singleOrderActionHandler = async ({
 
     case "addRoom":
       await handleAddRoom();
+      break;
+
+    case "createReminder":
+      await handleAddReminder();
       break;
 
     default:

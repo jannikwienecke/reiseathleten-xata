@@ -1400,6 +1400,10 @@ select {
   max-width: 20rem;
 }
 
+.max-w-\[33\%\] {
+  max-width: 33%;
+}
+
 .flex-1 {
   flex: 1 1 0%;
 }
@@ -1414,6 +1418,10 @@ select {
 
 .flex-shrink-0 {
   flex-shrink: 0;
+}
+
+.flex-shrink {
+  flex-shrink: 1;
 }
 
 .shrink-0 {
@@ -2183,6 +2191,11 @@ select {
 .bg-yellow-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(254 252 232 / var(--tw-bg-opacity));
+}
+
+.bg-red-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 202 202 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-25 {

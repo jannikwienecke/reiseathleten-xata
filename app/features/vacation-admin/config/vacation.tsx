@@ -133,7 +133,7 @@ export const VacationConfig: ModelConfig<VacationInterface> = {
       ],
     },
     detail: {
-      getUrl: (id) => `/admin/vacations/${id}`,
+      getUrl: (id) => `/admin/Vacation/vacations/${id}`,
     },
     AddForm: {
       title: "Create New Vacation",

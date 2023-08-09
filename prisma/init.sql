@@ -416,3 +416,14 @@ CREATE TABLE "public"."ViewSidebar" (
     PRIMARY KEY ("id"),
     FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+-- OrderReminders
+CREATE TABLE "public"."OrderReminder" (
+    "id" SERIAL,
+    "title" text  NOT NULL ,
+    "description" text,
+    "date" timestamp(3)  NOT NULL,
+    order_id integer  NOT NULL,
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("order_id") REFERENCES "public"."Order"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);

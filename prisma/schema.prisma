@@ -152,6 +152,7 @@ model Order {
   Vacation             VacationDescription   @relation(fields: [vacation_id], references: [id], onDelete: NoAction)
   OrderActivity        OrderActivity[]
   OrderActivityEvents  OrderActivityEvents[]
+  OrderReminder        OrderReminder[]
   OrderTag             OrderTag[]
 }
 
@@ -283,4 +284,13 @@ model ViewSidebar {
   show      Boolean @default(false)
   user_id   Int
   User      User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model OrderReminder {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  date        DateTime
+  order_id    Int
+  Order       Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
 }

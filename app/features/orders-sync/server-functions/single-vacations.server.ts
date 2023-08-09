@@ -27,6 +27,8 @@ export const singleVacationLoaderHandler = async ({
 
   if (!vacation) throw new Error("Vacation not found");
 
+  console.log(vacation);
+
   return vacation;
 };
 

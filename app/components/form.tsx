@@ -16,11 +16,13 @@ export const LibForm = ({
   children,
   onCancel,
   model,
+  action,
 }: {
   title?: string;
   children: React.ReactNode;
   onCancel?: () => void;
   model?: string;
+  action?: string;
 }) => {
   const { state } = useNavigation();
 
@@ -31,6 +33,7 @@ export const LibForm = ({
 
   return (
     <Form
+      action={action}
       onCancel={onCancel}
       title={title}
       method="POST"

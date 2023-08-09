@@ -3,7 +3,7 @@ import {
   FolderIcon,
   MagnifyingGlassIcon,
   PlusIcon,
-  TagIcon
+  TagIcon,
 } from "@heroicons/react/20/solid";
 import { ArrowLeftCircleIcon } from "@heroicons/react/24/outline";
 import React, { Fragment, useRef, useState } from "react";
@@ -18,13 +18,17 @@ const CommandbarBase = ({
   children,
 }: {
   isOpen: boolean;
-  onClose?: () => void;
+  onClose?: (value: boolean) => void;
   afterLeave?: () => void;
   children: React.ReactNode;
 }) => {
   return (
     <Transition.Root show={isOpen} as={Fragment} afterLeave={afterLeave} appear>
-      <Dialog as="div" className="relative z-10" onClose={onClose}>
+      <Dialog
+        as="div"
+        className="relative z-10"
+        onClose={onClose || (() => null)}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -81,6 +85,7 @@ export interface ComboboxItem {
   form?: {
     title?: string;
     items: CommandbarFormItem[];
+    action?: string;
   };
   list?: ComboboxItem[];
 }
@@ -398,11 +403,13 @@ const ComboboxForm = <T extends CommandbarFormItem>({
   title,
   onBack,
   name,
+  action,
 }: {
   items: T[];
   title?: string;
   onBack?: () => void;
   name?: string;
+  action?: string;
 }) => {
   return (
     <div className="">
@@ -417,8 +424,9 @@ const ComboboxForm = <T extends CommandbarFormItem>({
         <h1 className="text-sm font-bold text-gray-600">{title}</h1>
       </div>
       <div className="px-16">
-        <LibForm>
+        <LibForm action={action}>
           <input type="hidden" name={"actionName"} value={name} />
+          <input type="hidden" name={"action"} value={name} />
           {items.map((item, index) => {
             const TypeComponentMapping = {
               select: Form.Select,

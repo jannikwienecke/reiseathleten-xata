@@ -4,7 +4,7 @@ import { Form } from "~/components";
 import { prisma } from "~/db.server";
 
 import type { ModelConfig } from "~/utils/lib/types";
-import { PARENT_BASE_KEY } from "../utils/helpers";
+import { PARENT_BASE_KEY, VACATION_BOOKING_APP_key } from "../utils/helpers";
 import { PrismaCrudHandler } from "../utils/prisma-crud-handler";
 import { getFormDataValue } from "~/utils/lib/core";
 import invariant from "tiny-invariant";
@@ -24,7 +24,7 @@ export const DefaultVacationActivityConfig: ModelConfig<DefaultVacationAcitvity>
     title: "Default Vacation Activities",
     description:
       "Default activities for a vacation. Those will be added to the vacation when it is created.",
-    parent: PARENT_BASE_KEY,
+    parent: VACATION_BOOKING_APP_key,
     loader: async () => {
       const defaultActivities = await prisma.defaultVacationActivity.findMany({
         include: {

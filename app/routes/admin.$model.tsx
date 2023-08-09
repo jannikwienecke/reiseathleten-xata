@@ -166,13 +166,11 @@ export const MainCommandbar = ({
   onClose,
   commandbarConfig,
   onSelect,
-  showCustomViewForm,
-  createCustomViewFormItems,
   showTags,
   activeItem,
   onBack,
 }: ReturnType<typeof useCommandbar>) => {
-  const listItems = activeItem?.list || commandbarConfig.actions;
+  const listItems = activeItem?.list || commandbarConfig?.actions || [];
 
   const view = activeItem?.form ? (
     <Commandbar.Form
